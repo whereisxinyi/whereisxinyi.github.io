@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xinyi · Translations</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤍</text></svg>">
+<meta name="description" content="Xinyi — three experiments in translation: Unfold, Light on Light, The Energy Exchange.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <g id="d-sun">
+      <path pathLength="1" d="M 0 -13 C 11 -13 14 -3 13 2 C 12 11 2 15 -3 13 C -12 11 -15 2 -13 -4 C -12 -11 -6 -13 0 -13"/>
+      <path pathLength="1" d="M 0 -19 Q 1 -23 0 -27"/>
+      <path pathLength="1" d="M 14 -13 Q 17 -16 19 -19"/>
+      <path pathLength="1" d="M 19 1 Q 23 1 27 0"/>
+      <path pathLength="1" d="M 14 14 Q 17 17 20 19"/>
+      <path pathLength="1" d="M -14 13 Q -17 16 -20 19"/>
+      <path pathLength="1" d="M -19 0 Q -23 0 -27 -1"/>
+    </g>
+    <g id="d-star">
+      <path pathLength="1" d="M 0 -16 L 4 -5 L 16 -4 L 7 4 L 10 16 L 0 9 L -10 15 L -7 4 L -16 -5 L -4 -5 Z"/>
+    </g>
+    <g id="d-sprout">
+      <path pathLength="1" d="M 0 18 Q -2 6 1 -4 Q 2 -10 0 -16"/>
+      <path pathLength="1" d="M 0 2 Q -8 0 -12 -8 Q -4 -9 0 -2"/>
+      <path pathLength="1" d="M 1 -6 Q 8 -8 12 -16 Q 4 -16 0 -9"/>
+    </g>
+    <g id="d-spiral">
+      <path pathLength="1" d="M 1 1 C 6 -1 6 6 1 7 C -6 8 -9 0 -4 -5 C 2 -11 12 -7 13 1 C 14 11 4 17 -5 14 C -15 11 -18 -1 -11 -10"/>
+    </g>
+    <g id="d-heart">
+      <path pathLength="1" d="M 0 14 C -3 8 -14 2 -14 -6 C -14 -13 -4 -14 0 -6 C 4 -14 14 -13 14 -6 C 14 2 3 8 0 14"/>
+    </g>
+  </defs>
+</svg>
+
+<main class="orbit">
+  <div class="field">
+    <div class="core">
+      <div class="core__in bloom" style="--i:0">
+        <h1 class="core__name">Xinyi<span class="core__dot">.</span></h1>
+        <p class="core__line">experiments in translation</p>
+      </div>
+    </div>
+
+    <div class="ring">
+      <div class="path" aria-hidden="true"></div>
+
+      <!-- 01 · Unfold -->
+      <div class="station station--1" style="--a: 0deg">
+        <div class="up">
+          <article class="piece piece--unfold bloom" style="--i:1">
+            <div class="disc">
+              <button class="toy toy--unfold" id="toyUnfold" aria-pressed="false"
+                      aria-label="Play: unfold the flat picture into a room, then move to look around">
+                <span class="gaze">
+                  <span class="net">
+                    <i class="net__flap net__flap--l"></i>
+                    <i class="net__flap net__flap--r"></i>
+                    <i class="net__flap net__flap--t"></i>
+                    <i class="net__flap net__flap--f"></i>
+                    <i class="net__art"></i>
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div class="piece__meta">
+              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">01</span> Unfold</h2>
+              <p class="piece__tag">A flat image becomes a space you can walk through.</p>
+              <p class="piece__hint">hover or tap — it opens</p>
+              <a class="piece__cta" href="https://whereisxinyi.github.io/resonance-exhibition/" target="_blank" rel="noopener">Step inside&nbsp;→</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- 02 · Light on Light -->
+      <div class="station station--2" style="--a: 120deg">
+        <div class="up">
+          <article class="piece piece--light bloom" style="--i:2">
+            <div class="disc">
+              <button class="toy toy--draw" id="toyDraw"
+                      aria-label="Play: tap the paper and a small drawing draws itself">
+                <svg class="sketch" viewBox="0 0 240 240" aria-hidden="true">
+                  <g class="doodle is-on" transform="translate(120 112)"><use href="#d-sun"/></g>
+                </svg>
+              </button>
+            </div>
+            <div class="piece__meta">
+              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">02</span> Light on Light</h2>
+              <p class="piece__tag">Fleeting words become visual gifts.</p>
+              <p class="piece__hint">tap the paper — it draws</p>
+              <a class="piece__cta" href="https://light-on-light.vercel.app/" target="_blank" rel="noopener">Make one&nbsp;→</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- 03 · The Energy Exchange -->
+      <div class="station station--3" style="--a: 240deg">
+        <div class="up">
+          <article class="piece piece--swap bloom" style="--i:3">
+            <div class="disc">
+              <button class="toy toy--swap" id="toySwap"
+                      aria-label="Play: send a pulse of energy from one side to the other">
+                <svg class="trade" viewBox="0 0 240 240" aria-hidden="true">
+                  <path class="trade__arc trade__arc--top" pathLength="1" d="M 78 100 Q 120 58 162 100"/>
+                  <path class="trade__arc trade__arc--bot" pathLength="1" d="M 162 140 Q 120 182 78 140"/>
+                  <circle class="trade__ring-a" cx="62" cy="120" r="20"/>
+                  <circle class="trade__charge trade__charge--a" cx="62" cy="120" r="14"/>
+                  <circle class="trade__ring-b" cx="178" cy="120" r="20"/>
+                  <circle class="trade__charge trade__charge--b" cx="178" cy="120" r="14"/>
+                  <circle class="trade__pulse" r="5"/>
+                </svg>
+              </button>
+            </div>
+            <div class="piece__meta">
+              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">03</span> The Energy Exchange</h2>
+              <p class="piece__tag">Energy becomes an exchange.</p>
+              <p class="piece__hint">tap — the energy trades sides</p>
+              <a class="piece__cta" href="https://me-pi-jade.vercel.app/" target="_blank" rel="noopener">Enter the exchange&nbsp;→</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="strip bloom" style="--i:4">
+  <span>Translated from ideas</span>
+  <span class="strip__dot" aria-hidden="true">·</span>
+  <span>© 2026 Xinyi</span>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
