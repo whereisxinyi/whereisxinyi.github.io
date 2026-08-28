@@ -149,6 +149,31 @@ a:focus-visible, button:focus-visible {
 .piece__cta:hover { text-decoration-thickness: 2.5px; }
 .piece__cta:active { text-decoration-thickness: 3px; }
 
+/* ============ featured piece + film ============ */
+.piece--featured { --pw: min(560px, 100%); }
+.film {
+  width: min(560px, calc(100vw - 2rem));
+  margin-block: var(--space-sm) var(--space-2xs);
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper-2);
+  overflow: clip;
+}
+.film__video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--color-paper-2);
+}
+.film__cap {
+  border-top: var(--rule-hair);
+  padding: var(--space-2xs) var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-align: left;
+}
+
 /* ============ toy 01 · unfold ============ */
 .toy--unfold { perspective: 300px; }
 .gaze {

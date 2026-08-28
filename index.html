@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Xinyi · Translations</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤍</text></svg>">
-<meta name="description" content="Xinyi — three experiments in translation: Unfold, Light on Light, The Energy Exchange.">
+<meta name="description" content="Xinyi — three experiments in translation: Light on Light, Unfold, The Energy Exchange.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -54,10 +54,40 @@
     <div class="ring">
       <div class="path" aria-hidden="true"></div>
 
-      <!-- 01 · Unfold -->
+      <!-- 01 · Light on Light -->
       <div class="station station--1" style="--a: 0deg">
         <div class="up">
-          <article class="piece piece--unfold bloom" style="--i:1">
+          <article class="piece piece--light piece--featured bloom" style="--i:1">
+            <div class="disc">
+              <button class="toy toy--draw" id="toyDraw"
+                      aria-label="Play: tap the paper and a small drawing draws itself">
+                <svg class="sketch" viewBox="0 0 240 240" aria-hidden="true">
+                  <g class="doodle is-on" transform="translate(120 112)"><use href="#d-sun"/></g>
+                </svg>
+              </button>
+            </div>
+            <div class="piece__meta">
+              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">01</span> Light on Light</h2>
+              <p class="piece__tag">Fleeting words become visual gifts.</p>
+              <p class="piece__hint">tap the paper — it draws</p>
+              <figure class="film">
+                <video class="film__video" controls playsinline preload="metadata"
+                       poster="assets/light-on-light-poster.jpg"
+                       aria-label="Light on Light — demo film, 36 seconds">
+                  <source src="assets/light-on-light-film.mp4" type="video/mp4">
+                </video>
+                <figcaption class="film__cap">the film&nbsp;·&nbsp;36s</figcaption>
+              </figure>
+              <a class="piece__cta" href="https://light-on-light.vercel.app/" target="_blank" rel="noopener">Make one&nbsp;→</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- 02 · Unfold -->
+      <div class="station station--2" style="--a: 120deg">
+        <div class="up">
+          <article class="piece piece--unfold bloom" style="--i:2">
             <div class="disc">
               <button class="toy toy--unfold" id="toyUnfold" aria-pressed="false"
                       aria-label="Play: unfold the flat picture into a room, then move to look around">
@@ -73,32 +103,10 @@
               </button>
             </div>
             <div class="piece__meta">
-              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">01</span> Unfold</h2>
+              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">02</span> Unfold</h2>
               <p class="piece__tag">A flat image becomes a space you can walk through.</p>
               <p class="piece__hint">hover or tap — it opens</p>
               <a class="piece__cta" href="https://whereisxinyi.github.io/resonance-exhibition/" target="_blank" rel="noopener">Step inside&nbsp;→</a>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <!-- 02 · Light on Light -->
-      <div class="station station--2" style="--a: 120deg">
-        <div class="up">
-          <article class="piece piece--light bloom" style="--i:2">
-            <div class="disc">
-              <button class="toy toy--draw" id="toyDraw"
-                      aria-label="Play: tap the paper and a small drawing draws itself">
-                <svg class="sketch" viewBox="0 0 240 240" aria-hidden="true">
-                  <g class="doodle is-on" transform="translate(120 112)"><use href="#d-sun"/></g>
-                </svg>
-              </button>
-            </div>
-            <div class="piece__meta">
-              <h2 class="piece__title"><span class="piece__num" aria-hidden="true">02</span> Light on Light</h2>
-              <p class="piece__tag">Fleeting words become visual gifts.</p>
-              <p class="piece__hint">tap the paper — it draws</p>
-              <a class="piece__cta" href="https://light-on-light.vercel.app/" target="_blank" rel="noopener">Make one&nbsp;→</a>
             </div>
           </article>
         </div>
