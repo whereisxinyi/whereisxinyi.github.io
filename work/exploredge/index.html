@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens.css?v=20260903g">
+<link rel="stylesheet" href="../../tokens.css?v=20260903i">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 /* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
@@ -150,7 +150,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
   width: 100%;
   max-width: 1184px;
   margin-inline: auto;
-  padding: calc(var(--bar-h) + 44px) max(20px, env(safe-area-inset-left)) 56px;
+  padding: calc(var(--bar-h) + 28px) max(20px, env(safe-area-inset-left)) 56px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -158,18 +158,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 @media (min-width: 900px) { .case { padding-inline: 48px; } }
 
 /* ---- hero ---- */
-.hero { display: grid; gap: 24px; align-items: start; }
-@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 62fr) minmax(0, 38fr); gap: 40px; align-items: center; } }
+.hero { display: grid; gap: 18px; }
+.hero__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 28px; }
+.hero__top .facts { margin-top: 0; }
+/* the stage: the film, as wide as the case, as tall as the screen allows */
+.stage { padding: 8px; }
+.stage .rvm { border: 1px solid var(--card-hair); border-radius: 6px; overflow: hidden; background: #fff; }
+.stage video { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: cover; border: 0; border-radius: 0; }
 .hero h1 {
   font-family: var(--font-display);
   font-weight: var(--wght-display);
   font-variation-settings: var(--vf-display);
   font-feature-settings: var(--ff-display);
-  font-size: clamp(2.2rem, 6vw, 3.1rem);
+  font-size: clamp(2.6rem, 7vw, 4rem);
   line-height: 1.06;
   letter-spacing: var(--track-display);
 }
-.hero__lead { margin-top: 10px; color: var(--color-ink-2); max-width: 34ch; font-size: 1.05rem; }
+.hero__lead { margin-top: 8px; color: var(--color-ink-2); max-width: 40ch; font-size: 1.05rem; }
 .facts { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
 .fact {
   padding: 6px 10px;
@@ -502,20 +507,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 <main class="case">
 
   <header class="hero">
-    <div class="hero__text">
-      <h1>ExplorEdge</h1>
-      <p class="hero__lead">A lean brand and a booking site for outdoor experiences that take you one step past your comfort zone.</p>
+    <div class="hero__top">
+      <div>
+        <h1>ExplorEdge</h1>
+        <p class="hero__lead">Outdoor experiences, one step past your comfort zone. A brand and the site that books it.</p>
+      </div>
       <ul class="facts">
         <li class="fact"><b>Role</b> · Sole designer</li>
-        <li class="fact"><b>Scope</b> · Brand + landing + catalogue</li>
         <li class="fact"><b>Year</b> · 2023</li>
         <li class="fact"><b>Tools</b> · Figma</li>
-        <li class="fact"><b>Deliverable</b> · Brand kit, clickable site</li>
       </ul>
     </div>
-    <figure class="frame">
-      <span class="cap">Landing</span>
-      <div class="rvm"><img src="../../assets/exploredge/device.jpg" width="1600" height="1034" style="max-width:1600px" alt="The ExplorEdge landing page on a laptop: a night camp photograph, the line “Dive Deep, Discover the Edge.” and a Start Our Journey button."></div>
+    <figure class="frame stage frame--band0">
+      <div class="rvm">
+        <video src="../../assets/exploredge/landing.mp4" poster="../../assets/exploredge/landing-poster.jpg" width="1448" height="826" autoplay muted loop playsinline preload="auto" aria-label="The ExplorEdge landing page: one line, one button, and photographs of a night camp, a ridge and a trail taking turns behind them."></video>
+      </div>
     </figure>
   </header>
 
@@ -536,9 +542,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="brief">
         <div class="ch__text">
           <h2>Brief</h2>
-          <p>ExplorEdge books outdoor experiences for people between 20 and 35 who want to leave their comfort zone, but not alone. Hiking, climbing, camping, trail running, sold as one step past what you already do.</p>
-          <p>The ask was a lean brand and a first site: a mark, a palette, a type pair, and the two pages that decide whether anyone books. The landing, and the catalogue behind it.</p>
-          <p>The name fuses two words, explore and edge. Everything had to say the same thing in one breath: <i>Dive Deep, Discover the Edge.</i></p>
+          <p>Hiking, climbing, camping, trail running for people between 20 and 35, sold as one step past what you already do.</p>
+          <p>The ask: a mark, a palette, and the two pages that decide whether anyone books. One line for all of it: <i>Dive Deep, Discover the Edge.</i></p>
           <span class="lab sub">Goals</span>
           <ul class="goals">
             <li>A mark that reads at 24 px and on a tent flap.</li>
@@ -557,11 +562,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="mark">
         <div class="ch__text">
           <h2>Mark</h2>
-          <p>Three planes. A door swung open, a room you have not entered, a floor to step onto. The blue is the open side, the navy the room, the teal the ground between.</p>
-          <p>Hover it and the door opens further. The whole brand is that hinge: the edge is not a wall, it is a door left ajar.</p>
-          <p>The wordmark is a geometric sans with the two words closed up, so the fused name reads as one thing. The line under it is always set in quotes, in the reading face.</p>
-          <span class="lab sub">Five colours, five jobs</span>
-          <p class="tight">Navy holds the room. Blue and teal live only in the mark. One lighter blue does every button. White is for type on photographs, nothing else.</p>
+          <p>Three planes: a door swung open, the room behind it, the floor between. Hover it and the door opens further.</p>
+          <p>The edge is not a wall. It is a door left ajar.</p>
         </div>
         <div class="ch__media">
           <figure class="frame">
@@ -595,9 +597,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="landing">
         <div class="ch__text">
           <h2>Landing</h2>
-          <p>One photograph, one line, one button. The photograph does the selling: a lit tent at night, a crowd on a ridge at sunset, three runners on a trail. They take turns. The line never changes.</p>
-          <p>Under the fold, four promises in one row. As the backdrop turns, a blue hairline walks to the next promise, so the page breathes instead of looping.</p>
-          <p>Navigation is four words and a search box that asks a question: <i>What do you want to explore?</i></p>
+          <p>One photograph, one line, one button. The photographs take turns; the line never changes.</p>
+          <p>As the backdrop turns, a blue hairline walks to the next of four promises.</p>
         </div>
         <div class="ch__media">
           <figure class="frame">
@@ -621,21 +622,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
               </ul>
             </div>
           </figure>
-          <figure class="frame device frame--band0">
-            <div class="rvm">
-              <video src="../../assets/exploredge/landing.mp4" poster="../../assets/exploredge/landing-poster.jpg" width="1448" height="826" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording of the landing page on a laptop: the backdrops change behind the fixed line and button."></video>
-            </div>
-            <figcaption class="vidcap lab">Landing · 10 s</figcaption>
-          </figure>
         </div>
       </section>
 
       <section class="ch" id="catalogue">
         <div class="ch__text">
           <h2>Catalogue</h2>
-          <p>The browse page cuts one catalogue three ways, because “my edge” is not one axis.</p>
-          <p>Level gets the most room and a sentence of welcome under each door. A beginner should not have to scroll past the experts to find theirs.</p>
-          <p>Duration gets a navy plate of its own, because it is the question people actually ask a friend: half a day, a day, or a weekend?</p>
+          <p>One catalogue, cut three ways, because “my edge” is not one axis.</p>
+          <p>Level gets the most room. A beginner should not scroll past the experts to find theirs.</p>
         </div>
         <div class="ch__media">
           <ul class="ways">
@@ -659,10 +653,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch ch--flat" id="outcome">
         <div class="ch__text">
           <h2>Outcome</h2>
-          <p>A brand kit and a clickable landing and catalogue in Figma. The site was not built.</p>
-          <p>If it were, I would watch which backdrop people book from, how many beginners open Level before Collections, and whether the duration plate earns its size.</p>
+          <p>A brand kit and a clickable landing and catalogue in Figma. Not built.</p>
           <span class="lab sub">Reflection</span>
-          <p class="tight">The brand’s whole promise is one step past comfort. Today I would make that step a control, not a tag: let people say how far past “what I already do” they want to go, and cut the catalogue from there.</p>
+          <p class="tight">Today I would make the step a control: say how far past “what I already do” you want to go, and the catalogue cuts itself.</p>
         </div>
       </section>
 

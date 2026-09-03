@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens.css?v=20260903g">
+<link rel="stylesheet" href="../../tokens.css?v=20260903i">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 /* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
@@ -149,7 +149,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
   width: 100%;
   max-width: 1184px;
   margin-inline: auto;
-  padding: calc(var(--bar-h) + 44px) max(20px, env(safe-area-inset-left)) 56px;
+  padding: calc(var(--bar-h) + 28px) max(20px, env(safe-area-inset-left)) 56px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -157,18 +157,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 @media (min-width: 900px) { .case { padding-inline: 48px; } }
 
 /* ---- hero ---- */
-.hero { display: grid; gap: 24px; align-items: start; }
-@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 62fr) minmax(0, 38fr); gap: 40px; align-items: center; } }
+.hero { display: grid; gap: 18px; }
+.hero__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 28px; }
+.hero__top .facts { margin-top: 0; }
+/* the stage: the film, as wide as the case, as tall as the screen allows */
+.stage { padding: 8px; }
+.stage .rvm { border: 1px solid var(--card-hair); border-radius: 6px; overflow: hidden; background: #fff; }
+.stage video { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: cover; border: 0; border-radius: 0; }
 .hero h1 {
   font-family: var(--font-display);
   font-weight: var(--wght-display);
   font-variation-settings: var(--vf-display);
   font-feature-settings: var(--ff-display);
-  font-size: clamp(2.2rem, 6vw, 3.1rem);
+  font-size: clamp(2.6rem, 7vw, 4rem);
   line-height: 1.06;
   letter-spacing: var(--track-display);
 }
-.hero__lead { margin-top: 10px; color: var(--color-ink-2); max-width: 34ch; font-size: 1.05rem; }
+.hero__lead { margin-top: 8px; color: var(--color-ink-2); max-width: 40ch; font-size: 1.05rem; }
 .facts { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
 .fact {
   padding: 6px 10px;
@@ -423,13 +428,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 .units__note { margin-top: 2px; }
 @media (prefers-reduced-motion: reduce) { .apple, .apple__bar i { transition: none; } }
 
-/* ---- a film in a phone-shaped frame ---- */
-.phones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 559px) { .phones { grid-template-columns: minmax(0, 1fr); } }
-.phone { padding: 28px 8px 8px; }
-.phone .rvm { border: 1px solid var(--card-hair); border-radius: 12px; overflow: hidden; background: #fff; }
-.phone video { width: 100%; height: auto; border: 0; border-radius: 0; }
-.vidcap { margin-top: 8px; display: block; }
+/* ---- the stage: four phones on the brand's cream, all four films at once ---- */
+.stage--phones .rvm { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 22px); padding: clamp(10px, 2.4vw, 28px); background: var(--ic-cream); }
+@media (max-width: 559px) { .stage--phones .rvm { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stage--phones figure { margin: 0; display: flex; flex-direction: column; }
+.stage--phones video { max-height: none; border: 1px solid var(--card-hair); border-radius: 14px; background: #fff; }
+.stage--phones figcaption { margin-top: auto; padding-top: 6px; display: block; text-align: center; }
 
 /* ---- outcome ---- */
 .ch--flat { display: block; }
@@ -509,20 +513,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 <main class="case">
 
   <header class="hero">
-    <div class="hero__text">
-      <h1>Instacart</h1>
-      <p class="hero__lead">A compare layer for grocery shopping: the same apple across four stores, in one unit, side by side, with an AI you can just ask.</p>
+    <div class="hero__top">
+      <div>
+        <h1>Instacart</h1>
+        <p class="hero__lead">The same apple across four stores, in one unit, side by side, with an AI you can just ask. A concept.</p>
+      </div>
       <ul class="facts">
         <li class="fact"><b>Role</b> · Sole designer</li>
-        <li class="fact"><b>Scope</b> · Search · compare · ask</li>
         <li class="fact"><b>Year</b> · 2023–24</li>
         <li class="fact"><b>Tools</b> · Figma</li>
-        <li class="fact"><b>Note</b> · A concept, not an Instacart project</li>
       </ul>
     </div>
-    <figure class="frame">
-      <span class="cap">Home</span>
-      <div class="rvm"><img src="../../assets/instacart/cover.jpg" width="1600" height="812" style="max-width:1600px" alt="Two phones showing the redesigned Instacart home: a search bar that asks for anything you want, a row of favourite stores, and Stores to help you save."></div>
+    <figure class="frame stage stage--phones frame--band0">
+      <div class="rvm">
+        <figure><video src="../../assets/instacart/search.mp4" poster="../../assets/instacart/search-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: typing apple into search, results grouped by store, each priced per kilo."></video><figcaption class="lab">Search</figcaption></figure>
+        <figure><video src="../../assets/instacart/compare.mp4" poster="../../assets/instacart/compare-poster.jpg" width="374" height="616" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: a product page, Add to compare, then three apples side by side."></video><figcaption class="lab">Compare</figcaption></figure>
+        <figure><video src="../../assets/instacart/chat.mp4" poster="../../assets/instacart/chat-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: the chat box opens and a Fuji apple card appears in the conversation."></video><figcaption class="lab">Ask</figcaption></figure>
+        <figure><video src="../../assets/instacart/holiday.mp4" poster="../../assets/instacart/holiday-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: the home page with a Thanksgiving banner, then a shelf of featured holiday products."></video><figcaption class="lab">Holiday shelf</figcaption></figure>
+      </div>
     </figure>
   </header>
 
@@ -543,9 +551,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="brief">
         <div class="ch__text">
           <h2>Brief</h2>
-          <p>Instacart lets you shop eight supermarkets from one couch. It does not let you shop them against each other. The same bag of apples is $4.5 a kilo at one store and $5.66 for three pounds at another, and the app never puts those two numbers side by side.</p>
-          <p>Three complaints came up in every conversation: I cannot compare prices across stores, I cannot tell what I am actually buying, and the recommendations are for someone else.</p>
-          <p>The ask I set myself: a compare layer that sits inside the app people already use, plus a way to ask for what you want in your own words.</p>
+          <p>Instacart lets you shop eight supermarkets from one couch, but never against each other. $4.5 a kilo here, $5.66 for three pounds there, never side by side.</p>
           <p class="hmw">How might we <b>compare</b> products by price and quality, and <b>recommend</b> from what you like and what you can spend?</p>
         </div>
         <div class="ch__media">
@@ -559,8 +565,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="research">
         <div class="ch__text">
           <h2>Research</h2>
-          <p>I mapped the shopping flow first: sign in, search, add, cart, store, time, pay, and the four steps after you pay. Then I drew the branch Instacart does not have. A multi-dimensional comparison, by filter (size, rating, specifications) or by your own budget and preferences.</p>
-          <p>Three shoppers, three interviews, one synthesis. They wanted less than I expected: put the numbers next to each other, tell me the unit, remember what I like, and do not over-filter me.</p>
+          <p>The shopping flow, then the branch Instacart does not have: a comparison, by filter or by your own budget.</p>
+          <p>Three shoppers wanted less than I expected: the numbers next to each other, the unit, and what I like remembered.</p>
           <span class="lab sub">Three goals</span>
           <ul class="goals">
             <li><b>Easy comparison.</b> Smooth and intuitive, never a spreadsheet.</li>
@@ -589,8 +595,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
         <div class="ch__text">
           <h2>Wireframes</h2>
           <p>Two flows, drawn grey so only the structure argues.</p>
-          <p><b>Compare.</b> A store, a filter panel that opens from the search bar (category, popularity, price, organic, location, ripeness, purpose, offers), results in rows of four, a product page with one new button at the top right, and the sheet it opens.</p>
-          <p><b>Ask.</b> A chat icon in the corner. You type “some apples, low price”, it answers with four cards, and each card opens to an info sheet with one button: add.</p>
+          <p><b>Compare.</b> One new button on the product page, and the sheet it opens.</p>
+          <p><b>Ask.</b> A chat in the corner: “some apples, low price” comes back as four cards.</p>
         </div>
         <div class="ch__media">
           <figure class="frame">
@@ -615,8 +621,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="iterations">
         <div class="ch__text">
           <h2>Iterations</h2>
-          <p>Four passes, each one answering a thing the tests broke.</p>
-          <p>The second is the one I would keep if I could keep only one. The tests kept tripping on units: $5.07 a bag against $5.66 for three pounds against $6.50 a kilo. Nobody compares that in their head. So every price got a second line in one unit, and the results learned to group by store.</p>
+          <p>Four passes, each answering a thing the tests broke. The second is the one I would keep: every price in one unit.</p>
           <span class="lab sub">Same three apples, two ways to read the price</span>
           <div class="units" id="units">
             <div class="units__pick" role="group" aria-label="Read the price">
@@ -652,7 +657,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
               <div>
                 <span class="it__n lab"></span>
                 <p class="it__t">Clarity</p>
-                <p class="it__p">The filter panel became a row of chips over the results: on sale, organic, vegetarian, gluten-free. Every card lost a line and gained a price you can read at arm’s length.</p>
+                <p class="it__p">Filters as a row of chips. Every card lost a line and gained a price you can read at arm’s length.</p>
               </div>
               <div class="it__shot"><img src="../../assets/instacart/it-filters.jpg" width="820" height="1386" loading="lazy" alt="Search results for apple with a row of filter chips and four product cards."></div>
             </li>
@@ -660,7 +665,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
               <div>
                 <span class="it__n lab"></span>
                 <p class="it__t">One unit, grouped by store</p>
-                <p class="it__p">Every price is also a price per kilo. Results group by store, each with its delivery time and whether the prices are in-store prices, so the comparison people actually make, this store or that one, happens on one screen. Quantities sync in real time, so the number you compared is the number you buy.</p>
+                <p class="it__p">Every price is also a price per kilo, and results group by store, so this-store-or-that-one happens on one screen.</p>
               </div>
               <div class="it__shot"><img src="../../assets/instacart/it-stores.jpg" width="820" height="1406" loading="lazy" alt="Search results for apple grouped by store: Walmart, ShopRite, Costco, every apple priced per kilo."></div>
             </li>
@@ -668,49 +673,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
               <div>
                 <span class="it__n lab"></span>
                 <p class="it__t">Ask</p>
-                <p class="it__p">For the shopper who has not decided, a chat box that takes a sentence instead of a search term. “Cheap apples for a pie” comes back as a product card you can read and add, right there in the conversation.</p>
+                <p class="it__p">A sentence instead of a search term. “Cheap apples for a pie” comes back as a card you can add.</p>
               </div>
             </li>
             <li class="it it--wide">
               <div>
                 <span class="it__n lab"></span>
                 <p class="it__t">Compare, side by side</p>
-                <p class="it__p">The one new button on the product page. Add up to three, and the sheet lines them up: photo, price per kilo, stock, a one-line summary each, and the add button under every column, so choosing and buying is one motion.</p>
+                <p class="it__p">Up to three, lined up: photo, price per kilo, stock, one line each, and an add button under every column.</p>
               </div>
             </li>
           </ol>
-          <div class="phones">
-            <figure class="frame phone">
-              <span class="cap">Search</span>
-              <div class="rvm"><video src="../../assets/instacart/search.mp4" poster="../../assets/instacart/search-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: typing apple into search, results grouped by store, each priced per kilo."></video></div>
-              <figcaption class="vidcap lab">Search · one unit, by store · 9 s</figcaption>
-            </figure>
-            <figure class="frame phone">
-              <span class="cap">Compare</span>
-              <div class="rvm"><video src="../../assets/instacart/compare.mp4" poster="../../assets/instacart/compare-poster.jpg" width="374" height="616" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: a product page, Add to compare, then three apples side by side with a summary and recommendations."></video></div>
-              <figcaption class="vidcap lab">Compare · three across · 10 s</figcaption>
-            </figure>
-            <figure class="frame phone">
-              <span class="cap">Ask</span>
-              <div class="rvm"><video src="../../assets/instacart/chat.mp4" poster="../../assets/instacart/chat-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the home, the chat box opens, and a Fuji apple card appears in the conversation with ratings and details."></video></div>
-              <figcaption class="vidcap lab">Ask · a card in the chat · 13 s</figcaption>
-            </figure>
-            <figure class="frame phone">
-              <span class="cap">Onboarding</span>
-              <div class="rvm"><video src="../../assets/instacart/holiday.mp4" poster="../../assets/instacart/holiday-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the home page with a Thanksgiving banner, then a shelf of featured holiday products."></video></div>
-              <figcaption class="vidcap lab">Onboarding · a holiday shelf · 14 s</figcaption>
-            </figure>
-          </div>
-        </div>
-      </section>
-
-      <section class="ch ch--flat" id="outcome">
         <div class="ch__text">
           <h2>Outcome</h2>
-          <p>A clickable prototype in Figma: search, filter, compare, ask, and a holiday shelf to introduce them. It is a concept, done on my own, not with Instacart.</p>
-          <p>If it shipped, I would watch three numbers: how often a compare sheet ends in an add, how often the per-kilo line changes which store wins, and how many chats end in a cart.</p>
+          <p>A clickable prototype in Figma: search, filter, compare, ask. A concept, done on my own, not with Instacart.</p>
           <span class="lab sub">Reflection</span>
-          <p class="tight">The chat was 2023’s answer, and I put it in a box in the corner. Today I would not. The search bar itself should take “cheap apples for a pie” and come back with a comparison, not a list. The compare sheet was the real product; the chat was just a second door to it.</p>
+          <p class="tight">Today the search bar itself would take “cheap apples for a pie” and come back with a comparison, not a list.</p>
         </div>
       </section>
 
