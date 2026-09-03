@@ -271,7 +271,7 @@
     var PETAL = [5, 15, 23, 28], PETAL_SCALE = 0.6;  /* the left lateral petal of FRONT, tight */
     var BUD = [137, 12, 9, 19];                      /* the tip bud and its pedicel   */
     var BUD_AX = 144, BUD_AY = 12;                   /* … where they leave the stem   */
-    var PETAL_EVERY = 6000, PETAL_JIT = 4000, PETAL_LIFE = 500, PETAL_FADE = 8000;
+    var PETAL_EVERY = 2000, PETAL_JIT = 1500, PETAL_LIFE = 4500, PETAL_FADE = 3500;  /* 2–4 in the air, readable to the end */
     var FAR_HOLD = 12000, FAR_FADE = 2000;           /* the one far bloom, 12 s       */
     var FAR_FIRST = 12000, FAR_EVERY = 20000, FAR_JIT = 10000;
     var CLICK_HOLD = 1000, CLICK_FADE = 3000;        /* open, wait 1 s, fade over 3 s */
