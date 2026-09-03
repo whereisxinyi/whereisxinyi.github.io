@@ -1651,17 +1651,17 @@
     img.src = "assets/tutor-oriel/cover.png";
   })();
 
-  /* ---------- 03 · ExplorEdge: three backdrops, mosaicked at 6 px, taking turns ----------
-     The landing's hero photographs — night, ridge, trail — each drawn into a
-     6 px mosaic the way the Oriel cover is. While the row is live the plate
-     holds one for 2.4 s, then steps to the next through three alpha steps
-     (⅓, ⅔, 1), the site's pixel dissolve done in paint. Asleep, it rests on
-     the night. A photo that fails to load leaves the plate as bare glass. */
-  (function () {
-    var cv = document.getElementById("edgeCover");
+  /* ---------- 03 · ExplorEdge and 06 · Instacart: three stills, mosaicked at 6 px, taking turns ----------
+     Three pictures each drawn into a 6 px mosaic the way the Oriel cover is.
+     While the row is live the plate holds one for 2.4 s, then steps to the
+     next through three alpha steps (⅓, ⅔, 1), the site's pixel dissolve done
+     in paint. Asleep, it rests on the first. A picture that fails to load
+     leaves the plate as bare glass. ExplorEdge turns its landing's night,
+     ridge and trail; Instacart turns search, compare and ask. */
+  var turning = function (id, srcs) {
+    var cv = document.getElementById(id);
     if (!cv || !cv.getContext) return;
     var CELL = 6, g = cv.getContext("2d");
-    var srcs = ["assets/exploredge/card-night.jpg", "assets/exploredge/card-ridge.jpg", "assets/exploredge/card-trail.jpg"];
     var imgs = [], smalls = [], loaded = 0;
     var HOLD = 2.4, STEP = 0.1;                    /* seconds on one backdrop; seconds per dissolve step */
     var dpr = function () { return Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1))); };
@@ -1712,7 +1712,9 @@
       im.onerror = function () { loaded = -1; };
       im.src = srcs[i];
     })(i);
-  })();
+  };
+  turning("edgeCover", ["assets/exploredge/card-night.jpg", "assets/exploredge/card-ridge.jpg", "assets/exploredge/card-trail.jpg"]);
+  turning("cartCover", ["assets/instacart/card-search.jpg", "assets/instacart/card-compare.jpg", "assets/instacart/card-chat.jpg"]);
 
   if (minis.length && !reduced) {
     var wideMini = matchMedia("(min-width: 60rem)");

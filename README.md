@@ -28,13 +28,13 @@ resolve to Fraunces.
   The name line `Xinyi Translates [ ] Into [ ]` cycles four pairs of glyphs; clicking a pill scrolls
   to that work. A fixed glass top bar carries the `;` tile + Xinyi Zhang and Work / Playground / About.
 - **Stem** — one pixel orchid stem grows down the left of the Work list as you scroll; each row hangs a bud that opens while the row is live.
-- **Index** — five works in one group, each on a glass tile that raises and resolves out of a pixel dissolve on
+- **Index** — six works in one group, each on a glass tile that raises and resolves out of a pixel dissolve on
   hover (tap the title on touch).
 - **Footer** — counts the orchids stamped today (kept in `localStorage`, per day).
 
 ## Works
 
-One group, *Translations* — five works; Experiments lives in the Playground (top bar), not in the list.
+One group, *Translations* — six works; Experiments lives in the Playground (top bar), not in the list.
 
 - 01 **Light on Light** — fleeting words become visual gifts · <https://light-on-light.vercel.app/>
 - 02 **Unfold** — a flat image becomes a space you can walk through · <https://whereisxinyi.github.io/resonance-exhibition/>
@@ -48,6 +48,9 @@ One group, *Translations* — five works; Experiments lives in the Playground (t
 - 05 **Tutor Oriel** — a tutoring platform's registration and course selection, rebuilt after usability
   tests to stop drop-off. The card is the cover mosaicked at 6 px cells ·
   `work/tutor-oriel/` · archive: <https://xinyizhangx.com/uiux>
+- 06 **Instacart** — a concept: a compare layer for grocery shopping, one unit across stores, products side
+  by side, an AI you can just ask (2023–24). The card is three stills from the films (search, compare, ask),
+  mosaicked at 6 px, taking turns · `work/instacart/` · archive: <https://xinyizhangx.com/uiux/instacart>
 
 Playground — `lab/`
 - **Experiments** — Field, Explode, Bloom: three ways an image becomes an event. Top bar: Work · Playground · About.
@@ -76,7 +79,7 @@ file picker, drag-and-drop or paste. Everything runs in the browser; no image ev
 index.html          hero + index
 about.html          one sentence
 styles.css          page styles          tokens.css   colours, type, spacing
-main.js             hero field, ambient sprays + click blooms, drawn cursor cell, word pills, card miniatures (02 corridor, 04 rings), the 03 backdrops, the 05 cover mosaic, counter
+main.js             hero field, ambient sprays + click blooms, drawn cursor cell, word pills, card miniatures (02 corridor, 04 rings), the 03 backdrops and 06 stills taking turns, the 05 cover mosaic, counter
 orchid-sprites.js   shared 64×64 bloom / 160×96 spray pixel sprites (home + about)
 lab/index.html      Playground — Experiments, the index of the three machines
 lab/field/          Field                (one self-contained page each)
@@ -84,7 +87,8 @@ lab/explode/        Explode
 lab/bloom/          Bloom
 work/tutor-oriel/   the Tutor Oriel case
 work/exploredge/    the ExplorEdge case  (the mark drawn live, the backdrops taking turns, the browse sheet)
-assets/             the Light on Light film + poster, the Tutor Oriel images, the ExplorEdge images + three films
+work/instacart/     the Instacart case   (the unit switch: three apples, per pack or per kilo)
+assets/             the Light on Light film + poster, the Tutor Oriel images, the ExplorEdge images + three films, the Instacart images + four films
 ```
 
 ## Run it locally

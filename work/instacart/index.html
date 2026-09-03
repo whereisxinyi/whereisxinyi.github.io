@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Instacart · Xinyi Zhang</title>
+<meta name="description" content="Instacart, a concept: a compare layer for grocery shopping — one unit across stores, products side by side, and an AI you can just ask.">
+<meta property="og:title" content="Instacart · Xinyi Zhang">
+<meta property="og:description" content="A concept: a compare layer for grocery shopping — one unit across stores, products side by side, and an AI you can just ask.">
+<meta property="og:image" content="https://whereisxinyi.github.io/assets/instacart/cover.jpg">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://whereisxinyi.github.io/work/instacart/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://whereisxinyi.github.io/assets/instacart/cover.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='44' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens.css?v=20260903g">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto; }
+  a, button, [role="button"] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%2387c6f2'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+
+/* ---- pixel glass: the site's one material, copied from styles.css ---- */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-glass:  rgba(255, 255, 255, 0.5);
+  --card-blur:   blur(12px) saturate(120%);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+  --orchid:       oklch(58% 0.12 250);
+  --faint:        rgba(36, 31, 28, 0.42);
+  --tap: 0px;
+
+  /* Instacart's own: the carrot's green and orange, the dark green of the wordmark */
+  --ic-green:  #0aad0a;
+  --ic-carrot: #ff7009;
+  --ic-kale:   #003d29;
+  --ic-cream:  #faf1e5;
+}
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+
+html { overflow-x: clip; background: var(--hero-ground); }
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: #fff; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+/* the label voice: small italic Fraunces, small caps */
+.lab {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  font-size: var(--text-xs);
+  letter-spacing: 0.13em;
+  font-variant-caps: all-small-caps;
+  color: var(--color-muted);
+}
+
+/* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand { display: inline-flex; align-items: center; gap: var(--space-xs); min-width: 0; color: var(--color-ink); text-decoration: none; }
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 18px;
+  line-height: 1;
+  padding-block-end: 5px;
+}
+.topbar__name { font-family: var(--font-body); font-variation-settings: var(--vf-body); font-feature-settings: normal; font-weight: 500; font-size: 15px; letter-spacing: -0.005em; white-space: nowrap; }
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---- the case ---- */
+.case {
+  width: 100%;
+  max-width: 1184px;
+  margin-inline: auto;
+  padding: calc(var(--bar-h) + 44px) max(20px, env(safe-area-inset-left)) 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+@media (min-width: 900px) { .case { padding-inline: 48px; } }
+
+/* ---- hero ---- */
+.hero { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 62fr) minmax(0, 38fr); gap: 40px; align-items: center; } }
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(2.2rem, 6vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: var(--track-display);
+}
+.hero__lead { margin-top: 10px; color: var(--color-ink-2); max-width: 34ch; font-size: 1.05rem; }
+.facts { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.fact {
+  padding: 6px 10px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+.fact b { font-weight: 400; font-variant-caps: all-small-caps; letter-spacing: 0.1em; color: var(--color-muted); }
+
+/* ---- body: rail + chapters ---- */
+.body { display: grid; gap: 28px; }
+.body > * { min-width: 0; }
+.rail__list { max-width: 100%; }
+@media (min-width: 900px) { .body { grid-template-columns: 168px minmax(0, 1fr); gap: 48px; align-items: start; } }
+.rail__list { list-style: none; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.rail__list::-webkit-scrollbar { display: none; }
+.rail__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  white-space: nowrap;
+  padding: 7px 10px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  transition: color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+}
+.rail__n { font-variant-numeric: tabular-nums; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--faint); }
+.rail__link:hover { color: var(--color-ink); }
+.rail li.is-here .rail__link { color: var(--color-ink); border-color: var(--card-hair); background: var(--card-glass); }
+.rail li.is-here .rail__n { color: var(--orchid); }
+@media (min-width: 900px) {
+  .rail { position: sticky; top: calc(var(--bar-h) + 16px); align-self: start; }
+  .rail__list { flex-direction: column; gap: 2px; overflow: visible; }
+  .rail__link { padding: 6px 8px; }
+}
+
+/* ---- a chapter ---- */
+.ch { display: grid; gap: 22px; scroll-margin-top: calc(var(--bar-h) + 24px); }
+.ch + .ch { margin-top: 34px; border-top: 1px solid var(--card-hair); padding-top: 34px; }
+@media (min-width: 900px) { .ch { grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); gap: 40px; align-items: start; } }
+.ch__text > h2 {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(1.45rem, 3.4vw, 1.85rem);
+  line-height: 1.14;
+  letter-spacing: var(--track-display);
+}
+.ch__text p { margin-top: 14px; color: var(--color-ink-2); max-width: 52ch; }
+.ch__text p.tight { margin-top: 10px; }
+.goals { list-style: none; margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+.goals li { position: relative; padding-left: 1.1em; color: var(--color-ink-2); font-size: var(--text-sm); }
+.goals li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; background: var(--orchid); }
+.goals li b { font-weight: 500; color: var(--color-ink); }
+.sub { display: block; margin-top: 22px; }
+.ch__media { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* the one question, set large in the reading face */
+.hmw {
+  margin-top: 18px;
+  padding: 14px 16px 14px 18px;
+  border-left: 3px solid var(--ic-green);
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border-radius: 0 9px 9px 0;
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 1.12rem;
+  line-height: 1.32;
+  color: var(--color-ink);
+  max-width: 40ch;
+}
+.hmw b { font-weight: 400; color: var(--ic-green); }
+
+/* ---- a glass frame around a piece of media ---- */
+.frame {
+  position: relative;
+  padding: 28px 8px 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 10px;
+  box-shadow: var(--hero-shadow);
+}
+.frame > img, .frame .rvm img, .frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--card-hair);
+  border-radius: 6px;
+  background: #fff;
+}
+.cap {
+  position: absolute;
+  z-index: 2;
+  top: 4px;
+  left: 10px;
+  padding: 0 7px;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--card-hair);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  font-variant-caps: all-small-caps;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+/* the media inside a frame resolves out of pixel blocks when it enters view */
+.frame.is-in .rvm {
+  animation: pixdiss 300ms steps(1, end) 1;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  mask-repeat: repeat;
+  -webkit-mask-repeat: repeat;
+}
+@keyframes pixdiss {
+  0%, 32% {
+    -webkit-mask-image:
+      repeating-linear-gradient(90deg, #000 0 14px, #0000 14px 42px),
+      repeating-linear-gradient(180deg, #000 0 14px, #0000 14px 42px);
+    mask-image:
+      repeating-linear-gradient(90deg, #000 0 14px, #0000 14px 42px),
+      repeating-linear-gradient(180deg, #000 0 14px, #0000 14px 42px);
+  }
+  33%, 65% {
+    -webkit-mask-image:
+      repeating-linear-gradient(90deg, #000 0 28px, #0000 28px 42px),
+      repeating-linear-gradient(180deg, #000 0 28px, #0000 28px 42px);
+    mask-image:
+      repeating-linear-gradient(90deg, #000 0 28px, #0000 28px 42px),
+      repeating-linear-gradient(180deg, #000 0 28px, #0000 28px 42px);
+  }
+  66%, 100% { -webkit-mask-image: none; mask-image: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame.is-in .rvm { animation: none; -webkit-mask-image: none; mask-image: none; }
+}
+
+/* ---- three shoppers, in their own words ---- */
+.quotes { list-style: none; display: grid; gap: 8px; }
+.quote {
+  position: relative;
+  padding: 12px 14px 12px 40px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 9px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--color-ink-2);
+}
+.quote::before {
+  content: "“";
+  position: absolute;
+  left: 13px; top: 2px;
+  font-family: var(--font-display);
+  font-variation-settings: var(--vf-display);
+  font-size: 2rem;
+  line-height: 1.3;
+  color: var(--ic-carrot);
+}
+.quote i { display: block; margin-top: 6px; font-style: italic; font-family: var(--font-mono); font-variation-settings: var(--vf-label); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--color-muted); }
+
+/* ---- the iterations, as a numbered stack ---- */
+.its { list-style: none; display: grid; gap: 14px; counter-reset: it; }
+.it {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 10px;
+  box-shadow: var(--hero-shadow);
+}
+@media (min-width: 640px) { .it { grid-template-columns: minmax(0, 1fr) 176px; align-items: start; } .it--wide { grid-template-columns: minmax(0, 1fr); } }
+.it__n { counter-increment: it; }
+.it__n::before { content: "Iteration 0" counter(it); }
+.it__t { margin-top: 4px; font-family: var(--font-display); font-weight: var(--wght-display); font-variation-settings: var(--vf-display); font-feature-settings: var(--ff-display); font-size: 1.12rem; line-height: 1.2; }
+.it__p { margin-top: 8px; font-size: 0.9rem; line-height: 1.45; color: var(--color-ink-2); }
+.it__shot { border: 1px solid var(--card-hair); border-radius: 8px; overflow: hidden; background: #fff; }
+.it__shot img, .it__shot video { display: block; width: 100%; height: auto; }
+
+/* ---- the unit switch: three apples, two ways to read the price ---- */
+.units { display: grid; gap: 10px; }
+.units__pick { display: flex; gap: 4px; }
+.chip {
+  flex: 1 1 0;
+  min-height: max(var(--tap), 30px);
+  padding: 4px 8px;
+  border: 1px solid var(--card-hair);
+  border-radius: 7px;
+  background: var(--card-glass);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  transition: color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+}
+.chip[aria-pressed="true"] { color: var(--color-ink); border-color: var(--color-ink); }
+.units__list { list-style: none; display: grid; gap: 6px; }
+.apple {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  transition: opacity 220ms var(--ease-out), border-color 220ms var(--ease-out);
+}
+.apple__name { font-size: 0.92rem; color: var(--color-ink); }
+.apple__pack { font-family: var(--font-mono); font-style: italic; font-variation-settings: var(--vf-label); font-size: 0.72rem; letter-spacing: 0.04em; color: var(--color-muted); }
+.apple__price { grid-row: 1 / 3; align-self: center; font-variant-numeric: tabular-nums; font-size: 1.02rem; color: var(--color-ink); }
+.apple__bar { grid-column: 1 / -1; height: 4px; margin-top: 4px; background: rgba(36, 31, 28, 0.08); border-radius: 2px; overflow: hidden; }
+.apple__bar i { display: block; height: 100%; width: var(--w, 50%); background: var(--ic-kale); opacity: 0.35; transition: width 420ms var(--ease-out), background-color 220ms var(--ease-out), opacity 220ms var(--ease-out); }
+.apple.is-best { border-color: var(--ic-green); }
+.apple.is-best .apple__bar i { background: var(--ic-green); opacity: 1; }
+.apple.is-best .apple__price::after { content: "cheapest"; margin-left: 8px; font-family: var(--font-mono); font-style: italic; font-variation-settings: var(--vf-label); font-size: 0.66rem; letter-spacing: 0.08em; font-variant-caps: all-small-caps; color: var(--ic-green); }
+.units.is-turning .apple { opacity: 0.35; }
+.units__note { margin-top: 2px; }
+@media (prefers-reduced-motion: reduce) { .apple, .apple__bar i { transition: none; } }
+
+/* ---- a film in a phone-shaped frame ---- */
+.phones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 559px) { .phones { grid-template-columns: minmax(0, 1fr); } }
+.phone { padding: 28px 8px 8px; }
+.phone .rvm { border: 1px solid var(--card-hair); border-radius: 12px; overflow: hidden; background: #fff; }
+.phone video { width: 100%; height: auto; border: 0; border-radius: 0; }
+.vidcap { margin-top: 8px; display: block; }
+
+/* ---- outcome ---- */
+.ch--flat { display: block; }
+.ch--flat .ch__text { max-width: 62ch; }
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--card-hair);
+  padding-top: var(--space-md);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+.foot a { color: var(--color-ink-2); text-decoration: none; border-bottom: 1px solid var(--card-hair); padding-bottom: 2px; }
+.foot a:hover { color: var(--color-ink); border-color: var(--color-ink); }
+
+/* ---- lightbox ---- */
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: max(24px, 4vh) 16px;
+  background: rgba(247, 248, 250, 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  overflow: auto;
+}
+.lb[hidden] { display: none; }
+.lb__img { max-width: min(1100px, 100%); max-height: 88vh; width: auto; height: auto; border: 1px solid var(--card-hair); border-radius: 8px; background: #fff; box-shadow: 0 20px 60px -30px rgba(36,31,28,0.5); }
+.lb__x {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.8);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1;
+}
+.zoom { display: block; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; }
+</style>
+<style>
+/* fonts are pinned here so a cached tokens.css can never bring another family back */
+:root {
+  --font-display: "Fraunces", "Songti SC", Georgia, serif;
+  --font-body: "Fraunces", "Songti SC", Georgia, serif;
+  --font-mono: "Fraunces", "Songti SC", Georgia, serif;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../../index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="../../index.html#index">Work</a>
+    <a class="topbar__link" href="../../lab/">Playground</a>
+    <a class="topbar__link" href="../../about.html">About</a>
+  </nav>
+</header>
+
+<main class="case">
+
+  <header class="hero">
+    <div class="hero__text">
+      <h1>Instacart</h1>
+      <p class="hero__lead">A compare layer for grocery shopping: the same apple across four stores, in one unit, side by side, with an AI you can just ask.</p>
+      <ul class="facts">
+        <li class="fact"><b>Role</b> · Sole designer</li>
+        <li class="fact"><b>Scope</b> · Search · compare · ask</li>
+        <li class="fact"><b>Year</b> · 2023–24</li>
+        <li class="fact"><b>Tools</b> · Figma</li>
+        <li class="fact"><b>Note</b> · A concept, not an Instacart project</li>
+      </ul>
+    </div>
+    <figure class="frame">
+      <span class="cap">Home</span>
+      <div class="rvm"><img src="../../assets/instacart/cover.jpg" width="1600" height="812" style="max-width:1600px" alt="Two phones showing the redesigned Instacart home: a search bar that asks for anything you want, a row of favourite stores, and Stores to help you save."></div>
+    </figure>
+  </header>
+
+  <div class="body">
+
+    <nav class="rail" aria-label="Chapters">
+      <ol class="rail__list">
+        <li><a class="rail__link" href="#brief"><span class="rail__n">01</span> Brief</a></li>
+        <li><a class="rail__link" href="#research"><span class="rail__n">02</span> Research</a></li>
+        <li><a class="rail__link" href="#wireframes"><span class="rail__n">03</span> Wireframes</a></li>
+        <li><a class="rail__link" href="#iterations"><span class="rail__n">04</span> Iterations</a></li>
+        <li><a class="rail__link" href="#outcome"><span class="rail__n">05</span> Outcome</a></li>
+      </ol>
+    </nav>
+
+    <div class="chapters">
+
+      <section class="ch" id="brief">
+        <div class="ch__text">
+          <h2>Brief</h2>
+          <p>Instacart lets you shop eight supermarkets from one couch. It does not let you shop them against each other. The same bag of apples is $4.5 a kilo at one store and $5.66 for three pounds at another, and the app never puts those two numbers side by side.</p>
+          <p>Three complaints came up in every conversation: I cannot compare prices across stores, I cannot tell what I am actually buying, and the recommendations are for someone else.</p>
+          <p>The ask I set myself: a compare layer that sits inside the app people already use, plus a way to ask for what you want in your own words.</p>
+          <p class="hmw">How might we <b>compare</b> products by price and quality, and <b>recommend</b> from what you like and what you can spend?</p>
+        </div>
+        <div class="ch__media">
+          <figure class="frame">
+            <span class="cap">The brand, kept as it is</span>
+            <div class="rvm"><img src="../../assets/instacart/brand.jpg" width="1600" height="900" style="max-width:1600px" loading="lazy" alt="The Instacart carrot mark and wordmark, and the same on a desktop screen."></div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch" id="research">
+        <div class="ch__text">
+          <h2>Research</h2>
+          <p>I mapped the shopping flow first: sign in, search, add, cart, store, time, pay, and the four steps after you pay. Then I drew the branch Instacart does not have. A multi-dimensional comparison, by filter (size, rating, specifications) or by your own budget and preferences.</p>
+          <p>Three shoppers, three interviews, one synthesis. They wanted less than I expected: put the numbers next to each other, tell me the unit, remember what I like, and do not over-filter me.</p>
+          <span class="lab sub">Three goals</span>
+          <ul class="goals">
+            <li><b>Easy comparison.</b> Smooth and intuitive, never a spreadsheet.</li>
+            <li><b>Enough information.</b> Precise and sufficient to decide on.</li>
+            <li><b>Bendable options.</b> Comparisons you can shape to your needs.</li>
+          </ul>
+        </div>
+        <div class="ch__media">
+          <figure class="frame">
+            <span class="cap">Flow · the yellow branch is new</span>
+            <div class="rvm">
+              <button type="button" class="zoom" data-full="../../assets/instacart/flow.jpg" data-alt="The full user flow: sign in, search, a multi-dimensional comparison branch in yellow (filter, compare by size, rating and specs; budget and preferences, personalised recommendation), then cart, store, delivery time, checkout, order processing, shopping, shipping, completion." aria-label="Open the flow full size">
+                <img src="../../assets/instacart/flow.jpg" width="1800" height="1398" loading="lazy" alt="User flow diagram: a blue spine from sign in to order completion, with a yellow comparison branch off the search step.">
+              </button>
+            </div>
+          </figure>
+          <ul class="quotes" aria-label="What the three shoppers said">
+            <li class="quote">Clear price comparisons, more ways to search, add straight from the comparison, and personalisation. Not over-filtering, not stale information.<i>Shopper 1</i></li>
+            <li class="quote">Remember my shopping preferences. Show detailed images and descriptions. Give price and quality a score I can read.<i>Shopper 2</i></li>
+            <li class="quote">Keep it simple. Show the unit price and a nutrition rating.<i>Shopper 3</i></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="ch" id="wireframes">
+        <div class="ch__text">
+          <h2>Wireframes</h2>
+          <p>Two flows, drawn grey so only the structure argues.</p>
+          <p><b>Compare.</b> A store, a filter panel that opens from the search bar (category, popularity, price, organic, location, ripeness, purpose, offers), results in rows of four, a product page with one new button at the top right, and the sheet it opens.</p>
+          <p><b>Ask.</b> A chat icon in the corner. You type “some apples, low price”, it answers with four cards, and each card opens to an info sheet with one button: add.</p>
+        </div>
+        <div class="ch__media">
+          <figure class="frame">
+            <span class="cap">Compare · six screens</span>
+            <div class="rvm">
+              <button type="button" class="zoom" data-full="../../assets/instacart/wire-compare.jpg" data-alt="Six wireframes: the home with stores, the filter panel, results in rows, a product selected, the product page with a compare button, and the compare sheet." aria-label="Open the compare wireframes full size">
+                <img src="../../assets/instacart/wire-compare.jpg" width="1800" height="656" loading="lazy" alt="Six grey wireframes of the compare flow, from the store home to the compare sheet.">
+              </button>
+            </div>
+          </figure>
+          <figure class="frame">
+            <span class="cap">Ask · four screens</span>
+            <div class="rvm">
+              <button type="button" class="zoom" data-full="../../assets/instacart/wire-chat.jpg" data-alt="Four wireframes: the home with a chat icon, an empty AI chat box, the chat answering “I am looking for some apple with low price” with four cards, and an info sheet with an Add button." aria-label="Open the ask wireframes full size">
+                <img src="../../assets/instacart/wire-chat.jpg" width="1800" height="912" loading="lazy" alt="Four grey wireframes of the ask flow, from the chat icon to an info sheet with Add.">
+              </button>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch" id="iterations">
+        <div class="ch__text">
+          <h2>Iterations</h2>
+          <p>Four passes, each one answering a thing the tests broke.</p>
+          <p>The second is the one I would keep if I could keep only one. The tests kept tripping on units: $5.07 a bag against $5.66 for three pounds against $6.50 a kilo. Nobody compares that in their head. So every price got a second line in one unit, and the results learned to group by store.</p>
+          <span class="lab sub">Same three apples, two ways to read the price</span>
+          <div class="units" id="units">
+            <div class="units__pick" role="group" aria-label="Read the price">
+              <button type="button" class="chip" aria-pressed="true" data-u="pack">Per pack</button>
+              <button type="button" class="chip" aria-pressed="false" data-u="kg">Per kilo</button>
+            </div>
+            <ol class="units__list" id="unitsList" aria-live="polite">
+              <li class="apple" data-name="Gala Apple Bag" data-pack="1.36 kg bag" data-pp="5.07" data-kg="3.73">
+                <span class="apple__name">Gala Apple Bag</span>
+                <span class="apple__price">$5.07</span>
+                <span class="apple__pack">1.36 kg bag</span>
+                <span class="apple__bar" aria-hidden="true"><i></i></span>
+              </li>
+              <li class="apple" data-name="Honeycrisp" data-pack="2 lb bag" data-pp="4.87" data-kg="5.35">
+                <span class="apple__name">Honeycrisp</span>
+                <span class="apple__price">$4.87</span>
+                <span class="apple__pack">2 lb bag</span>
+                <span class="apple__bar" aria-hidden="true"><i></i></span>
+              </li>
+              <li class="apple" data-name="Fuji Apple" data-pack="loose, per kg" data-pp="6.50" data-kg="6.50">
+                <span class="apple__name">Fuji Apple</span>
+                <span class="apple__price">$6.50</span>
+                <span class="apple__pack">loose, per kg</span>
+                <span class="apple__bar" aria-hidden="true"><i></i></span>
+              </li>
+            </ol>
+            <span class="units__note lab">Prices from the prototype · the cheapest changes</span>
+          </div>
+        </div>
+        <div class="ch__media">
+          <ol class="its">
+            <li class="it">
+              <div>
+                <span class="it__n lab"></span>
+                <p class="it__t">Clarity</p>
+                <p class="it__p">The filter panel became a row of chips over the results: on sale, organic, vegetarian, gluten-free. Every card lost a line and gained a price you can read at arm’s length.</p>
+              </div>
+              <div class="it__shot"><img src="../../assets/instacart/it-filters.jpg" width="820" height="1386" loading="lazy" alt="Search results for apple with a row of filter chips and four product cards."></div>
+            </li>
+            <li class="it">
+              <div>
+                <span class="it__n lab"></span>
+                <p class="it__t">One unit, grouped by store</p>
+                <p class="it__p">Every price is also a price per kilo. Results group by store, each with its delivery time and whether the prices are in-store prices, so the comparison people actually make, this store or that one, happens on one screen. Quantities sync in real time, so the number you compared is the number you buy.</p>
+              </div>
+              <div class="it__shot"><img src="../../assets/instacart/it-stores.jpg" width="820" height="1406" loading="lazy" alt="Search results for apple grouped by store: Walmart, ShopRite, Costco, every apple priced per kilo."></div>
+            </li>
+            <li class="it it--wide">
+              <div>
+                <span class="it__n lab"></span>
+                <p class="it__t">Ask</p>
+                <p class="it__p">For the shopper who has not decided, a chat box that takes a sentence instead of a search term. “Cheap apples for a pie” comes back as a product card you can read and add, right there in the conversation.</p>
+              </div>
+            </li>
+            <li class="it it--wide">
+              <div>
+                <span class="it__n lab"></span>
+                <p class="it__t">Compare, side by side</p>
+                <p class="it__p">The one new button on the product page. Add up to three, and the sheet lines them up: photo, price per kilo, stock, a one-line summary each, and the add button under every column, so choosing and buying is one motion.</p>
+              </div>
+            </li>
+          </ol>
+          <div class="phones">
+            <figure class="frame phone">
+              <span class="cap">Search</span>
+              <div class="rvm"><video src="../../assets/instacart/search.mp4" poster="../../assets/instacart/search-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: typing apple into search, results grouped by store, each priced per kilo."></video></div>
+              <figcaption class="vidcap lab">Search · one unit, by store · 9 s</figcaption>
+            </figure>
+            <figure class="frame phone">
+              <span class="cap">Compare</span>
+              <div class="rvm"><video src="../../assets/instacart/compare.mp4" poster="../../assets/instacart/compare-poster.jpg" width="374" height="616" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: a product page, Add to compare, then three apples side by side with a summary and recommendations."></video></div>
+              <figcaption class="vidcap lab">Compare · three across · 10 s</figcaption>
+            </figure>
+            <figure class="frame phone">
+              <span class="cap">Ask</span>
+              <div class="rvm"><video src="../../assets/instacart/chat.mp4" poster="../../assets/instacart/chat-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the home, the chat box opens, and a Fuji apple card appears in the conversation with ratings and details."></video></div>
+              <figcaption class="vidcap lab">Ask · a card in the chat · 13 s</figcaption>
+            </figure>
+            <figure class="frame phone">
+              <span class="cap">Onboarding</span>
+              <div class="rvm"><video src="../../assets/instacart/holiday.mp4" poster="../../assets/instacart/holiday-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the home page with a Thanksgiving banner, then a shelf of featured holiday products."></video></div>
+              <figcaption class="vidcap lab">Onboarding · a holiday shelf · 14 s</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="ch ch--flat" id="outcome">
+        <div class="ch__text">
+          <h2>Outcome</h2>
+          <p>A clickable prototype in Figma: search, filter, compare, ask, and a holiday shelf to introduce them. It is a concept, done on my own, not with Instacart.</p>
+          <p>If it shipped, I would watch three numbers: how often a compare sheet ends in an add, how often the per-kilo line changes which store wins, and how many chats end in a cart.</p>
+          <span class="lab sub">Reflection</span>
+          <p class="tight">The chat was 2023’s answer, and I put it in a box in the corner. Today I would not. The search bar itself should take “cheap apples for a pie” and come back with a comparison, not a list. The compare sheet was the real product; the chat was just a second door to it.</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="foot">
+    <a href="../../index.html#index">&larr; All Work</a>
+    <a href="../exploredge/">ExplorEdge &rarr;</a>
+  </div>
+</main>
+
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Full size screen" hidden>
+  <button type="button" class="lb__x" aria-label="Close">×</button>
+  <img class="lb__img" alt="">
+</div>
+
+<script>
+/* the videos play themselves, silently, unless motion is unwelcome */
+(function () {
+  try {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) return;
+    Array.prototype.slice.call(document.querySelectorAll('.case video')).forEach(function (v) {
+      v.autoplay = false;
+      v.removeAttribute('autoplay');
+      v.setAttribute('controls', '');
+      v.pause();
+    });
+  } catch (e) {}
+})();
+
+/* every frame dissolves in out of pixel blocks, once, when it enters view */
+(function () {
+  try {
+    var frames = Array.prototype.slice.call(document.querySelectorAll('.frame'));
+    if (!frames.length) return;
+    if (!('IntersectionObserver' in window)) { frames.forEach(function (f) { f.classList.add('is-in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    frames.forEach(function (f) { io.observe(f); });
+  } catch (e) {}
+})();
+
+/* the chapter rail follows the chapter you are reading */
+(function () {
+  try {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.rail__link'));
+    var chs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    if (!chs.length) return;
+    var cur = -1;
+    var mark = function (i) {
+      if (i === cur) return;
+      cur = i;
+      links.forEach(function (a, j) {
+        a.parentNode.classList.toggle('is-here', i === j);
+        if (i === j) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+    };
+    var bar = 56, tick = 0;
+    var read = function () {
+      tick = 0;
+      var line = bar + 100, best = 0;
+      for (var i = 0; i < chs.length; i++) {
+        if (chs[i] && chs[i].getBoundingClientRect().top <= line) best = i;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) best = chs.length - 1;
+      mark(best);
+    };
+    var onScroll = function () { if (!tick) tick = requestAnimationFrame(read); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    read();
+  } catch (e) {}
+})();
+
+/* the unit switch: the same three apples re-sorted by pack price or by the
+   kilo, the bars scaled to the dearest, the cheapest tagged. The two chips
+   pick; the list dims for a beat while it turns. */
+(function () {
+  var root = document.getElementById('units'), list = document.getElementById('unitsList');
+  if (!root || !list) return;
+  var chips = Array.prototype.slice.call(root.querySelectorAll('.chip'));
+  var rows = Array.prototype.slice.call(list.querySelectorAll('.apple'));
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lay = function (u) {
+    var key = u === 'kg' ? 'kg' : 'pp';
+    var vals = rows.map(function (r) { return parseFloat(r.getAttribute('data-' + key)); });
+    var max = Math.max.apply(null, vals), min = Math.min.apply(null, vals);
+    rows.forEach(function (r, i) {
+      r.querySelector('.apple__price').firstChild.nodeValue = '$' + vals[i].toFixed(2);
+      r.querySelector('.apple__pack').textContent = u === 'kg' ? 'per kg · ' + r.getAttribute('data-pack') : r.getAttribute('data-pack');
+      r.querySelector('.apple__bar i').style.setProperty('--w', Math.round(100 * vals[i] / max) + '%');
+      r.classList.toggle('is-best', vals[i] === min);
+    });
+    rows.slice().sort(function (a, b) { return parseFloat(a.getAttribute('data-' + key)) - parseFloat(b.getAttribute('data-' + key)); })
+      .forEach(function (r) { list.appendChild(r); });
+    chips.forEach(function (c) { c.setAttribute('aria-pressed', c.getAttribute('data-u') === u ? 'true' : 'false'); });
+  };
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var u = c.getAttribute('data-u');
+      if (reduce) { lay(u); return; }
+      root.classList.add('is-turning');
+      setTimeout(function () { lay(u); root.classList.remove('is-turning'); }, 180);
+    });
+  });
+  lay('pack');
+})();
+
+/* a click on a sheet opens it full size */
+(function () {
+  var lb = document.getElementById('lightbox');
+  if (!lb) return;
+  var im = lb.querySelector('.lb__img'), last = null;
+  var open = function (src, alt) {
+    im.src = src; im.alt = alt || '';
+    lb.hidden = false;
+    lb.querySelector('.lb__x').focus();
+  };
+  var close = function () { lb.hidden = true; im.removeAttribute('src'); if (last) last.focus(); };
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-full]') : null;
+    if (t) { last = t; open(t.getAttribute('data-full'), t.getAttribute('data-alt')); return; }
+    if (!lb.hidden && (e.target === lb || (e.target.closest && e.target.closest('.lb__x')))) close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !lb.hidden) close(); });
+})();
+</script>
+
+</body>
+</html>
