@@ -290,7 +290,7 @@
     };
     var BROT = function () { return narrow() ? 108 : 180; };
     var BRBASE = function () {
-      return narrow() ? [0.75 * FW, 0.16 * FH] : [FW + 2, 0.18 * FH];   /* desktop: the root sits in the right wall */
+      return narrow() ? [0.75 * FW, 0.16 * FH] : [FW + 12, 0.18 * FH];  /* desktop: the root sits inside the right wall */
     };
 
     /* six opening frames at 90 ms, then a two-frame breath every 1.6 s */
@@ -916,7 +916,7 @@
     };
   })();
 
-  /* ---------- card miniatures (03/04/05): tiny live versions of the labs ---------- */
+  /* ---------- card miniatures (02/03/04/05): tiny live versions of the works ---------- */
   var CARD_BG = "#f8fafd";                                   /* the cool hero ground */
   var GRID_INK = "rgba(36, 31, 28, 0.035)";                  /* the same 14 px grid */
 
@@ -942,7 +942,7 @@
     }
     return c;
   };
-  /* 03 — Field: white streaks drifting along a small X-shaped flow, short fading tails.
+  /* 04a — Field: white streaks drifting along a small X-shaped flow, short fading tails.
      The flow is a saddle: velocity = (v, u) with u,v the offsets from the centre, so the
      streamlines are hyperbolae asymptotic to the two diagonals — an X. */
   var makeField = function (cv) {
@@ -1020,7 +1020,7 @@
     };
   };
 
-  /* 04 — the picture bursts outward, then remembers itself */
+  /* 04b — Explode: the picture bursts outward, then remembers itself */
   var makeExplode = function (cv) {
     var g = cv.getContext("2d"), W = cv.width, H = cv.height, CX = 8, CY = 6;
     var src = sampleArt(W, H), fw = W / CX, fh = H / CY, frags = [];
@@ -1049,7 +1049,7 @@
     };
   };
 
-  /* 05 — Bloom: small pastel flowers growing out of a grate in a concrete slab */
+  /* 04c — Bloom: small pastel flowers growing out of a grate in a concrete slab */
   var makeBloom = function (cv) {
     var g = cv.getContext("2d"), W = cv.width, H = cv.height, K = H / 300;
 
@@ -1330,6 +1330,140 @@
     return draw;
   };
 
+  /* 03 — White Noise Oasis: the sound made visible. Thin hand-drawn ink rings
+     are born small, flat and faint on a horizon near the top of the card, then
+     drift down towards you — the further a ring has come the wider and rounder
+     it is, the faster it moves, the darker it draws and the further out from the
+     middle it sits, so the card reads as a plane running away from the eye, not
+     as a flat target. A new ring every ~700 ms, the oldest fade out; a press
+     drops one exactly where you pressed, at the size that depth asks for.
+     Ink only, one pixel thick.
+
+     Every length is written for a 320 x 200 card and scaled by K = height / 200,
+     so the same machine holds at the lab tile size too. */
+  var makeOasis = function (cv) {
+    var g = cv.getContext("2d"), W = cv.width, H = cv.height;
+    var K = H / 200;
+    var RMIN = 12 * K, RMAX = 70 * K, SPAN = RMAX - RMIN;
+    var V = 6.5 * K;                    /* the youngest ring's growth, px per second   */
+    var FAR = 0.5, NEAR = 2.2;          /* … the oldest runs NEAR/FAR times as fast    */
+    var BIRTH = 0.7;                    /* one new ring every ~700 ms                  */
+    var CAP = 26;
+    var CX = W / 2, CY = H * 0.18, DROP = H * 0.92;   /* the horizon, and the run home */
+    var LW = Math.max(1, Math.round(K));
+    var FADE_IN = 0.10, FADE_OUT = 0.18;
+    var rings = [], birth = 0, lastMs = 0;
+
+    /* where a ring of age p sits, how wide across it lies, how flat it is */
+    var xAt = function (r, p) { return CX + r.u * (W / 2) * (0.3 + 0.7 * p); };
+    var yAt = function (r, p) { return r.y0 + DROP * Math.pow(p, 1.2); };
+    var sqAt = function (p) { return 0.40 + 0.35 * p; };
+    var alphaAt = function (p) { return 0.3 + 0.2 * p; };            /* .3 far, .5 near */
+    var envAt = function (p) { return Math.min(1, p / FADE_IN) * Math.min(1, (1 - p) / FADE_OUT); };
+
+    var add = function (u, p, y0) {
+      var r = { u: u === undefined ? (Math.random() * 2 - 1) * 0.95 : u,
+                p: p || 0,
+                y0: y0 === undefined ? CY + (Math.random() - 0.5) * 0.06 * H : y0,
+                a1: 0.012 + Math.random() * 0.014, a2: 0.006 + Math.random() * 0.010,
+                a3: 0.003 + Math.random() * 0.006,
+                w1: Math.random() * 6.2832, w2: Math.random() * 6.2832,
+                w3: Math.random() * 6.2832 };
+      rings.push(r);
+      if (rings.length > CAP) rings.shift();
+      return r;
+    };
+
+    var rest = function () {              /* the still frame: one full run of rings */
+      rings.length = 0; birth = 0;
+      var U = [-0.55, 0.45, -0.2, 0.7, 0.05];
+      for (var i = 0; i < U.length; i++) add(U[i], 0.08 + i * 0.2, CY);
+    };
+    rest();
+
+    var step = function (dt) {
+      for (var i = rings.length - 1; i >= 0; i--) {
+        var r = rings[i];
+        r.p += (V * (FAR + (NEAR - FAR) * r.p) / SPAN) * dt;
+        if (r.p >= 1) rings.splice(i, 1);
+      }
+      birth += dt;
+      while (birth >= BIRTH) { birth -= BIRTH; add(); }
+    };
+
+    /* one ring: an ellipse walked in 72 steps, its radius nudged by three slow
+       waves, so the line wobbles the way a hand draws it */
+    var ring = function (r) {
+      var p = r.p, rad = RMIN + SPAN * p, sq = sqAt(p);
+      var cx = xAt(r, p), cy = yAt(r, p);
+      g.strokeStyle = "rgba(36,31,28," + (alphaAt(p) * envAt(p)).toFixed(3) + ")";
+      g.beginPath();
+      for (var i = 0; i <= 72; i++) {
+        var th = i / 72 * 6.2832;
+        var rr = rad * (1 + r.a1 * Math.sin(3 * th + r.w1)
+                          + r.a2 * Math.sin(5 * th + r.w2)
+                          + r.a3 * Math.sin(8 * th + r.w3));
+        var x = cx + rr * Math.cos(th), y = cy + rr * Math.sin(th) * sq;
+        if (i) g.lineTo(x, y); else g.moveTo(x, y);
+      }
+      g.closePath();
+      g.stroke();
+    };
+
+    var paint = function () {
+      var t0 = (window.performance && performance.now()) || 0;
+      g.fillStyle = CARD_BG; g.fillRect(0, 0, W, H);
+      g.lineWidth = LW;
+      for (var i = 0; i < rings.length; i++) ring(rings[i]);
+      lastMs = ((window.performance && performance.now()) || 0) - t0;
+    };
+
+    var prev = -1;
+    var draw = function (t) {
+      if (prev < 0 || t - prev > 0.5 || t < prev) prev = t;
+      var dt = t - prev;
+      prev = t;
+      if (dt > 0.1) dt = 0.1;
+      step(dt);
+      paint();
+    };
+    draw.rest = function () { prev = -1; rest(); paint(); };
+    /* a press drops a ring under the pointer: the depth is read back out of the
+       y it was pressed at, so the new ring is the size that spot deserves */
+    draw.add = function (x, y) {
+      var p = Math.pow(Math.max(0, Math.min(1, (y - CY) / DROP)), 1 / 1.2);
+      p = Math.max(0.02, Math.min(0.9, p));
+      var u = (x - CX) / ((W / 2) * (0.3 + 0.7 * p));
+      add(Math.max(-1.4, Math.min(1.4, u)), p, y - DROP * Math.pow(p, 1.2));
+      paint();
+    };
+    window.__oasis = {
+      count: function () { return rings.length; },
+      radii: function () { var o = []; for (var i = 0; i < rings.length; i++) o.push(RMIN + SPAN * rings[i].p); return o; },
+      alphas: function () {
+        var o = [];
+        for (var i = 0; i < rings.length; i++) {
+          var p = rings[i].p;
+          o.push({ p: +p.toFixed(3), nominal: +alphaAt(p).toFixed(3), drawn: +(alphaAt(p) * envAt(p)).toFixed(3) });
+        }
+        return o;
+      },
+      centres: function () {
+        var o = [];
+        for (var i = 0; i < rings.length; i++) {
+          var r = rings[i];
+          o.push({ p: +r.p.toFixed(2), x: Math.round(xAt(r, r.p)), y: Math.round(yAt(r, r.p)),
+                   r: Math.round(RMIN + SPAN * r.p), sq: +sqAt(r.p).toFixed(2) });
+        }
+        return o;
+      },
+      rmin: RMIN, rmax: RMAX, cap: CAP, birth: BIRTH, lw: LW,
+      ms: function () { return lastMs; },
+      size: function () { return { w: W, h: H }; }
+    };
+    return draw;
+  };
+
   /* drive them: one frame now, then ~30 fps while the card is on screen and awake */
   var minis = [];
   var addMini = function (id, make) {
@@ -1343,6 +1477,7 @@
   addMini("miniExplode", makeExplode);
   addMini("miniBloom", makeBloom);
   addMini("miniUnfold", makeUnfold);
+  addMini("miniOasis", makeOasis);
 
   /* ---------- 02 · the corridor: its buffer follows the card ----------
      Like the tri tiles, the scene is re-made (not re-scaled) at the size the
@@ -1368,7 +1503,39 @@
     addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fit, 180); });
   })();
 
-  /* ---------- 03 · the tri-card: three machines share one card ----------
+  /* ---------- 03 · the oasis: its buffer follows the card, and it listens ----------
+     Same as the corridor: the rings are re-made at the size the layout gives the
+     card, so a ring stays one whole pixel thick. The press listener is bound to
+     the canvas once, and hands the current machine card pixels. */
+  (function () {
+    var cv = document.getElementById("miniOasis");
+    if (!cv || !cv.getContext) return;
+    var me = null;
+    for (var i = 0; i < minis.length; i++) if (minis[i].cv === cv) me = minis[i];
+    if (!me) return;
+    var fit = function () {
+      var r = cv.getBoundingClientRect();
+      if (!r.width) return;
+      var dpr = Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1)));
+      var w = Math.round(r.width * dpr), h = Math.round(r.width * 5 / 8 * dpr);
+      if (cv.width === w && cv.height === h) return;
+      cv.width = w; cv.height = h;
+      me.draw = makeOasis(cv);
+      me.draw(0);
+    };
+    fit();
+    var rt = null;
+    addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fit, 180); });
+    cv.addEventListener("pointerdown", function (e) {
+      if (!me.draw.add) return;
+      var r = cv.getBoundingClientRect();
+      if (!r.width) return;
+      var k = cv.width / r.width;
+      me.draw.add((e.clientX - r.left) * k, (e.clientY - r.top) * k);
+    });
+  })();
+
+  /* ---------- 04 · the tri-card: three machines share one card ----------
      The three tiles are ordinary minis (they are already in `minis`, so they
      wake and sleep with the row). All this block does is keep their pixel
      buffers matched to the tile the layout gives them, so the field never
@@ -1398,7 +1565,7 @@
     });
   })();
 
-  /* ---------- 04 · Tutor Oriel: the cover, mosaicked at 6 px ----------
+  /* ---------- 05 · Tutor Oriel: the cover, mosaicked at 6 px ----------
      The cover is drawn once into an off-screen buffer at one pixel per 6 px
      cell, then blown back up with the smoothing off — nearest neighbour, so
      every cell is one flat colour. While the row is live the whole plate

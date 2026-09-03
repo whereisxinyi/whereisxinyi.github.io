@@ -505,6 +505,10 @@ html.is-coarse { --tap: 44px; }
   pointer-events: none;
 }
 .mini--dark { background: #08080a; }
+/* 03 · the oasis is the one miniature you can touch: a press drops a ring
+   where you pressed. On a wide screen the card only takes the press while
+   its row is live (the card itself is pointer-events: none until then). */
+.mini--oasis { pointer-events: auto; touch-action: manipulation; }
 
 /* 03 · the tri-card: three machines side by side inside one card, divided by
    the card's own hairline. Under 360 px there is no room for three, so they
