@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ExplorEdge · Xinyi Zhang</title>
+<meta name="description" content="ExplorEdge — a lean brand and a booking site for outdoor experiences that take 20–35-year-olds one step past their comfort zone.">
+<meta property="og:title" content="ExplorEdge · Xinyi Zhang">
+<meta property="og:description" content="A lean brand and a booking site for outdoor experiences that take 20–35-year-olds one step past their comfort zone.">
+<meta property="og:image" content="https://whereisxinyi.github.io/assets/exploredge/cover.jpg">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://whereisxinyi.github.io/work/exploredge/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://whereisxinyi.github.io/assets/exploredge/cover.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='44' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens.css?v=20260903e">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto; }
+  a, button, [role="button"] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%2387c6f2'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+
+/* ---- pixel glass: the site's one material, copied from styles.css ---- */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-glass:  rgba(255, 255, 255, 0.5);
+  --card-blur:   blur(12px) saturate(120%);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+  --orchid:       oklch(58% 0.12 250);
+  --faint:        rgba(36, 31, 28, 0.42);
+  --tap: 0px;
+
+  /* the brand's own five, sampled from the artwork */
+  --ee-navy:  #29335d;
+  --ee-room:  #3e476d;
+  --ee-blue:  #4371db;
+  --ee-teal:  #4589b3;
+  --ee-act:   #388fcf;
+}
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+
+html { overflow-x: clip; background: var(--hero-ground); }
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: #fff; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+/* the label voice: small italic Fraunces, small caps */
+.lab {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  font-size: var(--text-xs);
+  letter-spacing: 0.13em;
+  font-variant-caps: all-small-caps;
+  color: var(--color-muted);
+}
+
+/* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand { display: inline-flex; align-items: center; gap: var(--space-xs); min-width: 0; color: var(--color-ink); text-decoration: none; }
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 18px;
+  line-height: 1;
+  padding-block-end: 5px;
+}
+.topbar__name { font-family: var(--font-body); font-variation-settings: var(--vf-body); font-feature-settings: normal; font-weight: 500; font-size: 15px; letter-spacing: -0.005em; white-space: nowrap; }
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---- the case ---- */
+.case {
+  width: 100%;
+  max-width: 1184px;
+  margin-inline: auto;
+  padding: calc(var(--bar-h) + 44px) max(20px, env(safe-area-inset-left)) 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+@media (min-width: 900px) { .case { padding-inline: 48px; } }
+
+/* ---- hero ---- */
+.hero { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 62fr) minmax(0, 38fr); gap: 40px; align-items: center; } }
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(2.2rem, 6vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: var(--track-display);
+}
+.hero__lead { margin-top: 10px; color: var(--color-ink-2); max-width: 34ch; font-size: 1.05rem; }
+.facts { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.fact {
+  padding: 6px 10px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+.fact b { font-weight: 400; font-variant-caps: all-small-caps; letter-spacing: 0.1em; color: var(--color-muted); }
+
+/* ---- body: rail + chapters ---- */
+.body { display: grid; gap: 28px; }
+.body > * { min-width: 0; }
+.rail__list { max-width: 100%; }
+@media (min-width: 900px) { .body { grid-template-columns: 168px minmax(0, 1fr); gap: 48px; align-items: start; } }
+.rail__list { list-style: none; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.rail__list::-webkit-scrollbar { display: none; }
+.rail__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  white-space: nowrap;
+  padding: 7px 10px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  transition: color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+}
+.rail__n { font-variant-numeric: tabular-nums; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--faint); }
+.rail__link:hover { color: var(--color-ink); }
+.rail li.is-here .rail__link { color: var(--color-ink); border-color: var(--card-hair); background: var(--card-glass); }
+.rail li.is-here .rail__n { color: var(--orchid); }
+@media (min-width: 900px) {
+  .rail { position: sticky; top: calc(var(--bar-h) + 16px); align-self: start; }
+  .rail__list { flex-direction: column; gap: 2px; overflow: visible; }
+  .rail__link { padding: 6px 8px; }
+}
+
+/* ---- a chapter ---- */
+.ch { display: grid; gap: 22px; scroll-margin-top: calc(var(--bar-h) + 24px); }
+.ch + .ch { margin-top: 34px; border-top: 1px solid var(--card-hair); padding-top: 34px; }
+@media (min-width: 900px) { .ch { grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); gap: 40px; align-items: start; } }
+.ch__text > h2 {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(1.45rem, 3.4vw, 1.85rem);
+  line-height: 1.14;
+  letter-spacing: var(--track-display);
+}
+.ch__text p { margin-top: 14px; color: var(--color-ink-2); max-width: 52ch; }
+.ch__text p.tight { margin-top: 10px; }
+.goals { list-style: none; margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+.goals li { position: relative; padding-left: 1.1em; color: var(--color-ink-2); font-size: var(--text-sm); }
+.goals li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; background: var(--orchid); }
+.goals li b { font-weight: 500; color: var(--color-ink); }
+.sub { display: block; margin-top: 22px; }
+.ch__media { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* ---- a glass frame around a piece of media ---- */
+.frame {
+  position: relative;
+  padding: 28px 8px 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 10px;
+  box-shadow: var(--hero-shadow);
+}
+.frame > img, .frame > .rvm > img, .frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--card-hair);
+  border-radius: 6px;
+  background: #fff;
+}
+.cap {
+  position: absolute;
+  z-index: 2;
+  top: 4px;
+  left: 10px;
+  padding: 0 7px;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--card-hair);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  font-variant-caps: all-small-caps;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+/* the media inside a frame resolves out of pixel blocks when it enters view */
+.frame.is-in .rvm, .bd__img.is-in {
+  animation: pixdiss 300ms steps(1, end) 1;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  mask-repeat: repeat;
+  -webkit-mask-repeat: repeat;
+}
+@keyframes pixdiss {
+  0%, 32% {
+    -webkit-mask-image:
+      repeating-linear-gradient(90deg, #000 0 14px, #0000 14px 42px),
+      repeating-linear-gradient(180deg, #000 0 14px, #0000 14px 42px);
+    mask-image:
+      repeating-linear-gradient(90deg, #000 0 14px, #0000 14px 42px),
+      repeating-linear-gradient(180deg, #000 0 14px, #0000 14px 42px);
+  }
+  33%, 65% {
+    -webkit-mask-image:
+      repeating-linear-gradient(90deg, #000 0 28px, #0000 28px 42px),
+      repeating-linear-gradient(180deg, #000 0 28px, #0000 28px 42px);
+    mask-image:
+      repeating-linear-gradient(90deg, #000 0 28px, #0000 28px 42px),
+      repeating-linear-gradient(180deg, #000 0 28px, #0000 28px 42px);
+  }
+  66%, 100% { -webkit-mask-image: none; mask-image: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame.is-in .rvm, .bd__img.is-in { animation: none; -webkit-mask-image: none; mask-image: none; }
+}
+
+/* ---- the mark, drawn live: three planes, the blue one a door on a hinge ---- */
+.markbox {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--card-hair);
+  border-radius: 6px;
+  background: var(--ee-navy);
+  overflow: hidden;
+}
+.mark { width: min(46%, 220px); height: auto; overflow: visible; }
+.mark__door {
+  transform-box: view-box;
+  transform-origin: 70px 60px;
+  transition: transform 620ms var(--ease-out);
+}
+.mark__floor { transition: transform 620ms var(--ease-out); transform-box: view-box; transform-origin: 70px 104px; }
+.markbox:hover .mark__door, .markbox:focus-visible .mark__door, .markbox.is-open .mark__door { transform: scaleX(0.38) skewY(12deg); }
+.markbox:hover .mark__floor, .markbox:focus-visible .mark__floor, .markbox.is-open .mark__floor { transform: scaleX(1.06); }
+.markbox { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .mark__door, .mark__floor { transition: none; } }
+
+/* the five colours as glass chips, each carrying its job */
+.swatches { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 559px) { .swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.sw {
+  padding: 6px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+}
+.sw__chip { display: block; aspect-ratio: 5 / 3; border-radius: 4px; border: 1px solid var(--card-hair); }
+.sw__name { display: block; margin-top: 6px; font-size: 0.8rem; color: var(--color-ink); }
+.sw__job { display: block; font-size: 0.7rem; letter-spacing: 0.02em; }
+
+/* ---- the landing's backdrops, taking turns behind one fixed line ---- */
+.bd { position: relative; aspect-ratio: 1600 / 1035; border: 1px solid var(--card-hair); border-radius: 6px; overflow: hidden; background: var(--ee-navy); }
+.bd__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; }
+.bd__img.is-on { opacity: 1; }
+.bd__pick { display: flex; gap: 4px; margin-top: 8px; }
+.chip {
+  flex: 1 1 0;
+  min-height: max(var(--tap), 30px);
+  padding: 4px 8px;
+  border: 1px solid var(--card-hair);
+  border-radius: 7px;
+  background: var(--card-glass);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  transition: color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+}
+.chip[aria-pressed="true"] { color: var(--color-ink); border-color: var(--color-ink); }
+/* the four promises under the fold: one hairline each, the blue one walks */
+.promises { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.promise { padding-top: 7px; border-top: 2px solid rgba(36, 31, 28, 0.18); font-size: 0.78rem; color: var(--color-ink-2); transition: border-color var(--dur-short) var(--ease-out); }
+.promise.is-on { border-top-color: var(--ee-act); color: var(--color-ink); }
+
+/* ---- the catalogue, as a tall sheet you can open ---- */
+.thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--card-hair);
+  border-radius: 9px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  box-shadow: var(--hero-shadow);
+  font: inherit;
+  color: inherit;
+  overflow: hidden;
+  text-align: left;
+}
+.thumb__box { display: block; position: relative; aspect-ratio: 16 / 10; border-radius: 5px; overflow: hidden; background: #fff; border: 1px solid var(--card-hair); }
+.thumb__box img { position: absolute; inset: 0; width: 100%; height: auto; display: block; transition: transform 9s linear; }
+.thumb:hover .thumb__box img, .thumb:focus-visible .thumb__box img { transform: translateY(calc(-100% + 100% * 16 / 10 * 1200 / 2034)); }
+.thumb__lab { display: block; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .thumb__box img { transition: none; } }
+
+/* three ways in, as three glass plates */
+.ways { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 559px) { .ways { grid-template-columns: minmax(0, 1fr); } }
+.way {
+  padding: 10px 12px 12px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 9px;
+}
+.way__q { display: block; }
+.way__a { margin-top: 6px; font-size: 0.86rem; color: var(--color-ink); line-height: 1.4; }
+.way__n { margin-top: 6px; font-size: 0.76rem; color: var(--color-muted); }
+.way--big { border-color: var(--ee-act); }
+
+/* ---- the prototype, in a device-like frame ---- */
+.device { padding: 28px 10px 10px; border-radius: 8px; }
+.device .rvm { border: 1px solid var(--card-hair); border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 10; background: #fff; }
+.device .rvm--wide { aspect-ratio: 1370 / 414; }
+.device video { width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: 0; }
+.vidcap { margin-top: 8px; display: block; }
+.frame--band0 { padding-top: 8px; }
+.frame--band0.device { padding-top: 10px; }
+
+/* ---- outcome ---- */
+.ch--flat { display: block; }
+.ch--flat .ch__text { max-width: 62ch; }
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--card-hair);
+  padding-top: var(--space-md);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-variation-settings: var(--vf-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+.foot a { color: var(--color-ink-2); text-decoration: none; border-bottom: 1px solid var(--card-hair); padding-bottom: 2px; }
+.foot a:hover { color: var(--color-ink); border-color: var(--color-ink); }
+
+/* ---- lightbox ---- */
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: max(24px, 4vh) 16px;
+  background: rgba(247, 248, 250, 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  overflow: auto;
+}
+.lb[hidden] { display: none; }
+.lb__img { max-width: min(1100px, 100%); max-height: 88vh; width: auto; height: auto; border: 1px solid var(--card-hair); border-radius: 8px; background: #fff; box-shadow: 0 20px 60px -30px rgba(36,31,28,0.5); }
+.lb__x {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.8);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1;
+}
+</style>
+<style>
+/* fonts are pinned here so a cached tokens.css can never bring another family back */
+:root {
+  --font-display: "Fraunces", "Songti SC", Georgia, serif;
+  --font-body: "Fraunces", "Songti SC", Georgia, serif;
+  --font-mono: "Fraunces", "Songti SC", Georgia, serif;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../../index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="../../index.html#index">Work</a>
+    <a class="topbar__link" href="../../about.html">About</a>
+  </nav>
+</header>
+
+<main class="case">
+
+  <header class="hero">
+    <div class="hero__text">
+      <h1>ExplorEdge</h1>
+      <p class="hero__lead">A lean brand and a booking site for outdoor experiences that take you one step past your comfort zone.</p>
+      <ul class="facts">
+        <li class="fact"><b>Role</b> · Sole designer</li>
+        <li class="fact"><b>Scope</b> · Brand + landing + catalogue</li>
+        <li class="fact"><b>Year</b> · 2023</li>
+        <li class="fact"><b>Tools</b> · Figma</li>
+        <li class="fact"><b>Deliverable</b> · Brand kit, clickable site</li>
+      </ul>
+    </div>
+    <figure class="frame">
+      <span class="cap">Landing</span>
+      <div class="rvm"><img src="../../assets/exploredge/device.jpg" width="1600" height="1034" style="max-width:1600px" alt="The ExplorEdge landing page on a laptop: a night camp photograph, the line “Dive Deep, Discover the Edge.” and a Start Our Journey button."></div>
+    </figure>
+  </header>
+
+  <div class="body">
+
+    <nav class="rail" aria-label="Chapters">
+      <ol class="rail__list">
+        <li><a class="rail__link" href="#brief"><span class="rail__n">01</span> Brief</a></li>
+        <li><a class="rail__link" href="#mark"><span class="rail__n">02</span> Mark</a></li>
+        <li><a class="rail__link" href="#landing"><span class="rail__n">03</span> Landing</a></li>
+        <li><a class="rail__link" href="#catalogue"><span class="rail__n">04</span> Catalogue</a></li>
+        <li><a class="rail__link" href="#outcome"><span class="rail__n">05</span> Outcome</a></li>
+      </ol>
+    </nav>
+
+    <div class="chapters">
+
+      <section class="ch" id="brief">
+        <div class="ch__text">
+          <h2>Brief</h2>
+          <p>ExplorEdge books outdoor experiences for people between 20 and 35 who want to leave their comfort zone, but not alone. Hiking, climbing, camping, trail running, sold as one step past what you already do.</p>
+          <p>The ask was a lean brand and a first site: a mark, a palette, a type pair, and the two pages that decide whether anyone books. The landing, and the catalogue behind it.</p>
+          <p>The name fuses two words, explore and edge. Everything had to say the same thing in one breath: <i>Dive Deep, Discover the Edge.</i></p>
+          <span class="lab sub">Goals</span>
+          <ul class="goals">
+            <li>A mark that reads at 24 px and on a tent flap.</li>
+            <li>A landing that sells the feeling before the product.</li>
+            <li>A catalogue where a beginner finds <b>their</b> edge, not the expert’s.</li>
+          </ul>
+        </div>
+        <div class="ch__media">
+          <figure class="frame">
+            <span class="cap">Mark · wordmark · line</span>
+            <div class="rvm"><img src="../../assets/exploredge/brand.jpg" width="1600" height="676" style="max-width:1600px" loading="lazy" alt="Navy plate: the three-plane mark beside the ExplorEdge wordmark and the line “Dive Deep, Discover the Edge.”, with the landing page on a laptop to the right."></div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch" id="mark">
+        <div class="ch__text">
+          <h2>Mark</h2>
+          <p>Three planes. A door swung open, a room you have not entered, a floor to step onto. The blue is the open side, the navy the room, the teal the ground between.</p>
+          <p>Hover it and the door opens further. The whole brand is that hinge: the edge is not a wall, it is a door left ajar.</p>
+          <p>The wordmark is a geometric sans with the two words closed up, so the fused name reads as one thing. The line under it is always set in quotes, in the reading face.</p>
+          <span class="lab sub">Five colours, five jobs</span>
+          <p class="tight">Navy holds the room. Blue and teal live only in the mark. One lighter blue does every button. White is for type on photographs, nothing else.</p>
+        </div>
+        <div class="ch__media">
+          <figure class="frame">
+            <span class="cap">The mark · hover to open</span>
+            <div class="rvm">
+              <div class="markbox" id="markbox" tabindex="0" role="img" aria-label="The ExplorEdge mark, drawn live: a navy back plane, a teal floor, and a blue door that swings open on hover.">
+                <svg class="mark" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <polygon class="mark__room" points="70,14 132,26 132,92 70,104" fill="#3e476d"/>
+                  <polygon class="mark__floor" points="34,90 70,104 132,92 100,80" fill="#4589b3"/>
+                  <polygon class="mark__door" points="34,26 70,14 70,104 34,90" fill="#4371db"/>
+                </svg>
+              </div>
+            </div>
+          </figure>
+          <ul class="swatches" aria-label="Palette">
+            <li class="sw"><span class="sw__chip" style="background:#29335d"></span><span class="sw__name">Navy</span><span class="sw__job lab">the room</span></li>
+            <li class="sw"><span class="sw__chip" style="background:#4371db"></span><span class="sw__name">Blue</span><span class="sw__job lab">the door</span></li>
+            <li class="sw"><span class="sw__chip" style="background:#4589b3"></span><span class="sw__name">Teal</span><span class="sw__job lab">the ground</span></li>
+            <li class="sw"><span class="sw__chip" style="background:#388fcf"></span><span class="sw__name">Action</span><span class="sw__job lab">every button</span></li>
+            <li class="sw"><span class="sw__chip" style="background:#ffffff"></span><span class="sw__name">White</span><span class="sw__job lab">type on photos</span></li>
+          </ul>
+          <figure class="frame device frame--band0">
+            <div class="rvm rvm--wide">
+              <video src="../../assets/exploredge/mark.mp4" poster="../../assets/exploredge/mark-poster.jpg" width="1370" height="414" autoplay muted loop playsinline preload="metadata" aria-label="The mark and wordmark on a field of drifting pale tiles."></video>
+            </div>
+            <figcaption class="vidcap lab">Ident · 6 s</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch" id="landing">
+        <div class="ch__text">
+          <h2>Landing</h2>
+          <p>One photograph, one line, one button. The photograph does the selling: a lit tent at night, a crowd on a ridge at sunset, three runners on a trail. They take turns. The line never changes.</p>
+          <p>Under the fold, four promises in one row. As the backdrop turns, a blue hairline walks to the next promise, so the page breathes instead of looping.</p>
+          <p>Navigation is four words and a search box that asks a question: <i>What do you want to explore?</i></p>
+        </div>
+        <div class="ch__media">
+          <figure class="frame">
+            <span class="cap">Backdrops · pick one, or wait</span>
+            <div class="rvm" id="backdrops">
+              <div class="bd">
+                <img class="bd__img is-on" src="../../assets/exploredge/landing-night.jpg" width="1600" height="1035" loading="lazy" alt="Landing, night: a glowing orange tent under a starry sky.">
+                <img class="bd__img" src="../../assets/exploredge/landing-ridge.jpg" width="1600" height="1035" loading="lazy" alt="Landing, ridge: a crowd on a mountain ridge at sunset.">
+                <img class="bd__img" src="../../assets/exploredge/landing-trail.jpg" width="1600" height="900" loading="lazy" alt="Landing, trail: three runners on a hillside path in low sun.">
+              </div>
+              <div class="bd__pick" role="group" aria-label="Backdrop">
+                <button type="button" class="chip" aria-pressed="true" data-bd="0">Night</button>
+                <button type="button" class="chip" aria-pressed="false" data-bd="1">Ridge</button>
+                <button type="button" class="chip" aria-pressed="false" data-bd="2">Trail</button>
+              </div>
+              <ul class="promises" aria-label="The four promises under the fold">
+                <li class="promise">Curated</li>
+                <li class="promise is-on">Tailored</li>
+                <li class="promise">Trusted</li>
+                <li class="promise">Remembered</li>
+              </ul>
+            </div>
+          </figure>
+          <figure class="frame device frame--band0">
+            <div class="rvm">
+              <video src="../../assets/exploredge/landing.mp4" poster="../../assets/exploredge/landing-poster.jpg" width="1448" height="826" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording of the landing page on a laptop: the backdrops change behind the fixed line and button."></video>
+            </div>
+            <figcaption class="vidcap lab">Landing · 10 s</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch" id="catalogue">
+        <div class="ch__text">
+          <h2>Catalogue</h2>
+          <p>The browse page cuts one catalogue three ways, because “my edge” is not one axis.</p>
+          <p>Level gets the most room and a sentence of welcome under each door. A beginner should not have to scroll past the experts to find theirs.</p>
+          <p>Duration gets a navy plate of its own, because it is the question people actually ask a friend: half a day, a day, or a weekend?</p>
+        </div>
+        <div class="ch__media">
+          <ul class="ways">
+            <li class="way"><span class="way__q lab">By what</span><p class="way__a">Collections</p><p class="way__n">Hiking · Climbing · Observing</p></li>
+            <li class="way way--big"><span class="way__q lab">By how far</span><p class="way__a">Level</p><p class="way__n">Beginner · Intermediate · Advanced</p></li>
+            <li class="way"><span class="way__q lab">By how long</span><p class="way__a">Outdoor activities</p><p class="way__n">Half-day · Full-day · Multi-day</p></li>
+          </ul>
+          <button type="button" class="thumb" data-full="../../assets/exploredge/browse.jpg" data-alt="The full browse page: Discover collections, three Level cards with a welcome under each, and a navy plate of outdoor activities by duration.">
+            <span class="thumb__box"><img src="../../assets/exploredge/browse.jpg" width="1200" height="2034" loading="lazy" alt="The full browse page: Discover collections, three Level cards with a welcome under each, and a navy plate of outdoor activities by duration."></span>
+            <span class="thumb__lab lab">Browse · hover to scroll, click to open</span>
+          </button>
+          <figure class="frame device frame--band0">
+            <div class="rvm">
+              <video src="../../assets/exploredge/browse.mp4" poster="../../assets/exploredge/browse-poster.jpg" width="1448" height="844" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording of the browse page on a laptop, scrolling from Discover through Level to the activities plate."></video>
+            </div>
+            <figcaption class="vidcap lab">Browse · 12 s</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch ch--flat" id="outcome">
+        <div class="ch__text">
+          <h2>Outcome</h2>
+          <p>A brand kit and a clickable landing and catalogue in Figma. The site was not built.</p>
+          <p>If it were, I would watch which backdrop people book from, how many beginners open Level before Collections, and whether the duration plate earns its size.</p>
+          <span class="lab sub">Reflection</span>
+          <p class="tight">The brand’s whole promise is one step past comfort. Today I would make that step a control, not a tag: let people say how far past “what I already do” they want to go, and cut the catalogue from there.</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="foot">
+    <a href="../../index.html#index">&larr; All Work</a>
+    <a href="../tutor-oriel/">Tutor Oriel &rarr;</a>
+  </div>
+</main>
+
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Full size screen" hidden>
+  <button type="button" class="lb__x" aria-label="Close">×</button>
+  <img class="lb__img" alt="">
+</div>
+
+<script>
+/* the videos play themselves, silently, unless motion is unwelcome */
+(function () {
+  try {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) return;
+    Array.prototype.slice.call(document.querySelectorAll('.case video')).forEach(function (v) {
+      v.autoplay = false;
+      v.removeAttribute('autoplay');
+      v.setAttribute('controls', '');
+      v.pause();
+    });
+  } catch (e) {}
+})();
+
+/* every frame dissolves in out of pixel blocks, once, when it enters view */
+(function () {
+  try {
+    var frames = Array.prototype.slice.call(document.querySelectorAll('.frame'));
+    if (!frames.length) return;
+    if (!('IntersectionObserver' in window)) { frames.forEach(function (f) { f.classList.add('is-in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    frames.forEach(function (f) { io.observe(f); });
+  } catch (e) {}
+})();
+
+/* the chapter rail follows the chapter you are reading */
+(function () {
+  try {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.rail__link'));
+    var chs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    if (!chs.length) return;
+    var cur = -1;
+    var mark = function (i) {
+      if (i === cur) return;
+      cur = i;
+      links.forEach(function (a, j) {
+        a.parentNode.classList.toggle('is-here', i === j);
+        if (i === j) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+    };
+    var bar = 56, tick = 0;
+    var read = function () {
+      tick = 0;
+      var line = bar + 100, best = 0;
+      for (var i = 0; i < chs.length; i++) {
+        if (chs[i] && chs[i].getBoundingClientRect().top <= line) best = i;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) best = chs.length - 1;
+      mark(best);
+    };
+    var onScroll = function () { if (!tick) tick = requestAnimationFrame(read); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    read();
+  } catch (e) {}
+})();
+
+/* the mark: a tap opens the door where there is no hover */
+(function () {
+  var box = document.getElementById('markbox');
+  if (!box) return;
+  var toggle = function () { box.classList.toggle('is-open'); };
+  box.addEventListener('click', toggle);
+  box.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+})();
+
+/* the backdrops take turns every 3.4 s while on screen; a chip picks one and
+   restarts the clock; the blue hairline walks with them. Under reduced motion
+   nothing turns by itself, the chips still work. */
+(function () {
+  var root = document.getElementById('backdrops');
+  if (!root) return;
+  var imgs = Array.prototype.slice.call(root.querySelectorAll('.bd__img'));
+  var chips = Array.prototype.slice.call(root.querySelectorAll('.chip'));
+  var promises = Array.prototype.slice.call(root.querySelectorAll('.promise'));
+  var n = imgs.length, cur = 0, timer = null, seen = false;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var show = function (i) {
+    cur = (i + n) % n;
+    imgs.forEach(function (im, j) {
+      var on = j === cur;
+      im.classList.toggle('is-on', on);
+      im.classList.remove('is-in');
+      if (on) { void im.offsetWidth; im.classList.add('is-in'); }
+    });
+    chips.forEach(function (c, j) { c.setAttribute('aria-pressed', j === cur ? 'true' : 'false'); });
+    promises.forEach(function (p, j) { p.classList.toggle('is-on', j === (cur + 1) % promises.length); });
+  };
+  var stop = function () { if (timer) { clearInterval(timer); timer = null; } };
+  var start = function () { if (reduce || timer || !seen) return; timer = setInterval(function () { show(cur + 1); }, 3400); };
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { show(+c.getAttribute('data-bd')); stop(); start(); });
+  });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) { seen = e.isIntersecting; seen ? start() : stop(); });
+    }, { threshold: 0.2 }).observe(root);
+  } else { seen = true; start(); }
+})();
+
+/* a click on the sheet opens it full size */
+(function () {
+  var lb = document.getElementById('lightbox');
+  if (!lb) return;
+  var im = lb.querySelector('.lb__img'), last = null;
+  var open = function (src, alt) {
+    im.src = src; im.alt = alt || '';
+    lb.hidden = false;
+    lb.querySelector('.lb__x').focus();
+  };
+  var close = function () { lb.hidden = true; im.removeAttribute('src'); if (last) last.focus(); };
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-full]') : null;
+    if (t) { last = t; open(t.getAttribute('data-full'), t.getAttribute('data-alt')); return; }
+    if (!lb.hidden && (e.target === lb || (e.target.closest && e.target.closest('.lb__x')))) close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !lb.hidden) close(); });
+})();
+</script>
+
+</body>
+</html>

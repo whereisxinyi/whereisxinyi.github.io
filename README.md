@@ -28,7 +28,7 @@ resolve to Fraunces.
   The name line `Xinyi Translates [ ] Into [ ]` cycles four pairs of glyphs; clicking a pill scrolls
   to that work. A fixed glass top bar carries the `;` tile + Xinyi Zhang and Work / About.
 - **Stem** — one pixel orchid stem grows down the left of the Work list as you scroll; each row hangs a bud that opens while the row is live.
-- **Index** — five works in two groups, each on a glass tile that raises and resolves out of a pixel dissolve on
+- **Index** — six works in two groups, each on a glass tile that raises and resolves out of a pixel dissolve on
   hover (tap the title on touch).
 - **Footer** — counts the orchids stamped today (kept in `localStorage`, per day).
 
@@ -48,6 +48,9 @@ Work
 - 05 **Tutor Oriel** — a tutoring platform's registration and course selection, rebuilt after usability
   tests to stop drop-off. The card is the cover mosaicked at 6 px cells ·
   `work/tutor-oriel/` · archive: <https://xinyizhangx.com/uiux>
+- 06 **ExplorEdge** — a lean brand and a booking site for outdoor experiences one step past your
+  comfort zone (2023). The card is the landing's three backdrops, mosaicked at 6 px, taking turns
+  while the row is live · `work/exploredge/` · archive: <https://xinyizhangx.com/uiux/exploredge>
 
 
 `about.html` — the one sentence plus two education lines, on a Barcelona-Pavilion free plan: eight fixed
@@ -73,14 +76,15 @@ file picker, drag-and-drop or paste. Everything runs in the browser; no image ev
 index.html          hero + index
 about.html          one sentence
 styles.css          page styles          tokens.css   colours, type, spacing
-main.js             hero field, ambient sprays + click blooms, drawn cursor cell, word pills, card miniatures (02 corridor, 03 rings, the 04 tri-tile), the 05 cover mosaic, counter
+main.js             hero field, ambient sprays + click blooms, drawn cursor cell, word pills, card miniatures (02 corridor, 03 rings, the 04 tri-tile), the 05 cover mosaic, the 06 backdrops, counter
 orchid-sprites.js   shared 64×64 bloom / 160×96 spray pixel sprites (home + about)
 lab/index.html      Experiments — the index of the three machines
 lab/field/          Field                (one self-contained page each)
 lab/explode/        Explode
 lab/bloom/          Bloom
 work/tutor-oriel/   the Tutor Oriel case
-assets/             the Light on Light film + poster, the Tutor Oriel images
+work/exploredge/    the ExplorEdge case  (the mark drawn live, the backdrops taking turns, the browse sheet)
+assets/             the Light on Light film + poster, the Tutor Oriel images, the ExplorEdge images + three films
 ```
 
 ## Run it locally

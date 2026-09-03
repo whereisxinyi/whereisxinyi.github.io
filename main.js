@@ -1651,6 +1651,69 @@
     img.src = "assets/tutor-oriel/cover.png";
   })();
 
+  /* ---------- 06 · ExplorEdge: three backdrops, mosaicked at 6 px, taking turns ----------
+     The landing's hero photographs — night, ridge, trail — each drawn into a
+     6 px mosaic the way the Oriel cover is. While the row is live the plate
+     holds one for 2.4 s, then steps to the next through three alpha steps
+     (⅓, ⅔, 1), the site's pixel dissolve done in paint. Asleep, it rests on
+     the night. A photo that fails to load leaves the plate as bare glass. */
+  (function () {
+    var cv = document.getElementById("edgeCover");
+    if (!cv || !cv.getContext) return;
+    var CELL = 6, g = cv.getContext("2d");
+    var srcs = ["assets/exploredge/card-night.jpg", "assets/exploredge/card-ridge.jpg", "assets/exploredge/card-trail.jpg"];
+    var imgs = [], smalls = [], loaded = 0;
+    var HOLD = 2.4, STEP = 0.1;                    /* seconds on one backdrop; seconds per dissolve step */
+    var dpr = function () { return Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1))); };
+
+    var fit = function () {
+      var r = cv.getBoundingClientRect();
+      if (!r.width) return false;
+      var d = dpr(), w = Math.round(r.width * d), h = Math.round(r.width * 5 / 8 * d);
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; smalls = []; }
+      return true;
+    };
+    var mosaic = function (i) {
+      var cell = CELL * dpr(), cw = Math.ceil(cv.width / cell), ch = Math.ceil(cv.height / cell);
+      var c = document.createElement("canvas"); c.width = cw; c.height = ch;
+      var q = c.getContext("2d"), sw = imgs[i].width, sh = imgs[i].height;
+      var k = Math.max(cw / sw, ch / sh), dw = sw * k, dh = sh * k;
+      q.drawImage(imgs[i], (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+      return c;
+    };
+    var blit = function (i, a) {
+      if (!smalls[i]) smalls[i] = mosaic(i);
+      var s = smalls[i], cell = CELL * dpr();
+      g.globalAlpha = a;
+      g.imageSmoothingEnabled = false;
+      g.drawImage(s, 0, 0, s.width, s.height, 0, 0, s.width * cell, s.height * cell);
+      g.globalAlpha = 1;
+    };
+    var paint = function (t) {
+      if (loaded < srcs.length || !cv.width) return;
+      var n = srcs.length, per = HOLD + STEP * 3, u = t % (per * n);
+      var i = Math.floor(u / per), f = u - i * per;
+      g.fillStyle = CARD_BG; g.fillRect(0, 0, cv.width, cv.height);
+      blit(i, 1);
+      if (f > HOLD) blit((i + 1) % n, Math.min(3, Math.ceil((f - HOLD) / STEP)) / 3);
+    };
+    var draw = function (t) { paint(t); };
+    draw.rest = function () { paint(0); };
+    minis.push({ cv: cv, row: cv.closest(".row"), vis: true, draw: draw });
+
+    var rt = null;
+    addEventListener("resize", function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () { if (fit()) paint(0); }, 180);
+    });
+    for (var i = 0; i < srcs.length; i++) (function (i) {
+      var im = new Image();
+      im.onload = function () { imgs[i] = im; if (++loaded === srcs.length) { fit(); paint(0); } };
+      im.onerror = function () { loaded = -1; };
+      im.src = srcs[i];
+    })(i);
+  })();
+
   if (minis.length && !reduced) {
     var wideMini = matchMedia("(min-width: 60rem)");
     if (window.IntersectionObserver) {
