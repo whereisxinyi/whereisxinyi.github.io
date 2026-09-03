@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens.css?v=20260903i">
+<link rel="stylesheet" href="../../tokens.css?v=20260903j">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 /* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
@@ -340,7 +340,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 .quote footer { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--card-hair); }
 
 /* ---- process strip: two mosaic thumbs ---- */
-.strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.strip { display: grid; gap: 8px; }
 .thumb {
   position: relative;
   display: block;
@@ -411,13 +411,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 .frame--band0.device { padding-top: 10px; }
 
 /* ---- screen board ---- */
-.board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.ch__board { min-width: 0; }
-@media (min-width: 900px) {
-  .ch__board { grid-column: 1 / -1; grid-row: 1; }
-  #design .ch__text { grid-row: 2; }
-  #design .ch__media { grid-row: 2; }
-}
+.board { display: grid; gap: 12px; }
+/* the three colours as glass chips, each carrying its job */
+.swatches { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 14px; max-width: 360px; }
+.sw { padding: 6px; background: var(--card-glass); -webkit-backdrop-filter: var(--card-blur); backdrop-filter: var(--card-blur); border: 1px solid var(--card-hair); border-radius: 8px; }
+.sw__chip { display: block; aspect-ratio: 5 / 3; border-radius: 4px; border: 1px solid var(--card-hair); }
+.sw__name { display: block; margin-top: 6px; font-size: 0.8rem; color: var(--color-ink); }
+.sw__job { display: block; font-size: 0.7rem; letter-spacing: 0.02em; }
 .shot { position: relative; display: block; width: 100%; padding: 22px 0 0; border: 0; background: none; font: inherit; }
 .shot img { display: block; width: 100%; height: auto; border: 1px solid var(--card-hair); border-radius: 5px; background: #fff; }
 .shot__lab { position: absolute; top: 1px; left: 2px; padding: 1px 6px; background: rgba(255,255,255,0.82); border: 1px solid var(--card-hair); border-radius: 4px; font-size: 0.68rem; }
@@ -606,11 +606,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
           </div>
           <div class="strip">
         <button type="button" class="thumb" data-full="../../assets/tutor-oriel/02-lofi.png" data-alt="Six low-fidelity phone wireframes, annotated: select a tutor, additional information, subject and teaching method, date and location, confirmation of booking, back to course browse.">
-          <span class="thumb__box"><canvas aria-hidden="true"></canvas><img src="../../assets/tutor-oriel/02-lofi.png" width="1800" height="577" loading="lazy" alt="Six low-fidelity phone wireframes, annotated: select a tutor, additional information, subject and teaching method, date and location, confirmation of booking, back to course browse."></span>
+          <span class="thumb__box" style="aspect-ratio: 1800 / 577"><canvas aria-hidden="true"></canvas><img src="../../assets/tutor-oriel/02-lofi.png" width="1800" height="577" loading="lazy" alt="Six low-fidelity phone wireframes, annotated: select a tutor, additional information, subject and teaching method, date and location, confirmation of booking, back to course browse."></span>
           <span class="thumb__lab lab">Lo-fi</span>
         </button>
         <button type="button" class="thumb" data-full="../../assets/tutor-oriel/07-midfi.jpg" data-alt="Grid of mid-fidelity screens covering the whole registration and course selection flow.">
-          <span class="thumb__box"><canvas aria-hidden="true"></canvas><img src="../../assets/tutor-oriel/07-midfi.jpg" width="1800" height="1239" loading="lazy" alt="Grid of mid-fidelity screens covering the whole registration and course selection flow."></span>
+          <span class="thumb__box" style="aspect-ratio: 1800 / 1239"><canvas aria-hidden="true"></canvas><img src="../../assets/tutor-oriel/07-midfi.jpg" width="1800" height="1239" loading="lazy" alt="Grid of mid-fidelity screens covering the whole registration and course selection flow."></span>
           <span class="thumb__lab lab">Mid-fi</span>
         </button>
           </div>
@@ -647,13 +647,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
       <section class="ch" id="design">
         <div class="ch__text">
           <h2>Design</h2>
-          <p>Three screens carry the flow: register, choose a tutor, pay. Green on grey and white, Roboto throughout.</p>
-          <figure class="frame brand">
-            <span class="cap">Colour</span>
-            <div class="rvm"><img src="../../assets/tutor-oriel/14-brand-cell.png" width="480" height="532" style="max-width:480px" loading="lazy" alt="Brand swatches: mint green primary, grey secondary, white tertiary."></div>
-          </figure>
+          <p>Three screens carry the flow: register, choose a tutor, pay. Green on grey and white.</p>
+          <ul class="swatches" aria-label="Palette">
+            <li class="sw"><span class="sw__chip" style="background:#3cb28a"></span><span class="sw__name">Mint</span><span class="sw__job lab">every action</span></li>
+            <li class="sw"><span class="sw__chip" style="background:#6b7280"></span><span class="sw__name">Grey</span><span class="sw__job lab">the words</span></li>
+            <li class="sw"><span class="sw__chip" style="background:#ffffff"></span><span class="sw__name">White</span><span class="sw__job lab">the ground</span></li>
+          </ul>
         </div>
-        <div class="ch__board">
+        <div class="ch__media">
           <figure class="frame frame--band0">
             <div class="rvm board">
         <button type="button" class="shot" data-full="../../assets/tutor-oriel/08-register.jpg" data-alt="Hi-fi register screen: full name, email, create and confirm password, terms checkbox, register button and a register with Google button, beside a photograph.">

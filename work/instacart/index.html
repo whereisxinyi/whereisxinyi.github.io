@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens.css?v=20260903i">
+<link rel="stylesheet" href="../../tokens.css?v=20260903j">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 /* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
@@ -163,7 +163,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 /* the stage: the film, as wide as the case, as tall as the screen allows */
 .stage { padding: 8px; }
 .stage .rvm { border: 1px solid var(--card-hair); border-radius: 6px; overflow: hidden; background: #fff; }
-.stage video { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: cover; border: 0; border-radius: 0; }
+.stage .rvm img { border: 0; border-radius: 0; }
 .hero h1 {
   font-family: var(--font-display);
   font-weight: var(--wght-display);
@@ -428,12 +428,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 .units__note { margin-top: 2px; }
 @media (prefers-reduced-motion: reduce) { .apple, .apple__bar i { transition: none; } }
 
-/* ---- the stage: four phones on the brand's cream, all four films at once ---- */
-.stage--phones .rvm { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 22px); padding: clamp(10px, 2.4vw, 28px); background: var(--ic-cream); }
-@media (max-width: 559px) { .stage--phones .rvm { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.stage--phones figure { margin: 0; display: flex; flex-direction: column; }
-.stage--phones video { max-height: none; border: 1px solid var(--card-hair); border-radius: 14px; background: #fff; }
-.stage--phones figcaption { margin-top: auto; padding-top: 6px; display: block; text-align: center; }
+/* ---- the four films, two by two on the brand's cream ---- */
+.phones { padding: 8px; }
+.phones .rvm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(10px, 2vw, 20px); padding: clamp(12px, 2.4vw, 24px); background: var(--ic-cream); border: 1px solid var(--card-hair); border-radius: 6px; }
+.phones figure { margin: 0; display: flex; flex-direction: column; }
+.phones video { display: block; width: 100%; height: auto; border: 1px solid var(--card-hair); border-radius: 14px; background: #fff; }
+.phones figcaption { margin-top: auto; padding-top: 6px; display: block; text-align: center; }
 
 /* ---- outcome ---- */
 .ch--flat { display: block; }
@@ -524,13 +524,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
         <li class="fact"><b>Tools</b> · Figma</li>
       </ul>
     </div>
-    <figure class="frame stage stage--phones frame--band0">
-      <div class="rvm">
-        <figure><video src="../../assets/instacart/search.mp4" poster="../../assets/instacart/search-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: typing apple into search, results grouped by store, each priced per kilo."></video><figcaption class="lab">Search</figcaption></figure>
-        <figure><video src="../../assets/instacart/compare.mp4" poster="../../assets/instacart/compare-poster.jpg" width="374" height="616" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: a product page, Add to compare, then three apples side by side."></video><figcaption class="lab">Compare</figcaption></figure>
-        <figure><video src="../../assets/instacart/chat.mp4" poster="../../assets/instacart/chat-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: the chat box opens and a Fuji apple card appears in the conversation."></video><figcaption class="lab">Ask</figcaption></figure>
-        <figure><video src="../../assets/instacart/holiday.mp4" poster="../../assets/instacart/holiday-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="auto" aria-label="Screen recording: the home page with a Thanksgiving banner, then a shelf of featured holiday products."></video><figcaption class="lab">Holiday shelf</figcaption></figure>
-      </div>
+    <figure class="frame stage frame--band0">
+      <div class="rvm"><img src="../../assets/instacart/cover.jpg" width="1600" height="812" style="max-width:1600px" alt="Two phones showing the redesigned Instacart home: a search bar that asks for anything you want, a row of favourite stores, and Stores to help you save."></div>
     </figure>
   </header>
 
@@ -548,17 +543,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
 
     <div class="chapters">
 
-      <section class="ch" id="brief">
+      <section class="ch ch--flat" id="brief">
         <div class="ch__text">
           <h2>Brief</h2>
           <p>Instacart lets you shop eight supermarkets from one couch, but never against each other. $4.5 a kilo here, $5.66 for three pounds there, never side by side.</p>
           <p class="hmw">How might we <b>compare</b> products by price and quality, and <b>recommend</b> from what you like and what you can spend?</p>
-        </div>
-        <div class="ch__media">
-          <figure class="frame">
-            <span class="cap">The brand, kept as it is</span>
-            <div class="rvm"><img src="../../assets/instacart/brand.jpg" width="1600" height="900" style="max-width:1600px" loading="lazy" alt="The Instacart carrot mark and wordmark, and the same on a desktop screen."></div>
-          </figure>
         </div>
       </section>
 
@@ -684,6 +673,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--color-focus); o
               </div>
             </li>
           </ol>
+          <figure class="frame phones frame--band0">
+            <div class="rvm">
+              <figure><video src="../../assets/instacart/search.mp4" poster="../../assets/instacart/search-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: typing apple into search, results grouped by store, each priced per kilo."></video><figcaption class="lab">Search</figcaption></figure>
+              <figure><video src="../../assets/instacart/compare.mp4" poster="../../assets/instacart/compare-poster.jpg" width="374" height="616" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: a product page, Add to compare, then three apples side by side."></video><figcaption class="lab">Compare</figcaption></figure>
+              <figure><video src="../../assets/instacart/chat.mp4" poster="../../assets/instacart/chat-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the chat box opens and a Fuji apple card appears in the conversation."></video><figcaption class="lab">Ask</figcaption></figure>
+              <figure><video src="../../assets/instacart/holiday.mp4" poster="../../assets/instacart/holiday-poster.jpg" width="374" height="698" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the home page with a Thanksgiving banner, then a shelf of featured holiday products."></video><figcaption class="lab">Holiday shelf</figcaption></figure>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ch ch--flat" id="outcome">
         <div class="ch__text">
           <h2>Outcome</h2>
           <p>A clickable prototype in Figma: search, filter, compare, ask. A concept, done on my own, not with Instacart.</p>
