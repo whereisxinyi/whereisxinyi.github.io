@@ -1817,6 +1817,16 @@
           setLive(row, !row.classList.contains("is-live"));
         });
       }
+      /* the card is the work: a click on it goes where the CTA goes (the film's
+         play button keeps its own job) */
+      var cta = row.querySelector(".row__cta"), card = row.querySelector(".row__card");
+      if (cta && card) {
+        card.addEventListener("click", function (e) {
+          if (e.target.closest && e.target.closest(".play")) return;
+          if (cta.target === "_blank") window.open(cta.href, "_blank", "noopener");
+          else window.location.href = cta.href;
+        });
+      }
     })(rows[ri]);
   }
 
