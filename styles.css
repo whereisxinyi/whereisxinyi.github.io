@@ -7,6 +7,7 @@
   --hero-hair:   rgba(36, 31, 28, 0.08);
   --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
   --hero-grid:   rgba(36, 31, 28, 0.035);
+  --hero-dot:    #87c6f2;          /* the orchid blue the pixel cursor carries */
   --card-glass:  rgba(255, 255, 255, 0.5);
   --card-blur:   blur(12px) saturate(120%);
   --card-hair:   rgba(36, 31, 28, 0.10);
@@ -93,12 +94,15 @@ a:focus-visible, button:focus-visible, .paper:focus-visible {
 @media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
 html.is-coarse { --tap: 44px; }
 
-/* the glass plate, low-centre */
+/* the glass plate: the branch owns the top right of the sheet, so the plate takes
+   the free corner — lower left on a desktop, and the strip under the branch on a
+   phone. It never sits on the flowers. */
 .paper__mid {
-  position: relative;
+  position: absolute;
+  left: max(var(--space-lg), env(safe-area-inset-left));
+  bottom: var(--space-xl);
   z-index: var(--z-raised);
-  margin-block-start: 12vh;
-  max-width: min(46rem, calc(100vw - 2 * var(--space-md)));
+  max-width: min(34rem, calc(100vw - 2 * var(--space-md)));
   padding: var(--space-lg) clamp(var(--space-md), 5vw, var(--space-xl));
   text-align: center;
   background: var(--hero-glass);
@@ -109,6 +113,15 @@ html.is-coarse { --tap: 44px; }
   box-shadow: var(--hero-shadow);
   pointer-events: none;
 }
+@media (max-width: 559px) {
+  .paper__mid {
+    left: max(var(--space-md), env(safe-area-inset-left));
+    right: max(var(--space-md), env(safe-area-inset-right));
+    max-width: none;
+    bottom: calc(var(--space-3xl) + var(--space-xl));
+  }
+}
+
 /* the name line — the label voice, one size up: Fraunces italic, soft axes shut */
 .line {
   font-family: var(--font-mono);
@@ -138,6 +151,7 @@ html.is-coarse { --tap: 44px; }
    pill are stacked in one grid cell, so the pill keeps the width of its widest
    word and the line never reflows while a pair crossfades. */
 .pill {
+  position: relative;
   display: inline-block;
   vertical-align: baseline;
   font: inherit;                       /* … so 1em is the line's own size */
@@ -155,6 +169,32 @@ html.is-coarse { --tap: 44px; }
   transition: border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
 }
 .pill:hover { border-color: var(--color-accent); color: var(--color-accent); }
+/* a pointer within 90 px lights a 4 px orchid-blue pixel at the pill's centre,
+   and it breathes there until the pointer leaves */
+.pill::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  background: var(--hero-dot);
+  opacity: 0;
+  transition: opacity var(--dur-short) var(--ease-out);
+  pointer-events: none;
+}
+.pill.is-near::after {
+  opacity: 0.7;
+  animation: pillBreath 1.4s var(--ease-out) infinite;
+}
+@keyframes pillBreath {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.9; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pill.is-near::after { animation: none !important; opacity: 0.9; }
+}
 
 /* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
 .topbar {
