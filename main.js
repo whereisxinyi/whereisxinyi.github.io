@@ -268,7 +268,7 @@
     var REVEAL = 1200;                               /* the stem draws on in 1.2 s   */
     var BLOOM_WAIT = 400, BLOOM_LEAD = 320;          /* then a bloom every 320 ms    */
     var TILT = 2.5, BLOOM_SWAY = 4;                  /* the wind: branch °, bloom °  */
-    var PETAL = [5, 15, 23, 28], PETAL_SCALE = 0.6;  /* the left lateral petal of FRONT, tight */
+    var PETAL = [5, 6, 54, 50], PETAL_SCALE = 0.5;  /* a whole FRONT bloom, half the branch scale — blooms fall, not petals */
     var BUD = [137, 12, 9, 19];                      /* the tip bud and its pedicel   */
     var BUD_AX = 144, BUD_AY = 12;                   /* … where they leave the stem   */
     var PETAL_EVERY = 2000, PETAL_JIT = 1500, PETAL_LIFE = 4500, PETAL_FADE = 3500;  /* 2–4 in the air, readable to the end */
@@ -327,7 +327,7 @@
     };
     var petalImg = null, budImg = null, stemNB = null;
     if (SP) {
-      petalImg = crop(SP.front, PETAL);              /* one lateral petal, cut from FRONT */
+      petalImg = crop(SP.front, PETAL);              /* a whole bloom, cut from FRONT */
       budImg = crop(SP.stem, BUD);                   /* the tip bud, cut off the stem …   */
       stemNB = document.createElement("canvas");     /* … so the stem can turn without it */
       stemNB.width = SW; stemNB.height = SH;
