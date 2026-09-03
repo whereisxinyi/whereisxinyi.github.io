@@ -1503,7 +1503,7 @@
     addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fit, 180); });
   })();
 
-  /* ---------- 03 · the oasis: its buffer follows the card, and it listens ----------
+  /* ---------- 04 · the oasis: its buffer follows the card, and it listens ----------
      Same as the corridor: the rings are re-made at the size the layout gives the
      card, so a ring stays one whole pixel thick. The press listener is bound to
      the canvas once, and hands the current machine card pixels. */
@@ -1535,7 +1535,7 @@
     });
   })();
 
-  /* ---------- 04 · the tri-card: three machines share one card ----------
+  /* ---------- the tri-card (Experiments, now in the Playground; the index has no row for it): three machines share one card ----------
      The three tiles are ordinary minis (they are already in `minis`, so they
      wake and sleep with the row). All this block does is keep their pixel
      buffers matched to the tile the layout gives them, so the field never
@@ -1651,7 +1651,7 @@
     img.src = "assets/tutor-oriel/cover.png";
   })();
 
-  /* ---------- 06 · ExplorEdge: three backdrops, mosaicked at 6 px, taking turns ----------
+  /* ---------- 03 · ExplorEdge: three backdrops, mosaicked at 6 px, taking turns ----------
      The landing's hero photographs — night, ridge, trail — each drawn into a
      6 px mosaic the way the Oriel cover is. While the row is live the plate
      holds one for 2.4 s, then steps to the next through three alpha steps
