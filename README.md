@@ -39,18 +39,20 @@ One group, *Translations* — six works; Experiments lives in the Playground (to
 - 01 **Light on Light** — fleeting words become visual gifts · <https://light-on-light.vercel.app/>
 - 02 **Unfold** — a flat image becomes a space you can walk through · <https://whereisxinyi.github.io/resonance-exhibition/>
 - 03 **ExplorEdge** — a lean brand and a booking site for outdoor experiences one step past your
-  comfort zone (2023). The card is the landing's three backdrops, mosaicked at 6 px, taking turns
-  while the row is live · `work/exploredge/` · archive: <https://xinyizhangx.com/uiux/exploredge>
+  comfort zone (2023). The card is a pixel plate: the three-plane mark at night, its blue door
+  swinging on the hinge while the row is live, a pale light widening across the floor · `work/exploredge/` · archive: <https://xinyizhangx.com/uiux/exploredge>
 - 04 **White Noise Oasis** — white noise, translated into a visual you can play, with its Spotify
   tracks. The card is a live drawing of it: thin hand-wobbled ink rings drift out in perspective
   (wider, lower and faster as they come), a new one every ~700 ms, and a click drops one where you
   press · <https://xinyizhangx.github.io/Links/>
 - 05 **Tutor Oriel** — a tutoring platform's registration and course selection, rebuilt after usability
-  tests to stop drop-off. The card is the cover mosaicked at 6 px cells ·
-  `work/tutor-oriel/` · archive: <https://xinyizhangx.com/uiux>
+  tests to stop drop-off. The card is a pixel plate: students walk a path through three mint doors;
+  for half the loop the first door is the old one and every other student drops out of it, then it is
+  rebuilt wide and everyone gathers at the end · `work/tutor-oriel/` · archive: <https://xinyizhangx.com/uiux>
 - 06 **Instacart** — a concept: a compare layer for grocery shopping, one unit across stores, products side
-  by side, an AI you can just ask (2023–24). The card is three stills from the films (search, compare, ask),
-  mosaicked at 6 px, taking turns · `work/instacart/` · archive: <https://xinyizhangx.com/uiux/instacart>
+  by side, an AI you can just ask (2023–24). The card is a pixel plate: three apples on a shelf, a price
+  bar under each; every 2.6 s the unit turns (per pack, per kilo), the apples hop into the new order and
+  the carrot-orange tag hops to the cheapest · `work/instacart/` · archive: <https://xinyizhangx.com/uiux/instacart>
 
 Playground — `lab/`
 - **Experiments** — Field, Explode, Bloom: three ways an image becomes an event. Top bar: Work · Playground · About.
@@ -79,7 +81,7 @@ file picker, drag-and-drop or paste. Everything runs in the browser; no image ev
 index.html          hero + index
 about.html          one sentence
 styles.css          page styles          tokens.css   colours, type, spacing
-main.js             hero field, ambient sprays + click blooms, drawn cursor cell, word pills, card miniatures (02 corridor, 04 rings), the 03 backdrops and 06 stills taking turns, the 05 cover mosaic, counter
+main.js             hero field, ambient sprays + click blooms, drawn cursor cell, word pills, card miniatures (02 corridor, 04 rings, and the 03 / 05 / 06 pixel plates), counter
 orchid-sprites.js   shared 64×64 bloom / 160×96 spray pixel sprites (home + about)
 lab/index.html      Playground — Experiments, the index of the three machines
 lab/field/          Field                (one self-contained page each)
@@ -88,7 +90,7 @@ lab/bloom/          Bloom
 work/tutor-oriel/   the Tutor Oriel case
 work/exploredge/    the ExplorEdge case  (the mark drawn live, the backdrops taking turns, the browse sheet)
 work/instacart/     the Instacart case   (the unit switch: three apples, per pack or per kilo)
-assets/             the Light on Light film + poster, the Tutor Oriel images, the ExplorEdge images + three films, the Instacart images + four films
+assets/             the Light on Light film + poster, the Tutor Oriel images, the ExplorEdge images + three films, the Instacart images + four films (the cards draw themselves; no stills)
 ```
 
 ## Run it locally

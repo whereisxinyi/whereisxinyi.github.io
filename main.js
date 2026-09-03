@@ -1565,156 +1565,187 @@
     });
   })();
 
-  /* ---------- 05 · Tutor Oriel: the cover, mosaicked at 6 px ----------
-     The cover is drawn once into an off-screen buffer at one pixel per 6 px
-     cell, then blown back up with the smoothing off — nearest neighbour, so
-     every cell is one flat colour. While the row is live the whole plate
-     breathes between 0.86 and 1 alpha over the card ground. If W2's cover is
-     not on disk yet, a pixel mosaic of the registration screen stands in
-     (window.__orielCover reports which). */
-  (function () {
-    var cv = document.getElementById("orielCover");
-    if (!cv || !cv.getContext) return;
-    var CELL = 6, g = cv.getContext("2d"), src = null, small = null, ready = false;
-
-    var placeholder = function (w, h) {
-      var c = document.createElement("canvas"); c.width = w; c.height = h;
-      var q = c.getContext("2d");
-      q.fillStyle = "#e8eef5"; q.fillRect(0, 0, w, h);
-      q.fillStyle = "rgba(36,31,28,0.05)";
-      for (var gx = 0; gx < w; gx += 12) q.fillRect(gx, 0, 1, h);
-      var px = w * 0.18, pw = w * 0.64, py = h * 0.1, ph = h * 0.8;
-      q.fillStyle = "#ffffff"; q.fillRect(px, py, pw, ph);                 /* the screen */
-      q.fillStyle = "#3c6f9e"; q.fillRect(px, py, pw, ph * 0.16);          /* its header */
-      q.fillStyle = "#c7dcee";
-      for (var i = 0; i < 4; i++) q.fillRect(px + pw * 0.1, py + ph * (0.3 + i * 0.14), pw * 0.8, ph * 0.08);
-      q.fillStyle = "#241f1c"; q.fillRect(px + pw * 0.1, py + ph * 0.86, pw * 0.44, ph * 0.09);
-      return c;
-    };
-
-    var fit = function () {
-      var r = cv.getBoundingClientRect();
-      if (!r.width) return false;
-      var dpr = Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1)));
-      var w = Math.round(r.width * dpr), h = Math.round(r.width * 5 / 8 * dpr);
-      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; small = null; }
-      return true;
-    };
-
-    var mosaic = function () {
-      var w = cv.width, h = cv.height;
-      var dpr = Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1)));
-      var cell = CELL * dpr;
-      var cw = Math.ceil(w / cell), ch = Math.ceil(h / cell);
-      small = document.createElement("canvas"); small.width = cw; small.height = ch;
-      var q = small.getContext("2d");
-      /* cover the cell grid with the image, centre-cropped */
-      var sw = src.width, sh = src.height;
-      var k = Math.max(cw / sw, ch / sh);
-      var dw = sw * k, dh = sh * k;
-      q.drawImage(src, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
-    };
-
-    var paint = function (a) {
-      if (!ready) return;
-      if (!small) mosaic();
-      var w = cv.width, h = cv.height;
-      var dpr = Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1)));
-      var cell = CELL * dpr;
-      g.globalAlpha = 1;
-      g.fillStyle = CARD_BG; g.fillRect(0, 0, w, h);
-      g.globalAlpha = a;
+  /* ---------- the three cases: pixel plates ----------
+     Each case gets a machine drawn on an 80 × 50 grid of cells, the size of
+     the orchids' pixels, then blown up onto the card with the smoothing off.
+     `plate` hands a maker the small context and a `show` that copies it out. */
+  var plate = function (cv, cols, rows, body) {
+    var g = cv.getContext("2d"), W = cv.width, H = cv.height;
+    var s = document.createElement("canvas"); s.width = cols; s.height = rows;
+    var q = s.getContext("2d");
+    var show = function () {
       g.imageSmoothingEnabled = false;
-      g.drawImage(small, 0, 0, small.width, small.height, 0, 0, small.width * cell, small.height * cell);
-      g.globalAlpha = 1;
+      g.clearRect(0, 0, W, H);
+      g.drawImage(s, 0, 0, cols, rows, 0, 0, W, H);
     };
-
-    /* the plate joins the other minis at once, so it is observed and gated by
-       the row exactly as they are; it simply draws nothing until the cover is in */
-    minis.push({ cv: cv, row: cv.closest(".row"), vis: true,
-                 draw: function (t) { paint(0.86 + 0.14 * (0.5 + 0.5 * Math.sin(t * 1.15))); } });
-
-    var start = function (img, kind) {
-      src = img; ready = true;
-      window.__orielCover = kind;
-      fit(); small = null; paint(1);
-    };
-    var rt = null;
-    addEventListener("resize", function () {
-      clearTimeout(rt);
-      rt = setTimeout(function () { if (fit()) { small = null; paint(1); } }, 180);
-    });
-
-    var img = new Image();
-    img.onload = function () { start(img, "cover"); };
-    img.onerror = function () { fit(); start(placeholder(cv.width || 480, Math.round((cv.width || 480) * 5 / 8)), "placeholder"); };
-    img.src = "assets/tutor-oriel/cover.png";
-  })();
-
-  /* ---------- 03 · ExplorEdge and 06 · Instacart: three stills, mosaicked at 6 px, taking turns ----------
-     Three pictures each drawn into a 6 px mosaic the way the Oriel cover is.
-     While the row is live the plate holds one for 2.4 s, then steps to the
-     next through three alpha steps (⅓, ⅔, 1), the site's pixel dissolve done
-     in paint. Asleep, it rests on the first. A picture that fails to load
-     leaves the plate as bare glass. ExplorEdge turns its landing's night,
-     ridge and trail; Instacart turns search, compare and ask. */
-  var turning = function (id, srcs) {
-    var cv = document.getElementById(id);
-    if (!cv || !cv.getContext) return;
-    var CELL = 6, g = cv.getContext("2d");
-    var imgs = [], smalls = [], loaded = 0;
-    var HOLD = 2.4, STEP = 0.1;                    /* seconds on one backdrop; seconds per dissolve step */
-    var dpr = function () { return Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1))); };
-
-    var fit = function () {
-      var r = cv.getBoundingClientRect();
-      if (!r.width) return false;
-      var d = dpr(), w = Math.round(r.width * d), h = Math.round(r.width * 5 / 8 * d);
-      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; smalls = []; }
-      return true;
-    };
-    var mosaic = function (i) {
-      var cell = CELL * dpr(), cw = Math.ceil(cv.width / cell), ch = Math.ceil(cv.height / cell);
-      var c = document.createElement("canvas"); c.width = cw; c.height = ch;
-      var q = c.getContext("2d"), sw = imgs[i].width, sh = imgs[i].height;
-      var k = Math.max(cw / sw, ch / sh), dw = sw * k, dh = sh * k;
-      q.drawImage(imgs[i], (cw - dw) / 2, (ch - dh) / 2, dw, dh);
-      return c;
-    };
-    var blit = function (i, a) {
-      if (!smalls[i]) smalls[i] = mosaic(i);
-      var s = smalls[i], cell = CELL * dpr();
-      g.globalAlpha = a;
-      g.imageSmoothingEnabled = false;
-      g.drawImage(s, 0, 0, s.width, s.height, 0, 0, s.width * cell, s.height * cell);
-      g.globalAlpha = 1;
-    };
-    var paint = function (t) {
-      if (loaded < srcs.length || !cv.width) return;
-      var n = srcs.length, per = HOLD + STEP * 3, u = t % (per * n);
-      var i = Math.floor(u / per), f = u - i * per;
-      g.fillStyle = CARD_BG; g.fillRect(0, 0, cv.width, cv.height);
-      blit(i, 1);
-      if (f > HOLD) blit((i + 1) % n, Math.min(3, Math.ceil((f - HOLD) / STEP)) / 3);
-    };
-    var draw = function (t) { paint(t); };
-    draw.rest = function () { paint(0); };
-    minis.push({ cv: cv, row: cv.closest(".row"), vis: true, draw: draw });
-
-    var rt = null;
-    addEventListener("resize", function () {
-      clearTimeout(rt);
-      rt = setTimeout(function () { if (fit()) paint(0); }, 180);
-    });
-    for (var i = 0; i < srcs.length; i++) (function (i) {
-      var im = new Image();
-      im.onload = function () { imgs[i] = im; if (++loaded === srcs.length) { fit(); paint(0); } };
-      im.onerror = function () { loaded = -1; };
-      im.src = srcs[i];
-    })(i);
+    return body(q, cols, rows, show);
   };
-  turning("edgeCover", ["assets/exploredge/card-night.jpg", "assets/exploredge/card-ridge.jpg", "assets/exploredge/card-trail.jpg"]);
-  turning("cartCover", ["assets/instacart/card-search.jpg", "assets/instacart/card-compare.jpg", "assets/instacart/card-chat.jpg"]);
+  var poly = function (q, pts, fill) {
+    q.fillStyle = fill; q.beginPath();
+    for (var i = 0; i < pts.length; i++) { if (i) q.lineTo(pts[i][0], pts[i][1]); else q.moveTo(pts[i][0], pts[i][1]); }
+    q.closePath(); q.fill();
+  };
+
+  /* ---------- 03 · ExplorEdge: a door left ajar ----------
+     Night. The mark's three planes — the room, the floor, the door — in the
+     brand's navy, teal and blue; the door swings on its hinge and a pale
+     light widens across the floor as it opens; the stars keep time. At rest
+     the door is a third open. */
+  var makeEdge = function (cv) {
+    return plate(cv, 80, 50, function (q, W, H, show) {
+      var NAVY = "#29335d", ROOM = "#3e476d", BLUE = "#4371db", TEAL = "#4589b3";
+      var stars = [];
+      for (var i = 0; i < 18; i++) stars.push([Math.floor(Math.random() * W), Math.floor(Math.random() * H * 0.6), Math.random() * 6.2832, 0.8 + Math.random()]);
+      var K = 0.42, OX = 5, OY = 0;                           /* the 160 × 120 mark, scaled onto the grid */
+      var P = function (x, y) { return [OX + x * K, OY + y * K]; };
+      var paint = function (o, t) {
+        q.fillStyle = NAVY; q.fillRect(0, 0, W, H);
+        for (var i = 0; i < stars.length; i++) {
+          var st = stars[i], a = 0.18 + 0.5 * (0.5 + 0.5 * Math.sin(t * st[3] + st[2]));
+          q.fillStyle = "rgba(207,227,247," + a.toFixed(2) + ")"; q.fillRect(st[0], st[1], 1, 1);
+        }
+        poly(q, [P(70, 14), P(132, 26), P(132, 92), P(70, 104)], ROOM);           /* the room */
+        poly(q, [P(34, 90), P(70, 104), P(132, 92), P(100, 80)], TEAL);           /* the floor */
+        if (o > 0.02) {                                                          /* the light on the floor */
+          poly(q, [P(70, 104), P(70 - 44 * o, 118), P(72 + 10 * o, 121)], "rgba(207,227,247," + (0.16 + 0.3 * o).toFixed(2) + ")");
+        }
+        var k = 1 - 0.62 * o, tn = Math.tan(0.21 * o), fx = 70 - 36 * k;        /* the door, hinged at x = 70 */
+        poly(q, [P(fx, 26 - 36 * k * tn), P(70, 14), P(70, 104), P(fx, 90 - 36 * k * tn)], BLUE);
+        show();
+      };
+      var draw = function (t) { paint(0.3 + 0.7 * (0.5 - 0.5 * Math.cos(t * 0.8)), t); };
+      draw.rest = function () { paint(0.3, 0); };
+      draw.rest();
+      return draw;
+    });
+  };
+
+  /* ---------- 05 · Tutor Oriel: sign-up → students who stay ----------
+     Students, two-cell ink squares, walk a path through three doors: sign up,
+     pick a course, stay. For the first half of the loop the first door is the
+     old one and every other student drops out of it; for the second half it
+     is rebuilt, wide and mint, and everyone walks through and gathers at the
+     end. At rest: the doors, a queue, a small crowd. */
+  var makeOriel = function (cv) {
+    return plate(cv, 80, 50, function (q, W, H, show) {
+      var MINT = "#3cb28a", INK = "#241f1c", GREY = "rgba(36,31,28,0.28)";
+      var Y = 38, GATES = [20, 42, 64], LOOP = 12, HALF = 6, SPEED = 11, EVERY = 0.55;
+      var dots = [], stay = 0, born = 0, seq = 0, prev = -1, phase = -1;
+      var gate = function (x, wide) {
+        var w = wide ? 13 : 7, h = wide ? 24 : 18, top = Y - h;
+        if (wide) { q.fillStyle = "rgba(60,178,138,0.16)"; q.fillRect(x - w / 2 - 3, top - 3, w + 6, h + 3); }
+        q.fillStyle = MINT;
+        q.fillRect(x - w / 2 - 2, top, 2, h); q.fillRect(x + w / 2, top, 2, h); q.fillRect(x - w / 2 - 2, top, w + 4, 2);
+      };
+      var scene = function (wide) {
+        q.fillStyle = CARD_BG; q.fillRect(0, 0, W, H);
+        q.fillStyle = "rgba(36,31,28,0.22)";
+        for (var x = 2; x < W - 4; x += 3) q.fillRect(x, Y + 1, 1, 1);           /* the path, dotted */
+        gate(GATES[0], wide); gate(GATES[1], false); gate(GATES[2], false);
+        q.fillStyle = "rgba(60,178,138,0.35)"; q.fillRect(W - 3, Y - 22, 2, 23);   /* the shelf they gather on */
+      };
+      var dot = function (x, y, col) { q.fillStyle = col; q.fillRect(Math.round(x), Math.round(y), 3, 3); };
+      var crowd = function (n) {
+        for (var i = 0; i < n; i++) dot(W - 16 + (i % 3) * 4, Y - 2 - Math.floor(i / 3) * 4, i % 2 ? INK : MINT);
+      };
+      var step = function (dt, ph) {
+        born += dt;
+        while (born >= EVERY) { born -= EVERY; dots.push({ x: -3, y: Y - 3, id: seq++, fall: 0, a: 1 }); }
+        for (var i = dots.length - 1; i >= 0; i--) {
+          var d = dots[i];
+          if (d.fall) { d.y += 22 * dt; d.a -= 1.6 * dt; if (d.a <= 0) dots.splice(i, 1); continue; }
+          var nx = d.x + SPEED * dt;
+          if (ph === 0 && d.id % 2 && d.x < GATES[0] && nx >= GATES[0]) d.fall = 1;     /* the old door loses one in two */
+          d.x = nx;
+          if (d.x > W - 18) { dots.splice(i, 1); if (stay < 12) stay++; }
+        }
+      };
+      var paint = function (ph, t) {
+        scene(ph === 1);
+        for (var i = 0; i < dots.length; i++) {
+          var d = dots[i];
+          if (d.fall) dot(d.x, d.y, "rgba(36,31,28," + Math.max(0, d.a * 0.5).toFixed(2) + ")");
+          else dot(d.x, d.y - (Math.floor(d.x) % 2), INK);
+        }
+        crowd(stay);
+        show();
+      };
+      var draw = function (t) {
+        var u = t % LOOP, ph = u < HALF ? 0 : 1;
+        if (ph !== phase) { if (ph === 0) { dots.length = 0; stay = 0; } else { stay = Math.min(stay, 2); } phase = ph; }
+        if (prev < 0 || t < prev || t - prev > 0.5) prev = t;
+        var dt = Math.min(0.1, t - prev); prev = t;
+        step(dt, ph);
+        paint(ph, t);
+      };
+      draw.rest = function () {
+        dots.length = 0; stay = 5; prev = -1; phase = -1;
+        for (var i = 0; i < 6; i++) dots.push({ x: 3 + i * 9, y: Y - 3, id: i, fall: 0, a: 1 });
+        paint(1, 0);
+      };
+      draw.rest();
+      return draw;
+    });
+  };
+
+  /* ---------- 06 · Instacart: a list → a comparison ----------
+     Three pixel apples on a shelf, a price bar under each. Every 2.6 s the
+     unit turns — per pack, per kilo — the bars regrow, the apples hop to
+     their new order, and the carrot-orange tag hops to whichever is cheapest
+     now. At rest: per pack, still. */
+  var makeCart = function (cv) {
+    return plate(cv, 80, 50, function (q, W, H, show) {
+      var CREAM = "#faf1e5", GREEN = "#0aad0a", CARROT = "#ff7009", KALE = "#003d29";
+      var SPR = ["....s....", "...sll...", ".rrr.rrr.", "rrrrrrrrr", "rhrrrrrrr", "rrrrrrrrr", "rrrrrrrrr", ".rrrrrrr.", "..rr.rr.."];
+      var APPLES = [
+        { r: "#d9302a", h: "#f07a6a", pack: 5.07, kg: 3.73 },          /* Gala, a bag       */
+        { r: "#c4231f", h: "#ea6c5c", pack: 4.87, kg: 5.35 },          /* Honeycrisp, 2 lb  */
+        { r: "#7cc242", h: "#b9e38a", pack: 6.50, kg: 6.50 }           /* a green one, loose */
+      ];
+      var SLOT = [15, 40, 65], SHELF = 30, TURN = 2.6, HOP = 0.5, BAR = 18;
+      var sprite = function (a, x, y) {
+        for (var r = 0; r < 9; r++) for (var c = 0; c < 9; c++) {
+          var ch = SPR[r].charAt(c); if (ch === ".") continue;
+          q.fillStyle = ch === "s" ? KALE : ch === "l" ? GREEN : ch === "h" ? a.h : a.r;
+          q.fillRect(x - 4 + c, y - 9 + r, 1, 1);
+        }
+      };
+      var order = function (u) {                                     /* apple index per slot, cheapest first */
+        var ix = [0, 1, 2]; ix.sort(function (i, j) { return APPLES[i][u] - APPLES[j][u]; }); return ix;
+      };
+      var ease = function (v) { return v < 0.5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2; };
+      var paint = function (u0, u1, f) {                              /* from unit u0 to u1, f of the way */
+        var o0 = order(u0), o1 = order(u1), max = 0, i;
+        for (i = 0; i < 3; i++) max = Math.max(max, APPLES[i][u1], APPLES[i][u0]);
+        q.fillStyle = CREAM; q.fillRect(0, 0, W, H);
+        q.fillStyle = "rgba(0,61,41,0.35)"; q.fillRect(4, SHELF, W - 8, 1);
+        var e = ease(f);
+        for (i = 0; i < 3; i++) {
+          var s0 = o0.indexOf(i), s1 = o1.indexOf(i);
+          var x = SLOT[s0] + (SLOT[s1] - SLOT[s0]) * e;
+          var hop = s0 === s1 ? 0 : Math.sin(Math.PI * e) * 5;
+          var v = APPLES[i][u0] + (APPLES[i][u1] - APPLES[i][u0]) * e;
+          var best = f < 0.5 ? o0[0] === i : o1[0] === i;
+          sprite(APPLES[i], Math.round(x), Math.round(SHELF - hop));
+          q.fillStyle = best ? GREEN : "rgba(0,61,41,0.28)";
+          q.fillRect(Math.round(x) - 9, SHELF + 6, Math.max(2, Math.round(BAR * v / max)), 3);
+          if (best) { q.fillStyle = CARROT; q.fillRect(Math.round(x) - 9, SHELF + 11, 5, 2); q.fillRect(Math.round(x) - 8, SHELF + 13, 3, 1); }
+        }
+        show();
+      };
+      var draw = function (t) {
+        var n = Math.floor(t / TURN), f = t - n * TURN;
+        var u0 = n % 2 ? "kg" : "pack", u1 = n % 2 ? "pack" : "kg";
+        paint(u0, u1, Math.min(1, f / HOP));
+      };
+      draw.rest = function () { paint("pack", "pack", 0); };
+      draw.rest();
+      return draw;
+    });
+  };
+  addMini("miniEdge", makeEdge);
+  addMini("miniOriel", makeOriel);
+  addMini("miniCart", makeCart);
 
   if (minis.length && !reduced) {
     var wideMini = matchMedia("(min-width: 60rem)");
