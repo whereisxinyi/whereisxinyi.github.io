@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bloom · Xinyi</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='44' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<meta name="description" content="Bloom — small flowers grow out of the cracks in your photo. Client-side only.">
+<script>
+/* This sits above the font <link> on purpose: an inline script that follows a
+   stylesheet waits for that stylesheet, which delayed the demo by ~1 s. */
+(function () {
+  'use strict';
+  function boot() {
+
+    var SW = 900, SH = 600;            /* the built-in sample */
+    var REVEAL = 520, STAGGER = 2700;  /* ms: one flower's dissolve, spread of all of them */
+    var PXB = 3;                       /* CSS px of one pixel block — the whole flower is rastered on it */
+    var MAXSRC = 4000;                 /* guard against enormous uploads */
+    var SWAY = 6 * Math.PI / 180;      /* the sway: ±6° around the stem base … */
+    var LAT = 3;                       /* … with ±3 CSS px of lateral drift in step with it */
+    var BREATH = 0.06;                 /* petals breathe 6% */
+    var GUSTA = 4 * Math.PI / 180;     /* a gust leans every flower +4° … */
+    var GUSTMS = 600;                  /* … over 600 ms, one gust every 6–9 s */
+
+    var cv = document.getElementById('cv');
+    var g = cv.getContext('2d');
+    var stageEl = document.getElementById('stage');
+    var fileEl = document.getElementById('file');
+    var densEl = document.getElementById('density');
+    var vDens = document.getElementById('vDens');
+    var regrowEl = document.getElementById('regrow');
+    var dlEl = document.getElementById('dl');
+    var noteEl = document.getElementById('count');
+
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    var src = document.createElement('canvas');
+    var sctx = src.getContext('2d', { willReadFrequently: true });
+    var layer = document.createElement('canvas'), lctx = layer.getContext('2d');
+    var pix = document.createElement('canvas'), pctx = pix.getContext('2d');
+
+    var map = null;                    /* small luminance / edge / weight map */
+    var flowers = [];
+    var seed = 20260902, isUser = false;
+    var fit = { ox: 0, oy: 0, s: 1 };
+    var t0 = 0, raf = 0, last = -1e9, dlUrl = '', built = false, lastW = 0, lastEl = 0;
+    var lastMs = 0, renders = 0;       /* what one rendered frame costs, for the record */
+    var END = STAGGER + REVEAL + 40;
+    var PAPER2 = (function () {
+      var v = getComputedStyle(stageEl).backgroundColor;
+      var p = document.createElement('canvas').getContext('2d');
+      p.fillStyle = '#010203';
+      try { p.fillStyle = v; } catch (e) { }
+      return p.fillStyle === '#010203' ? '#f1efe9' : v;
+    })();
+
+    /* white / blue palette (same table as the bench): near-white petals shaded
+       towards the orchid blue, ink-blue centres. nothing pink, yellow or coral. */
+    var PAL = [
+      { w: 34, p: [255, 255, 255], c: [135, 198, 242] },
+      { w: 26, p: [239, 246, 251], c: [96, 166, 222] },
+      { w: 20, p: [199, 226, 246], c: [60, 126, 190] },
+      { w: 14, p: [155, 203, 237], c: [40, 104, 168] },
+      { w: 6,  p: [109, 179, 228], c: [255, 255, 255] }
+    ];
+
+    function mk(s) {
+      var a = s >>> 0;
+      return function () {
+        a += 0x6D2B79F5;
+        var t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function mix(a, b, t) {
+      return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+    }
+    function shade(c, k) { return [Math.min(255, c[0] * k), Math.min(255, c[1] * k), Math.min(255, c[2] * k)]; }
+    function rgb(c, a) {
+      return 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + (a === undefined ? 1 : a) + ')';
+    }
+
+    /* ---------- the built-in sample: concrete slab + dark drain grate ---------- */
+    function sample() {
+      var c = document.createElement('canvas'), i, j;
+      c.width = SW; c.height = SH;
+      var x = c.getContext('2d'), r = mk(4711);
+      x.fillStyle = '#a29c93'; x.fillRect(0, 0, SW, SH);
+      for (i = 0; i < 150; i++) {                       /* mottled concrete */
+        var k = 0.86 + r() * 0.26;
+        x.fillStyle = rgb(shade([162, 156, 147], k), 0.16);
+        x.beginPath(); x.arc(r() * SW, r() * SH, 9 + r() * 42, 0, 6.2832); x.fill();
+      }
+      for (i = 0; i < 2600; i++) {                      /* aggregate speckle */
+        var v = r() < 0.5 ? 52 : 240;
+        x.fillStyle = 'rgba(' + v + ',' + v + ',' + (v - 4) + ',' + (0.07 + r() * 0.24) + ')';
+        x.fillRect(r() * SW | 0, r() * SH | 0, 1 + (r() * 2 | 0), 1 + (r() * 2 | 0));
+      }
+      x.save();
+      x.translate(SW / 2, SH / 2); x.rotate(-0.075);
+      x.fillStyle = '#8f8a82'; x.fillRect(-540, -215, 1080, 430);   /* the grate frame */
+      x.fillStyle = 'rgba(60,56,50,0.25)';
+      x.fillRect(-540, -215, 1080, 6); x.fillRect(-540, 209, 1080, 6);
+      for (j = 0; j < 2; j++) {
+        var top = j ? 26 : -176;
+        for (i = 0; i < 17; i++) {
+          var sx = -520 + i * 62 + (j ? 8 : 0);
+          var sw = 36, sh = 150;
+          var slot = x.createLinearGradient(0, top, 0, top + sh);
+          slot.addColorStop(0, '#0f0d0b'); slot.addColorStop(0.55, '#1b1815'); slot.addColorStop(1, '#080706');
+          x.fillStyle = slot;
+          x.beginPath(); x.roundRect(sx, top, sw, sh, 7); x.fill();
+          var n = 3 + (r() * 4 | 0);                    /* a hint of leaf in the dark */
+          for (var q = 0; q < n; q++) {
+            x.fillStyle = 'rgba(46,72,40,' + (0.28 + r() * 0.4) + ')';
+            x.beginPath();
+            x.ellipse(sx + 6 + r() * (sw - 12), top + sh * (0.35 + r() * 0.6), 3 + r() * 7, 2 + r() * 5, r() * 3, 0, 6.2832);
+            x.fill();
+          }
+          x.strokeStyle = 'rgba(255,252,244,0.30)'; x.lineWidth = 2;
+          x.beginPath(); x.moveTo(sx + sw + 5, top + 3); x.lineTo(sx + sw + 5, top + sh - 3); x.stroke();
+          x.strokeStyle = 'rgba(40,36,30,0.30)';
+          x.beginPath(); x.moveTo(sx - 5, top + 3); x.lineTo(sx - 5, top + sh - 3); x.stroke();
+        }
+      }
+      x.restore();
+      x.strokeStyle = 'rgba(46,42,36,0.30)'; x.lineWidth = 1.4; x.lineCap = 'round';
+      for (i = 0; i < 4; i++) {                          /* hairline cracks in the slab */
+        var cx = r() * SW, cy = r() * SH;
+        x.beginPath(); x.moveTo(cx, cy);
+        for (j = 0; j < 7; j++) { cx += (r() - 0.35) * 34; cy += (r() - 0.5) * 22; x.lineTo(cx, cy); }
+        x.stroke();
+      }
+      var sh2 = x.createLinearGradient(0, 0, SW * 0.75, SH);   /* soft leaf shadow, top-left */
+      sh2.addColorStop(0, 'rgba(28,26,22,0.26)'); sh2.addColorStop(0.5, 'rgba(28,26,22,0.04)');
+      sh2.addColorStop(1, 'rgba(28,26,22,0)');
+      x.fillStyle = sh2; x.fillRect(0, 0, SW, SH);
+      return c;
+    }
+
+    /* ---------- luminance + edge map, used to place the flowers ---------- */
+    function analyse() {
+      var LE = 200, w, h, i;
+      if (src.width >= src.height) { w = LE; h = Math.max(2, Math.round(LE * src.height / src.width)); }
+      else { h = LE; w = Math.max(2, Math.round(LE * src.width / src.height)); }
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var x = c.getContext('2d', { willReadFrequently: true });
+      x.drawImage(src, 0, 0, w, h);
+      var d = x.getImageData(0, 0, w, h).data, n = w * h;
+      var lum = new Float32Array(n), sum = 0;
+      for (i = 0; i < n; i++) {
+        var j = i * 4;
+        lum[i] = (0.299 * d[j] + 0.587 * d[j + 1] + 0.114 * d[j + 2]) / 255;
+        sum += lum[i];
+      }
+      var edge = new Float32Array(n), mxe = 0;
+      for (var y = 1; y < h - 1; y++) {
+        for (var xx = 1; xx < w - 1; xx++) {
+          var k = y * w + xx;
+          var gx = lum[k - w + 1] + 2 * lum[k + 1] + lum[k + w + 1] - lum[k - w - 1] - 2 * lum[k - 1] - lum[k + w - 1];
+          var gy = lum[k + w - 1] + 2 * lum[k + w] + lum[k + w + 1] - lum[k - w - 1] - 2 * lum[k - w] - lum[k - w + 1];
+          var m = Math.sqrt(gx * gx + gy * gy);
+          edge[k] = m; if (m > mxe) mxe = m;
+        }
+      }
+      var wt = new Float32Array(n), mxw = 0;
+      for (i = 0; i < n; i++) {
+        var v = 0.62 * Math.pow(1 - lum[i], 1.5) + 0.38 * Math.min(1, (mxe ? edge[i] / mxe : 0) * 1.9) + 0.035;
+        wt[i] = v; if (v > mxw) mxw = v;
+      }
+      for (i = 0; i < n; i++) wt[i] /= mxw;
+      map = { w: w, h: h, d: d, lum: lum, wt: wt, mean: sum / n };
+    }
+    function idx(x, y) {
+      var mx = Math.min(map.w - 1, (x / src.width * map.w) | 0);
+      var my = Math.min(map.h - 1, (y / src.height * map.h) | 0);
+      return my * map.w + mx;
+    }
+    function colAt(x, y) { var i = idx(x, y) * 4; return [map.d[i], map.d[i + 1], map.d[i + 2]]; }
+
+    /* ---------- placement: darkness/edge-weighted dart throwing with a min distance ---------- */
+    function place(target, rnd) {
+      var W = src.width, H = src.height;
+      var base = Math.sqrt(W * H / target);
+      var cell = base * 0.44;
+      var gw = Math.max(1, Math.ceil(W / cell)), gh = Math.max(1, Math.ceil(H / cell));
+      var grid = new Array(gw * gh), pts = [];
+      function near(x, y, r) {
+        var cx = Math.min(gw - 1, x / cell | 0), cy = Math.min(gh - 1, y / cell | 0);
+        var rad = Math.ceil(r / cell);
+        for (var yy = Math.max(0, cy - rad); yy <= Math.min(gh - 1, cy + rad); yy++) {
+          for (var xx = Math.max(0, cx - rad); xx <= Math.min(gw - 1, cx + rad); xx++) {
+            var b = grid[yy * gw + xx];
+            if (!b) continue;
+            for (var i = 0; i < b.length; i++) {
+              var dx = b[i][0] - x, dy = b[i][1] - y;
+              if (dx * dx + dy * dy < r * r) return true;
+            }
+          }
+        }
+        return false;
+      }
+      var passes = [[2.6, 0.66], [1.3, 0.60], [0.6, 0.53], [0.22, 0.47]];
+      for (var p = 0; p < passes.length && pts.length < target; p++) {
+        var gamma = passes[p][0], minD = base * passes[p][1], tries = target * 90;
+        while (pts.length < target && tries-- > 0) {
+          var x = rnd() * W, y = rnd() * H;
+          if (rnd() > Math.pow(map.wt[idx(x, y)], gamma)) continue;
+          if (near(x, y, minD)) continue;
+          var gi = Math.min(gh - 1, y / cell | 0) * gw + Math.min(gw - 1, x / cell | 0);
+          (grid[gi] || (grid[gi] = [])).push([x, y]);
+          pts.push([x, y]);
+        }
+      }
+      return { pts: pts, base: base };
+    }
+
+    function build() {
+      var rnd = mk(seed), W = src.width, H = src.height;
+      var target = Math.round(46 + (+densEl.value) * 21);
+      var res = place(target, rnd), pts = res.pts, out = [], i;
+      for (i = 0; i < pts.length; i++) {
+        var x = pts[i][0], y = pts[i][1];
+        var loc = colAt(x, y);
+        var pickW = rnd() * 100, acc = 0, e = PAL[0];
+        for (var k = 0; k < PAL.length; k++) { acc += PAL[k].w; if (pickW <= acc) { e = PAL[k]; break; } }
+        var petal = mix(e.p, loc, 0.08);
+        out.push({
+          x: x, y: y,
+          r: res.base * 0.19 * (0.78 + rnd() * 0.52),
+          pa: rnd() * 6.2832,
+          col: rgb(petal, 1),
+          /* the outline is cooled towards ink-blue so a white flower still reads on a pale picture */
+          line: rgb(mix(shade(petal, 0.62), [42, 96, 150], 0.45), 0.88),
+          core: rgb(e.c, 0.95),
+          stem: rgb(mix([116, 156, 176], loc, 0.2), 0.9),
+          lean: (rnd() - 0.5) * 1.1,
+          bend: (rnd() - 0.5) * 1.0,
+          leaf: rnd() < 0.55,
+          per: 2200 + rnd() * 1000,          /* sway period 2.2–3.2 s */
+          ph: rnd() * 6.2832,
+          bp: 2200 + rnd() * 1600,           /* petal breathing */
+          bh: rnd() * 6.2832,
+          d: 0
+        });
+      }
+      out.sort(function (a, b) { return a.y - b.y; });
+      for (i = 0; i < out.length; i++) {
+        var rr = mk(seed + i * 7919)();
+        out[i].d = reduce ? 0 : STAGGER * (0.55 * rr + 0.45 * (out[i].x / W));
+      }
+      return out;
+    }
+
+    /* ---------- the wind ---------- */
+    /* one gust every 6–9 s: 150 ms to lean in, held, then it relaxes over 300 ms */
+    var gustAt = 0, gustRnd = null;
+    function gust(t) {
+      if (reduce || t > 1e7) return 0;
+      if (!gustRnd) { gustRnd = mk((seed ^ 0x5bf03635) >>> 0); gustAt = 4000 + gustRnd() * 2000; }
+      while (t > gustAt + GUSTMS) gustAt += 6000 + gustRnd() * 3000;
+      var u = (t - gustAt) / GUSTMS;
+      if (u < 0) return 0;
+      if (u < 0.25) return 0.5 - 0.5 * Math.cos(Math.PI * u / 0.25);
+      if (u < 0.5) return 1;
+      return 0.5 + 0.5 * Math.cos(Math.PI * (u - 0.5) / 0.5);
+    }
+
+    /* one flower's live pose; the render and the state hook read the same numbers */
+    function pose(f, t) {
+      if (reduce) return { a: 0, dx: 0, br: 1 };
+      var w = Math.sin(t / f.per * 6.2832 + f.ph);
+      return {
+        a: SWAY * w + GUSTA * gust(t),
+        dx: LAT * w,
+        br: 1 + BREATH * Math.sin(t / f.bp * 6.2832 + f.bh)
+      };
+    }
+
+    /* ---------- one flower ----------
+       Drawn into a raster whose unit is one pixel block: B is that block in the
+       units of ctx, so every feature is kept at least one block wide. */
+    function drawF(ctx, f, alpha, t, T, B, u) {
+      var R = f.r * T.s;
+      if (R < 0.6) return;
+      var X = T.ox + f.x * T.s, Y = T.oy + f.y * T.s;
+      var q = pose(f, t), br = q.br;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(X + q.dx * u, Y + R * 3.0);
+      ctx.rotate(q.a);
+      ctx.translate(0, -R * 3.0);
+      ctx.strokeStyle = f.stem;
+      ctx.lineWidth = Math.max(B, R * 0.09);
+      ctx.lineCap = 'butt';
+      ctx.beginPath();
+      ctx.moveTo(f.lean * R, R * 3.0);
+      ctx.quadraticCurveTo(f.bend * R, R * 1.5, 0, R * 0.15);
+      ctx.stroke();
+      if (f.leaf) {
+        ctx.fillStyle = f.stem;
+        ctx.beginPath();
+        ctx.ellipse(f.bend * R * 0.95, R * 1.8, Math.max(B * 0.9, R * 0.44), Math.max(B * 0.5, R * 0.17),
+                    f.bend * 0.9 + 0.4, 0, 6.2832);
+        ctx.fill();
+      }
+      ctx.fillStyle = f.col;
+      ctx.strokeStyle = f.line;
+      ctx.lineWidth = B;                                   /* the outline is exactly one block */
+      var ring = Math.max(B * 0.95, 0.68 * R * br);
+      var pw = Math.max(B * 0.8, 0.40 * R * br), ph = Math.max(B * 0.65, 0.335 * R * br);
+      for (var i = 0; i < 5; i++) {
+        var a = f.pa + i * 1.25664;
+        ctx.beginPath();
+        ctx.ellipse(Math.cos(a) * ring, Math.sin(a) * ring, pw, ph, a, 0, 6.2832);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(0, 0, Math.max(B * 0.62, 0.19 * R * br), 0, 6.2832);
+      ctx.fillStyle = f.core; ctx.fill();
+      ctx.restore();
+    }
+
+    /* ---------- the pixel raster: draw at 1/B, blow it back up nearest-neighbour ----------
+       Everything the flowers are made of goes through this, every frame, so the
+       sway is rotated inside the low-res space and the blocks stay square and
+       on the same grid. The photo underneath is never touched. */
+    var bufs = {};
+    function base() { return Math.max(2, Math.round(PXB * dpr)); }
+    function rasterTo(dst, DW, DH, list, B, t, T, u, hard) {
+      var pw = Math.max(1, Math.ceil(DW / B)), ph = Math.max(1, Math.ceil(DH / B));
+      var key = B + ':' + pw + 'x' + ph, e = bufs[key];
+      if (!e) {
+        for (var kk in bufs) { if (bufs[kk].c.width * bufs[kk].c.height > 4e6) delete bufs[kk]; }
+        e = bufs[key] = { c: document.createElement('canvas') };
+        e.c.width = pw; e.c.height = ph;
+        e.x = e.c.getContext('2d');
+      }
+      var x = e.x;
+      x.setTransform(1, 0, 0, 1, 0, 0);
+      x.clearRect(0, 0, pw, ph);
+      x.setTransform(1 / B, 0, 0, 1 / B, 0, 0);
+      x.lineJoin = 'round';
+      for (var i = 0; i < list.length; i++) drawF(x, list[i][0], list[i][1], t, T, B, u);
+      x.setTransform(1, 0, 0, 1, 0, 0);
+      if (hard === 2) {          /* the export runs once, so it can threshold by hand */
+        var im = x.getImageData(0, 0, pw, ph), d = im.data;
+        for (var k = 3; k < d.length; k += 4) d[k] = d[k] >= 128 ? 255 : 0;
+        x.putImageData(im, 0, 0);
+      }
+      var sm = dst.imageSmoothingEnabled;
+      dst.imageSmoothingEnabled = false;
+      dst.globalAlpha = 1;
+      /* hard: a block is either lit or it is not — the alpha ramp at the edge of a
+         shape is snapped to 0/1 so the flowers read as pixel art, not as a blur.
+         Done with an SVG filter because reading the buffer back would cost 4 ms. */
+      if (hard === 1) dst.filter = 'url(#pxa)';
+      dst.drawImage(e.c, 0, 0, pw, ph, 0, 0, pw * B, ph * B);
+      if (hard === 1) dst.filter = 'none';
+      dst.imageSmoothingEnabled = sm;
+    }
+
+    function render(el) {
+      var W = cv.width, H = cv.height, i;
+      lastEl = el;
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.globalAlpha = 1;
+      g.imageSmoothingEnabled = true;
+      g.fillStyle = PAPER2;
+      g.fillRect(0, 0, W, H);
+      g.drawImage(src, fit.ox, fit.oy, src.width * fit.s, src.height * fit.s);   /* the photo, full opacity */
+      var b0 = base(), b1 = b0 * 4, b2 = b0 * 2;   /* the dissolve steps down onto the flower grid */
+      var g0 = [], g1 = null, g2 = null, done = el >= 1e7;
+      for (i = 0; i < flowers.length; i++) {
+        var f = flowers[i];
+        var p = done ? 1 : (el - f.d) / REVEAL;
+        if (p <= 0) continue;
+        if (p >= 1) { g0.push([f, 1]); continue; }
+        var a = 0.35 + 0.65 * p;
+        if (p < 0.5) (g1 || (g1 = [])).push([f, a]);
+        else if (p < 0.86) (g2 || (g2 = [])).push([f, a]);
+        else g0.push([f, a]);
+      }
+      if (g0.length) rasterTo(g, W, H, g0, b0, el, fit, dpr, 1);
+      if (g2) rasterTo(g, W, H, g2, b2, el, fit, dpr);
+      if (g1) rasterTo(g, W, H, g1, b1, el, fit, dpr);
+      g.globalAlpha = 1;
+    }
+
+    function loop(ts) {
+      raf = requestAnimationFrame(loop);
+      if (document.hidden) return;
+      if (!t0) t0 = ts;
+      var el = ts - t0;
+      if (el > END && ts - last < 20) return;      /* the sway runs at ~50 fps */
+      last = ts;
+      var m0 = performance.now();
+      render(el);
+      lastMs = performance.now() - m0; renders++;
+      if (!built && el >= END) { built = true; finish(el); }
+    }
+
+    function dlBusy(on) {
+      if (on) {
+        if (dlUrl) { URL.revokeObjectURL(dlUrl); dlUrl = ''; }
+        dlEl.setAttribute('href', '#');
+        dlEl.setAttribute('aria-disabled', 'true');
+        dlEl.textContent = 'Preparing…';
+      } else {
+        dlEl.removeAttribute('aria-disabled');
+        dlEl.textContent = 'Download PNG';
+      }
+    }
+
+    function finish(t) {
+      var c = document.createElement('canvas');
+      c.width = src.width; c.height = src.height;
+      var x = c.getContext('2d');
+      x.drawImage(src, 0, 0);
+      var T = { ox: 0, oy: 0, s: 1 }, u = dpr / (fit.s || 1);
+      var eb = Math.max(2, Math.round(PXB * u));      /* blocks the same size as on screen */
+      var lst = [];
+      for (var i = 0; i < flowers.length; i++) lst.push([flowers[i], 1]);
+      rasterTo(x, c.width, c.height, lst, eb, t, T, u, 2);
+      c.toBlob(function (b) {
+        if (b) {
+          if (dlUrl) URL.revokeObjectURL(dlUrl);
+          dlUrl = URL.createObjectURL(b);
+          dlEl.href = dlUrl;
+          dlBusy(false);
+        }
+        expose(true);            /* ready only once the download blob exists */
+      }, 'image/png');
+    }
+
+    function expose(ready) {
+      window.__bloom = {
+        ready: !!ready,
+        count: flowers.length,
+        seed: seed,
+        density: +densEl.value,
+        source: isUser ? 'user' : 'sample',
+        imageMeanLum: map ? map.mean : 0,
+        sig: (function () {
+          var s = 0;
+          for (var i = 0; i < flowers.length; i++) {
+            s = (s + Math.round(flowers[i].x * 7) + Math.round(flowers[i].y * 13) * 3 + i) % 2147483647;
+          }
+          return s;
+        })(),
+        info: function () {
+          var r = cv.getBoundingClientRect();
+          return {
+            cssW: r.width, cssH: r.height, canvasW: cv.width, canvasH: cv.height, dpr: dpr,
+            ox: fit.ox, oy: fit.oy, s: fit.s, srcW: src.width, srcH: src.height,
+            count: flowers.length, block: base(), blockCss: PXB
+          };
+        },
+        /* cost of the last rendered frame, ms */
+        perf: function () { return { ms: +lastMs.toFixed(3), renders: renders, count: flowers.length }; },
+        /* the live pose of every flower at the frame on screen, in CSS px / degrees */
+        state: function () {
+          var t = lastEl, o = [], i;
+          var gd = GUSTA * gust(t) * 180 / Math.PI;
+          for (i = 0; i < flowers.length; i++) {
+            var f = flowers[i], q = pose(f, t);
+            var R = f.r * fit.s;
+            var X = fit.ox + f.x * fit.s + q.dx * dpr, Y = fit.oy + f.y * fit.s;
+            var hx = (X + Math.sin(q.a) * R * 3.0) / dpr;
+            o.push({
+              i: i, x: X / dpr, y: Y / dpr, r: R / dpr,
+              deg: q.a * 180 / Math.PI, swayDeg: q.a * 180 / Math.PI - gd,
+              dx: q.dx, headX: hx, left: hx - R * 1.2 / dpr, right: hx + R * 1.2 / dpr
+            });
+          }
+          return { t: Math.round(t), gustDeg: gd, block: base(), reduce: reduce, flowers: o };
+        },
+        /* flower centres and radii in CSS px, relative to the canvas box */
+        list: function () {
+          var o = [];
+          for (var i = 0; i < flowers.length; i++) {
+            o.push([(fit.ox + flowers[i].x * fit.s) / dpr, (fit.oy + flowers[i].y * fit.s) / dpr,
+                    flowers[i].r * fit.s / dpr]);
+          }
+          return o;
+        },
+        sourcePNG: function () { return src.toDataURL('image/png'); },
+        /* how many flowers are in each stage of the reveal right now */
+        phase: function () {
+          var o = { el: Math.round(lastEl), waiting: 0, block6: 0, block3: 0, fade: 0, vector: 0 };
+          for (var i = 0; i < flowers.length; i++) {
+            var p = lastEl >= 1e7 ? 1 : (lastEl - flowers[i].d) / REVEAL;
+            if (p <= 0) o.waiting++;
+            else if (p >= 1) o.vector++;
+            else if (p < 0.5) o.block6++;
+            else if (p < 0.86) o.block3++;
+            else o.fade++;
+          }
+          return o;
+        }
+      };
+    }
+
+    function grow(keepSeed) {
+      if (!keepSeed) seed = (Math.random() * 4294967295) >>> 0;
+      flowers = build();
+      noteEl.textContent = (isUser ? 'Your image' : 'Sample image') + ' · ' + flowers.length + ' flowers';
+      cancelAnimationFrame(raf);
+      t0 = 0; last = -1e9; built = false;
+      gustRnd = null; gustAt = 0;         /* the wind restarts with the new bed */
+      dlBusy(true);              /* the old PNG is a different bed — drop it */
+      expose(false);
+      if (reduce) { render(1e9); built = true; finish(0); return; }
+      raf = requestAnimationFrame(loop);
+    }
+
+    /* The canvas box is a whole number of CSS pixels and the bitmap an exact
+       multiple of it, and the stage's padding is nudged so the box starts on a
+       whole pixel: otherwise the browser resamples the canvas and the pixel
+       blocks come out soft. */
+    var PADX = -1;
+    function layout() {
+      if (PADX < 0) PADX = parseFloat(getComputedStyle(stageEl).paddingLeft) || 8;
+      stageEl.style.paddingLeft = PADX + 'px';
+      stageEl.style.paddingRight = PADX + 'px';
+      var cssW = Math.floor(stageEl.clientWidth - 2 * PADX);
+      if (cssW < 8) return;
+      var cssH = Math.max(2, Math.round(cssW / (src.width / src.height)));
+      cv.style.width = cssW + 'px';
+      cv.style.height = cssH + 'px';
+      var W = Math.max(2, Math.round(cssW * dpr)), H = Math.max(2, Math.round(cssH * dpr));
+      if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+      var s = Math.min(W / src.width, H / src.height);              /* object-fit: contain */
+      fit.s = s;
+      fit.ox = Math.round((W - src.width * s) / 2);
+      fit.oy = Math.round((H - src.height * s) / 2);
+      var f = cv.getBoundingClientRect().x;
+      f -= Math.round(f);
+      if (Math.abs(f) > 0.01 && Math.abs(f) < PADX) {
+        stageEl.style.paddingLeft = (PADX - f) + 'px';
+        stageEl.style.paddingRight = (PADX + f) + 'px';
+      }
+    }
+
+    function useImage(img, w, h) {
+      var sc = Math.min(1, MAXSRC / Math.max(w, h));
+      src.width = Math.max(2, Math.round(w * sc));
+      src.height = Math.max(2, Math.round(h * sc));
+      sctx.setTransform(1, 0, 0, 1, 0, 0);
+      sctx.clearRect(0, 0, src.width, src.height);
+      sctx.drawImage(img, 0, 0, src.width, src.height);
+      stageEl.style.setProperty('--ar', src.width / src.height);
+      analyse();
+      layout();
+      grow(true);
+    }
+
+    /* ---------- input ---------- */
+    function fromFile(file) {
+      if (!file || !/^image\//.test(file.type)) return;
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function () {
+        isUser = true;
+        useImage(im, im.naturalWidth, im.naturalHeight);
+        URL.revokeObjectURL(url);
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); };
+      im.src = url;
+    }
+    fileEl.addEventListener('change', function () { fromFile(fileEl.files && fileEl.files[0]); });
+    ['dragenter', 'dragover'].forEach(function (t) {
+      stageEl.addEventListener(t, function (ev) { ev.preventDefault(); stageEl.classList.add('is-drop'); });
+    });
+    ['dragleave', 'dragend', 'drop'].forEach(function (t) {
+      stageEl.addEventListener(t, function () { stageEl.classList.remove('is-drop'); });
+    });
+    stageEl.addEventListener('drop', function (ev) {
+      ev.preventDefault();
+      var dt = ev.dataTransfer;
+      if (dt && dt.files && dt.files[0]) fromFile(dt.files[0]);
+    });
+    window.addEventListener('paste', function (ev) {
+      var it = ev.clipboardData && ev.clipboardData.items;
+      if (!it) return;
+      for (var i = 0; i < it.length; i++) {
+        if (it[i].type && it[i].type.indexOf('image/') === 0) { fromFile(it[i].getAsFile()); break; }
+      }
+    });
+    densEl.addEventListener('input', function () { vDens.textContent = densEl.value; grow(true); });
+    regrowEl.addEventListener('click', function () { grow(false); });
+    dlEl.addEventListener('click', function (ev) { if (!dlUrl) ev.preventDefault(); });
+
+    window.addEventListener('load', function () {   /* the real stylesheets have landed */
+      layout();
+      if (built || reduce) render(1e9);
+    });
+
+    /* the stage's width is driven by the viewport height, so a width-only resize
+       never reaches the observer below — but it does move the canvas off the
+       pixel grid, so re-snap it here. */
+    window.addEventListener('resize', function () {
+      layout();
+      if (built || reduce) render(1e9);
+    });
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () {
+        var w = cv.clientWidth;
+        if (Math.abs(w - lastW) < 1) return;
+        lastW = w;
+        layout();
+        if (built || reduce) render(1e9);
+      }).observe(stageEl);
+    }
+
+    /* ---------- go ---------- */
+    var s0 = sample();
+    useImage(s0, s0.width, s0.height);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens.css?v=20260903">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto; }
+  a, button, [role="button"], input[type="range"], label.btn {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%2387c6f2'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+
+/* ---- pixel glass: the site's one material, copied from styles.css ---- */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-glass:  rgba(255, 255, 255, 0.5);
+  --card-blur:   blur(12px) saturate(120%);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  /* colour discipline: ink, cool near-white, orchid blue. nothing warm. */
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+  --orchid:       oklch(58% 0.12 250);
+  --faint:        rgba(36, 31, 28, 0.42);
+  --tap: 0px;
+}
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+
+html { overflow-x: clip; background: var(--hero-ground); }
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  /* the ground + the static 14 px pixel grid */
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: #fff; }
+a:focus-visible, button:focus-visible, input:focus-visible, .btn:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 18px;
+  line-height: 1;
+  padding-block-end: 5px;                /* optical centring for the semicolon */
+}
+.topbar__name {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---- shared lab chrome (the same block on all three lab pages) ---- */
+.lab {
+  max-width: 56rem;
+  margin-inline: auto;
+  /* hero-less: the title block starts 56 + 48 px from the top of the page */
+  padding: calc(var(--bar-h) + 48px) max(var(--space-md), env(safe-area-inset-left)) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.head__title {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(2.2rem, 7.6vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: var(--track-display);
+  overflow-wrap: anywhere;
+}
+.head__lead { margin-top: var(--space-xs); color: var(--color-ink-2); max-width: 44ch; }
+.head__hint {
+  margin-top: var(--space-xs);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.demo { display: flex; flex-direction: column; gap: var(--space-md); }
+.note {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+
+/* the controls row is a glass bar */
+.ctls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+}
+.ctl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+.ctl__name { white-space: nowrap; }   /* one flex item, so the gap doesn't split the label */
+.ctl b { display: inline-block; font-weight: 400; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+/* Fraunces has no tabular figures (tnum is a no-op), so every live counter
+   gets a fixed cell instead: min-width in ch (the width of a zero, the widest
+   digit) + right alignment, so the number can change without moving anything. */
+#vDens { min-width: 2.3ch; text-align: end; }
+.ctl input[type="range"] {
+  width: 180px;
+  height: max(var(--tap), 28px);
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+.acts { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-inline-start: auto; }
+.btn {
+  position: relative;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid var(--card-hair);
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out),
+              background-color var(--dur-micro) var(--ease-out);
+}
+.btn:hover { border-color: rgba(36, 31, 28, 0.30); }
+.btn--primary {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.btn--primary:hover { background: var(--color-ink-2); border-color: var(--color-ink-2); color: #fff; }
+.btn input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+@media (max-width: 40rem) {
+  .acts { margin-inline-start: 0; }
+  .ctl { width: 100%; }
+  .ctl input[type="range"] { width: 100%; flex: 1 1 auto; min-width: 0; }
+}
+/* ---- end shared lab chrome ---- */
+
+.stage {
+  position: relative;
+  /* keep the whole demo, controls included, close to one screen on wide displays */
+  width: min(100%, calc(58dvh * var(--ar, 1.5) + 18px));
+  margin-inline: auto;
+  /* the glass frame: 1 px hairline, radius 8, 8 px of glass around the picture */
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  padding: 8px;
+  overflow: clip;
+  line-height: 0;
+  transition: border-color var(--dur-short) var(--ease-out);
+}
+.stage.is-drop { border-color: var(--orchid); }
+#cv { display: block; width: 100%; height: auto; }
+
+.hidden-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* the download link is inert until the composite of the new bed exists */
+#dl[aria-disabled="true"] { color: var(--color-muted); border-color: var(--card-hair); cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 120ms !important; }
+}
+</style>
+</head>
+<body>
+
+<svg class="hidden-defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <filter id="pxa" color-interpolation-filters="sRGB">
+    <feComponentTransfer><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer>
+  </filter>
+</svg>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../../index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="../../index.html#index">Work</a>
+    <a class="topbar__link" href="../../about.html">About</a>
+  </nav>
+</header>
+
+<main class="lab">
+  <header>
+    <h1 class="head__title">Bloom</h1>
+    <p class="head__lead">Small flowers grow out of the cracks in your photograph.</p>
+    <p class="head__hint">Upload a photo — it blooms.</p>
+  </header>
+
+  <section class="demo">
+    <div class="stage" id="stage">
+      <canvas id="cv" width="900" height="600" role="img"
+              aria-label="A photograph with small procedural flowers growing on top of it"></canvas>
+    </div>
+
+    <div class="ctls">
+      <label class="btn btn--primary">Upload Image<input type="file" id="file" accept="image/*" aria-label="Upload an image"></label>
+      <label class="ctl"><span class="ctl__name">Density&nbsp;<b id="vDens">6</b></span>
+        <input type="range" id="density" min="2" max="10" step="1" value="6" aria-label="Flower density">
+      </label>
+      <div class="acts">
+        <button class="btn" id="regrow" type="button">Regrow</button>
+        <a class="btn" id="dl" download="bloom.png" href="#">Download PNG</a>
+      </div>
+    </div>
+
+    <p class="note" id="note"><span id="count">Growing…</span></p>
+  </section>
+</main>
+
+</body>
+</html>

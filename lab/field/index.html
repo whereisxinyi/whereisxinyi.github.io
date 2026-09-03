@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Field · Xinyi</title>
+<meta name="description" content="Field — white streaks advected by the flow field of an image. The image is an event. Everything runs in your browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='44' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens.css?v=20260903">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto; }
+  a, button, [role="button"], input[type="range"], label.btn {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%2387c6f2'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+
+/* ---- pixel glass: the site's one material, copied from styles.css ---- */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-glass:  rgba(255, 255, 255, 0.5);
+  --card-blur:   blur(12px) saturate(120%);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  /* colour discipline: ink, cool near-white, orchid blue. nothing warm. */
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+  --orchid:       oklch(58% 0.12 250);
+  --faint:        rgba(36, 31, 28, 0.42);
+  --tap: 0px;
+}
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+
+html { overflow-x: clip; background: var(--hero-ground); }
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  /* the ground + the static 14 px pixel grid */
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: #fff; }
+a:focus-visible, button:focus-visible, input:focus-visible, .btn:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 18px;
+  line-height: 1;
+  padding-block-end: 5px;                /* optical centring for the semicolon */
+}
+.topbar__name {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---- shared lab chrome (the same block on all three lab pages) ---- */
+.lab {
+  max-width: 56rem;
+  margin-inline: auto;
+  /* hero-less: the title block starts 56 + 48 px from the top of the page */
+  padding: calc(var(--bar-h) + 48px) max(var(--space-md), env(safe-area-inset-left)) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.head__title {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(2.2rem, 7.6vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: var(--track-display);
+  overflow-wrap: anywhere;
+}
+.head__lead { margin-top: var(--space-xs); color: var(--color-ink-2); max-width: 44ch; }
+.head__hint {
+  margin-top: var(--space-xs);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.demo { display: flex; flex-direction: column; gap: var(--space-md); }
+.note {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+
+/* the demo's own header strip, inside the glass frame:
+   "THE IMAGE IS AN EVENT" left, the live status centred */
+.strip {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0 2px var(--space-xs);
+  border-bottom: 1px solid var(--card-hair);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  letter-spacing: 0.13em;
+  font-variant-caps: all-small-caps;
+  color: var(--color-muted);
+}
+.strip__id { display: flex; align-items: center; gap: 0.6em; min-width: 0; }
+.strip__mark {
+  flex: none;
+  width: 8px; height: 8px;
+  border: 1px solid rgba(36, 31, 28, 0.45);
+  border-radius: 50%;
+}
+.strip__status { grid-column: 2; justify-self: center; white-space: nowrap; }
+.strip__status b { font-weight: 400; color: var(--color-ink-2); }
+.strip__status .sep { color: var(--faint); }
+.dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin: 0 0.4em -1px;
+  border-radius: 50%;
+  background: var(--orchid);
+  animation: live 2.6s var(--ease-in-out) infinite;
+}
+@keyframes live { 0%, 100% { opacity: 1; } 50% { opacity: 0.32; } }
+
+/* the glass frame — the black stage keeps its identity inside it */
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+}
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ar, 16 / 9);
+  background: #000;
+  border: 1px solid var(--card-hair);
+  border-radius: 4px;
+  overflow: clip;
+  transition: border-color var(--dur-short) var(--ease-out);
+}
+.stage.is-drop { border-color: var(--orchid); }
+#cv { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.stage__serif {
+  position: absolute;
+  left: clamp(14px, 5%, 58px);
+  top: 24%;
+  max-width: 46%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(1.4rem, 4.2vw, 2.5rem);
+  line-height: 1.14;
+  letter-spacing: var(--track-display);
+  color: rgba(255, 255, 255, 0.34);
+  pointer-events: none;
+}
+.stage__serif .up { font-style: normal; }
+
+/* the control bar: one glass bar, cells divided by hairlines */
+.ctls {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  overflow: clip;
+}
+.ctl {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-inline-start: 1px solid var(--card-hair);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.10em;
+}
+.ctl:first-child { border-inline-start: 0; }
+.ctl__name { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-sm); font-variant-caps: all-small-caps; white-space: nowrap; }
+.ctl b { font-weight: 400; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+/* Fraunces has no tabular figures (tnum is a no-op), so every live counter
+   gets a fixed cell instead: min-width in ch (the width of a zero, the widest
+   digit) + right alignment, so the number can change without moving anything. */
+#densV { display: inline-block; min-width: 4.3ch; text-align: end; }
+#enerV { display: inline-block; min-width: 3.3ch; text-align: end; }
+#stNum { display: inline-block; min-width: 3.3ch; text-align: end; }
+.ctl__row { display: flex; align-items: center; gap: var(--space-xs); }
+.ctl__sub { font-variant-caps: all-small-caps; color: var(--faint); letter-spacing: 0.10em; }
+.ctl--act { flex-direction: row; align-items: center; gap: var(--space-sm); }
+.ctl--act .txt { display: flex; flex-direction: column; gap: 2px; }
+.ctl--act .txt b { font-variant-caps: all-small-caps; letter-spacing: 0.10em; }
+.glyph { flex: none; width: 18px; text-align: center; color: var(--color-muted); }
+.ring {
+  flex: none;
+  width: 16px; height: 16px;
+  border: 2px solid var(--orchid);
+  border-radius: 50%;
+  position: relative;
+}
+.ring::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--orchid);
+  opacity: 0;
+  transition: opacity var(--dur-micro) var(--ease-out);
+}
+.lab[data-fixed="1"] .ring::after { opacity: 1; }
+.act {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: max(var(--tap), 36px);
+  width: 100%;
+}
+.act:hover b, .act:hover .glyph { color: var(--color-ink); }
+.modes { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+
+/* the buttons are glass pills with ink text; the chosen one is an ink fill */
+.btn {
+  position: relative;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 36px);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  letter-spacing: 0.10em;
+  font-variant-caps: all-small-caps;
+  line-height: 1.2;
+  color: var(--color-ink-2);
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid var(--card-hair);
+  border-radius: 999px;
+  padding: 0.5em 1em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out),
+              background-color var(--dur-micro) var(--ease-out);
+}
+.btn:hover { color: var(--color-ink); border-color: rgba(36, 31, 28, 0.30); }
+.btn[aria-pressed="true"] {
+  color: #fff;
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.btn--bare {
+  background: transparent;
+  border-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.btn--bare:hover { background: rgba(255, 255, 255, 0.55); border-color: transparent; }
+.btn input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: max(var(--tap), 28px);
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: rgba(36, 31, 28, 0.26); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+input[type="range"]::-moz-range-track { height: 1px; background: rgba(36, 31, 28, 0.26); }
+input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--color-ink); }
+
+@media (max-width: 40rem) {
+  .strip { grid-template-columns: 1fr; gap: var(--space-2xs); }
+  .strip__status { grid-column: 1; justify-self: start; }
+  .stage { --ar: 4 / 3; }
+  .stage__serif { top: 8%; max-width: 62%; }
+  .ctl { flex: 1 0 100%; border-inline-start: 0; border-top: 1px solid var(--card-hair); padding-block: var(--space-sm); }
+  .ctl:first-child { border-top: 0; }
+  .btn, .act { min-height: 44px; }
+  input[type="range"] { height: 44px; }
+  input[type="range"]::-webkit-slider-thumb { margin-top: -7.5px; width: 16px; height: 16px; }
+  input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot { animation: none; }
+  .stage, .btn, .ring::after { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../../index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="../../index.html#index">Work</a>
+    <a class="topbar__link" href="../../about.html">About</a>
+  </nav>
+</header>
+
+<main class="lab" id="lab" data-mode="field" data-fixed="0">
+  <header>
+    <h1 class="head__title">Field</h1>
+    <p class="head__lead">The image is an event.</p>
+    <p class="head__hint">Drop or upload an image — the streaks follow its edges.</p>
+  </header>
+
+  <section class="demo">
+    <div class="frame">
+      <div class="strip">
+        <span class="strip__id"><span class="strip__mark" aria-hidden="true"></span>The Image Is an Event</span>
+        <p class="strip__status" id="status" aria-live="off">
+          <b id="stMode">Field</b> <span class="sep">/</span> <b id="stNum">001</b><span class="dot" id="dot" aria-hidden="true"></span>Trace
+        </p>
+      </div>
+      <div class="stage" id="stage" data-mode="field">
+        <canvas id="cv" aria-label="Field canvas — white streaks advected by the flow field of the image"></canvas>
+        <p class="stage__serif"><span class="up">The unseen</span><br>takes form.</p>
+      </div>
+    </div>
+
+    <div class="ctls">
+      <div class="ctl">
+        <span class="ctl__name">Field State</span>
+        <div class="modes" role="group" aria-label="Field State">
+          <button class="btn" type="button" data-set="field" aria-pressed="true">Field</button>
+          <button class="btn btn--bare" type="button" data-set="drift" aria-pressed="false">Drift</button>
+          <button class="btn btn--bare" type="button" data-set="trace" aria-pressed="false">Trace</button>
+        </div>
+      </div>
+
+      <label class="ctl">
+        <span class="ctl__name">Density <b id="densV">1800</b></span>
+        <input type="range" id="dens" min="200" max="4000" step="100" value="1800" aria-label="Density — number of particles">
+      </label>
+
+      <label class="ctl">
+        <span class="ctl__name">Energy <b id="enerV">56</b></span>
+        <input type="range" id="ener" min="4" max="100" step="1" value="56" aria-label="Energy — speed and turbulence">
+      </label>
+
+      <div class="ctl ctl--act">
+        <button class="act" type="button" id="fix" aria-pressed="false">
+          <span class="ring" aria-hidden="true"></span>
+          <span class="txt"><b>Fix the Trace</b><span class="ctl__sub">Make time visible</span></span>
+        </button>
+      </div>
+
+      <div class="ctl ctl--act">
+        <button class="act" type="button" id="exp">
+          <span class="glyph" aria-hidden="true">↓</span>
+          <span class="txt"><b>Export Frame</b><span class="ctl__sub">Save this event</span></span>
+        </button>
+      </div>
+
+      <div class="ctl ctl--act">
+        <label class="btn">Use Your Image<input type="file" id="file" accept="image/*" aria-label="Upload an image"></label>
+      </div>
+    </div>
+
+    <p class="note" id="note">Sample image · 1800 particles</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d', { alpha: false });
+  var lab = document.getElementById('lab');
+  var stage = document.getElementById('stage');
+  var note = document.getElementById('note');
+  var stMode = document.getElementById('stMode');
+  var stNum = document.getElementById('stNum');
+  var dens = document.getElementById('dens');
+  var densV = document.getElementById('densV');
+  var ener = document.getElementById('ener');
+  var enerV = document.getElementById('enerV');
+  var fixBtn = document.getElementById('fix');
+  var modeBtns = [].slice.call(document.querySelectorAll('[data-set]'));
+
+  var src = document.createElement('canvas');
+  var sctx = src.getContext('2d');
+  var label = 'sample image';
+  function capf(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+  var mode = 'field';
+  var fixed = false;
+  var shots = 0;                       // exported frames
+  var W = 0, H = 0;                    // canvas backing store
+  var CS = 6, gw = 0, gh = 0;          // flow grid
+  var FX = null, FY = null, FM = null, CDF = null;
+  var ps = [];
+  var raf = 0, steps = 0, tt = 0, moved = 0, movedN = 0;
+  var seed = 20260902 >>> 0;
+  var MAXA = 0.82, LEV = 10;
+  var buf = [];                        // segment buckets
+
+  function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+
+  // ---- value noise (for the curl on top of the image field) --------------
+  function hash3(i, j, k) {
+    var n = (Math.imul(i, 1597334677) ^ Math.imul(j, -482912295) ^ Math.imul(k, -1640531527)) >>> 0;
+    n = Math.imul(n ^ (n >>> 15), 2246822519);
+    n = Math.imul(n ^ (n >>> 13), -1028477379);
+    return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+  }
+  function noise(x, y, z) {
+    var i = Math.floor(x), j = Math.floor(y), k = Math.floor(z);
+    var fx = x - i, fy = y - j, fz = z - k;
+    var ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy), uz = fz * fz * (3 - 2 * fz);
+    var a = hash3(i, j, k) + (hash3(i + 1, j, k) - hash3(i, j, k)) * ux;
+    var b = hash3(i, j + 1, k) + (hash3(i + 1, j + 1, k) - hash3(i, j + 1, k)) * ux;
+    var c = hash3(i, j, k + 1) + (hash3(i + 1, j, k + 1) - hash3(i, j, k + 1)) * ux;
+    var d = hash3(i, j + 1, k + 1) + (hash3(i + 1, j + 1, k + 1) - hash3(i, j + 1, k + 1)) * ux;
+    var e = a + (b - a) * uy, f = c + (d - c) * uy;
+    return e + (f - e) * uz;
+  }
+
+  // ---- built-in sample: an X-shaped ribbon knot ---------------------------
+  // its luminance ridges run along the arms, so the flow (gradient turned 90°)
+  // sweeps along the knot the way the original piece does
+  function sample() {
+    var w = 960, h = 600;
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var g = c.getContext('2d');
+    g.fillStyle = '#000';
+    g.fillRect(0, 0, w, h);
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    var cx = w / 2, cy = h / 2;
+
+    // a hard central X: two thin high-contrast ribbons and one small loop,
+    // everything inside the middle of the frame so the margins stay empty
+    function band(width, alpha, blur, path) {
+      g.filter = 'blur(' + blur + 'px)';
+      g.strokeStyle = 'rgba(255,255,255,' + alpha + ')';
+      g.lineWidth = width;
+      g.lineCap = 'round';
+      g.beginPath();
+      path();
+      g.stroke();
+    }
+    band(20, 0.95, 5, function () { g.moveTo(cx - 300, cy - 176); g.quadraticCurveTo(cx, cy - 26, cx + 306, cy + 172); });
+    band(20, 0.95, 5, function () { g.moveTo(cx + 300, cy - 168); g.quadraticCurveTo(cx, cy + 30, cx - 302, cy + 178); });
+    band(13, 0.80, 4, function () { g.ellipse(cx - 236, cy + 4, 88, 108, 0.35, 0, 6.2832); });
+    // a second, fainter pass widens each ribbon's shoulder so streaks bundle beside it
+    band(54, 0.28, 20, function () { g.moveTo(cx - 296, cy - 172); g.quadraticCurveTo(cx, cy - 26, cx + 302, cy + 168); });
+    band(54, 0.28, 20, function () { g.moveTo(cx + 296, cy - 164); g.quadraticCurveTo(cx, cy + 30, cx - 298, cy + 174); });
+    g.filter = 'none';
+    return c;
+  }
+
+  // ---- flow field ---------------------------------------------------------
+  function buildField() {
+    gw = Math.max(3, Math.ceil(W / CS));
+    gh = Math.max(3, Math.ceil(H / CS));
+    var n = gw * gh;
+    var g = document.createElement('canvas');
+    g.width = gw; g.height = gh;
+    var gc = g.getContext('2d', { willReadFrequently: true });
+    gc.fillStyle = '#000';
+    gc.fillRect(0, 0, gw, gh);
+    var s = Math.max(gw / src.width, gh / src.height);      // cover
+    var dw = src.width * s, dh = src.height * s;
+    gc.drawImage(src, (gw - dw) / 2, (gh - dh) / 2, dw, dh);
+    var d = gc.getImageData(0, 0, gw, gh).data;
+
+    var lum = new Float32Array(n), tmp = new Float32Array(n);
+    for (var i = 0; i < n; i++) {
+      lum[i] = (0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]) / 255;
+    }
+    blur(lum, tmp, gw, gh, 4);
+
+    FX = new Float32Array(n); FY = new Float32Array(n); FM = new Float32Array(n);
+    var VX = new Float32Array(n), VY = new Float32Array(n);
+    var x, y, k, gx, gy, m, mmax = 1e-6;
+    for (y = 0; y < gh; y++) {
+      for (x = 0; x < gw; x++) {
+        k = y * gw + x;
+        var xl = x > 0 ? x - 1 : 0, xr = x < gw - 1 ? x + 1 : gw - 1;
+        var yu = y > 0 ? y - 1 : 0, yd = y < gh - 1 ? y + 1 : gh - 1;
+        gx = (lum[yu * gw + xr] + 2 * lum[y * gw + xr] + lum[yd * gw + xr])
+           - (lum[yu * gw + xl] + 2 * lum[y * gw + xl] + lum[yd * gw + xl]);
+        gy = (lum[yd * gw + xl] + 2 * lum[yd * gw + x] + lum[yd * gw + xr])
+           - (lum[yu * gw + xl] + 2 * lum[yu * gw + x] + lum[yu * gw + xr]);
+        VX[k] = gy; VY[k] = -gx;          // the gradient turned 90° = along the iso-lines
+        m = Math.sqrt(gx * gx + gy * gy);
+        FM[k] = m;
+        if (m > mmax) mmax = m;
+      }
+    }
+    // spread the edge direction into the space beside it, so neighbouring
+    // streaks bundle; where the image says nothing, a large slow swirl carries on
+    blur(VX, tmp, gw, gh, 2);
+    blur(VY, tmp, gw, gh, 2);
+    blur(FM, tmp, gw, gh, 1);
+    for (y = 0; y < gh; y++) {
+      for (x = 0; x < gw; x++) {
+        k = y * gw + x;
+        var lx = VX[k], ly = VY[k];
+        var len = Math.sqrt(lx * lx + ly * ly);
+        var wt = len / (mmax * 0.10);
+        if (wt > 1) wt = 1;
+        var na = noise(x * 0.014, y * 0.014, 4.7) * 6.2832;
+        var ux = (len > 1e-9 ? lx / len : 0) * wt + Math.cos(na) * (1 - wt);
+        var uy = (len > 1e-9 ? ly / len : 0) * wt + Math.sin(na) * (1 - wt);
+        var ul = Math.sqrt(ux * ux + uy * uy) || 1;
+        FX[k] = ux / ul; FY[k] = uy / ul;
+        m = FM[k] / (mmax * 0.62);
+        FM[k] = m > 1 ? 1 : m;
+      }
+    }
+    // seeding weights — particles are born where the image has edges
+    CDF = new Float32Array(n);
+    var acc = 0;
+    for (k = 0; k < n; k++) { acc += 0.006 + Math.pow(FM[k], 1.5) * 6; CDF[k] = acc; }
+  }
+  function blur(a, t, w, h, times) {
+    for (var p = 0; p < times; p++) {
+      var x, y, k;
+      for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+        k = y * w + x;
+        t[k] = (a[k] + a[y * w + (x > 0 ? x - 1 : 0)] + a[y * w + (x < w - 1 ? x + 1 : w - 1)]) / 3;
+      }
+      for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+        k = y * w + x;
+        a[k] = (t[k] + t[(y > 0 ? y - 1 : 0) * w + x] + t[(y < h - 1 ? y + 1 : h - 1) * w + x]) / 3;
+      }
+    }
+  }
+
+  function flowAt(x, y, out) {
+    var gx = x / CS - 0.5, gy = y / CS - 0.5;
+    if (gx < 0) gx = 0; if (gy < 0) gy = 0;
+    var i0 = gx | 0, j0 = gy | 0;
+    if (i0 > gw - 2) i0 = gw - 2;
+    if (j0 > gh - 2) j0 = gh - 2;
+    var u = gx - i0, v = gy - j0;
+    if (u < 0) u = 0; if (u > 1) u = 1;
+    if (v < 0) v = 0; if (v > 1) v = 1;
+    var a = j0 * gw + i0, b = a + 1, c = a + gw, e = c + 1;
+    var w0 = (1 - u) * (1 - v), w1 = u * (1 - v), w2 = (1 - u) * v, w3 = u * v;
+    out[0] = FX[a] * w0 + FX[b] * w1 + FX[c] * w2 + FX[e] * w3;
+    out[1] = FY[a] * w0 + FY[b] * w1 + FY[c] * w2 + FY[e] * w3;
+    out[2] = FM[a] * w0 + FM[b] * w1 + FM[c] * w2 + FM[e] * w3;
+  }
+
+  // ---- particles ----------------------------------------------------------
+  var f3 = [0, 0, 0];
+  function seedPos(p) {
+    var total = CDF[CDF.length - 1];
+    var r = rnd() * total;
+    var lo = 0, hi = CDF.length - 1, mid;
+    while (lo < hi) { mid = (lo + hi) >> 1; if (CDF[mid] < r) lo = mid + 1; else hi = mid; }
+    p.x = (lo % gw + rnd()) * CS;
+    p.y = ((lo / gw) | 0) * CS + rnd() * CS;
+    p.px = p.x; p.py = p.y;
+    p.age = 0;
+    p.life = 90 + rnd() * 260;
+    p.sp = 0.45 + rnd() * 1.15;
+    p.br = rnd() < 0.26 ? 1 : 0;
+    flowAt(p.x, p.y, f3);
+    var d = rnd() < 0.5 ? 1 : -1;
+    p.hx = f3[0] * d; p.hy = f3[1] * d;
+    p.ang = Math.atan2(p.hy, p.hx);
+  }
+  function setCount(n) {
+    while (ps.length > n) ps.pop();
+    while (ps.length < n) { var p = { x: 0, y: 0, px: 0, py: 0, hx: 1, hy: 0, ang: 0, age: 0, life: 1, sp: 1, br: 0 }; seedPos(p); p.age = rnd() * p.life; ps.push(p); }
+    densV.textContent = n;
+    note.textContent = capf(label) + ' · ' + n + ' particles';
+  }
+
+  function fade() {
+    if (fixed || mode === 'trace') return 0;
+    var k = Math.sqrt(W * H) / 645;             // a small stage clears faster,
+    if (k > 1) k = 1; if (k < 0.4) k = 0.4;     // so its trails stay in proportion
+    return (mode === 'drift' ? 0.0086 : 0.024) / k;
+  }
+
+  function step() {
+    var fa = fade();
+    if (fa > 0) {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(5,5,5,' + fa + ')';
+      ctx.fillRect(0, 0, W, H);
+    }
+    var E = (+ener.value) / 100;
+    var scale = W / 1200;
+    var ink = Math.pow(Math.sqrt(W * H) / 645, 1.5);  // a small stage takes a little less ink,
+    if (ink > 1) ink = 1; if (ink < 0.94) ink = 0.94;  // but never so little that the streaks vanish
+    var base = (0.6 + E * 3.4) * scale * (mode === 'drift' ? 0.42 : 1);
+    var turb = (0.06 + E * 0.55) * (mode === 'drift' ? 0.5 : 1);
+    var turn = mode === 'drift' ? 0.045 : 0.085;
+    var lay = mode === 'trace' ? 0.28 : 1;   // TRACE keeps every frame, so it lays down less
+    tt += 0.0015 * (0.3 + E);
+    var i, k;
+    for (k = 0; k < buf.length; k++) buf[k].length = 0;
+    moved = 0; movedN = 0;
+
+    for (i = 0; i < ps.length; i++) {
+      var p = ps[i];
+      flowAt(p.x, p.y, f3);
+      var vx = f3[0], vy = f3[1];
+      if (vx * p.hx + vy * p.hy < 0) { vx = -vx; vy = -vy; }   // a stroke keeps its heading
+      var ang = Math.atan2(vy, vx);
+      ang += (noise(p.x * 0.0024, p.y * 0.0024, tt) - 0.5) * turb;
+      // momentum: the streak turns towards the field instead of snapping onto it,
+      // so it cuts across the iso-lines and stays a long open stroke
+      var da = ang - p.ang;
+      while (da > Math.PI) da -= 6.28318;
+      while (da < -Math.PI) da += 6.28318;
+      p.ang += da * turn;
+      ang = p.ang;
+      var sp = base * p.sp * (0.55 + f3[2] * 0.8);
+      p.px = p.x; p.py = p.y;
+      p.hx = Math.cos(ang); p.hy = Math.sin(ang);
+      p.x += p.hx * sp;
+      p.y += p.hy * sp;
+      p.age++;
+      moved += sp; movedN++;
+
+      if (p.age > p.life || p.x < -20 || p.y < -20 || p.x > W + 20 || p.y > H + 20) { seedPos(p); continue; }
+
+      var taper = Math.sin(Math.PI * p.age / p.life);
+      taper = Math.pow(taper < 0 ? 0 : taper, 0.55);
+      var a = (p.br ? 0.88 : 0.17) * ink * lay * taper * (0.5 + f3[2] * 0.9);
+      if (a <= 0.004) continue;
+      var lvl = (a / MAXA * LEV) | 0;
+      if (lvl > LEV - 1) lvl = LEV - 1;
+      var b = buf[lvl * 2 + p.br];
+      b.push(p.px, p.py, p.x, p.y);
+    }
+
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    for (k = 0; k < buf.length; k++) {
+      var seg = buf[k];
+      if (!seg.length) continue;
+      ctx.lineWidth = (k & 1) ? (W > 900 ? 1.5 : 1.2) : 0.8;
+      ctx.strokeStyle = 'rgba(255,255,255,' + ((((k >> 1) + 0.55) / LEV) * MAXA).toFixed(4) + ')';
+      ctx.beginPath();
+      for (i = 0; i < seg.length; i += 4) { ctx.moveTo(seg[i], seg[i + 1]); ctx.lineTo(seg[i + 2], seg[i + 3]); }
+      ctx.stroke();
+    }
+    steps++;
+  }
+
+  function loop() { step(); raf = requestAnimationFrame(loop); }
+  function start() {
+    if (RM) return;
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+  function clearStage() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, W, H);
+  }
+  // reduced motion: no loop — one still frame, accumulated then left alone
+  function still() {
+    clearStage();
+    var keep = fixed, km = mode;
+    fixed = true;                       // accumulate while building the frame
+    for (var i = 0; i < 34; i++) step();
+    fixed = keep; mode = km;
+  }
+  function restill() { if (RM) still(); }
+
+  // ---- sizing -------------------------------------------------------------
+  function resize() {
+    var r = cv.getBoundingClientRect();
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var w = Math.max(320, Math.round(r.width * dpr));
+    var h = Math.max(200, Math.round(r.height * dpr));
+    var cap = 2100000;
+    if (w * h > cap) { var f = Math.sqrt(cap / (w * h)); w = Math.round(w * f); h = Math.round(h * f); }
+    if (w === W && h === H) return;
+    W = w; H = h;
+    cv.width = W; cv.height = H;
+    clearStage();
+    buildField();
+    for (var i = 0; i < ps.length; i++) seedPos(ps[i]);
+    restill();
+  }
+
+  // ---- image intake -------------------------------------------------------
+  function setImage(img, iw, ih) {
+    var sc = Math.min(1, 1400 / Math.max(iw, ih));
+    var w = Math.max(2, Math.round(iw * sc)), h = Math.max(2, Math.round(ih * sc));
+    src.width = w; src.height = h;
+    sctx.clearRect(0, 0, w, h);
+    sctx.drawImage(img, 0, 0, w, h);
+    buildField();
+    clearStage();
+    for (var i = 0; i < ps.length; i++) seedPos(ps[i]);
+    note.textContent = capf(label) + ' · ' + ps.length + ' particles';
+    restill();
+  }
+  function fromFile(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    var url = URL.createObjectURL(file);
+    var im = new Image();
+    im.onload = function () { label = 'your image'; setImage(im, im.naturalWidth, im.naturalHeight); URL.revokeObjectURL(url); };
+    im.onerror = function () { URL.revokeObjectURL(url); };
+    im.src = url;
+  }
+
+  // ---- controls -----------------------------------------------------------
+  function setMode(m) {
+    mode = m;
+    lab.setAttribute('data-mode', m);
+    stage.setAttribute('data-mode', m);
+    stMode.textContent = m.charAt(0).toUpperCase() + m.slice(1);
+    for (var i = 0; i < modeBtns.length; i++) {
+      var on = modeBtns[i].getAttribute('data-set') === m;
+      modeBtns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      modeBtns[i].classList.toggle('btn--bare', !on);
+    }
+    restill();
+  }
+  modeBtns.forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-set')); }); });
+
+  fixBtn.addEventListener('click', function () {
+    fixed = !fixed;
+    fixBtn.setAttribute('aria-pressed', fixed ? 'true' : 'false');
+    lab.setAttribute('data-fixed', fixed ? '1' : '0');
+    restill();
+  });
+
+  dens.addEventListener('input', function () { setCount(+dens.value); restill(); });
+  ener.addEventListener('input', function () { enerV.textContent = ener.value; restill(); });
+
+  document.getElementById('exp').addEventListener('click', function () {
+    if (!cv.toBlob) return;
+    cv.toBlob(function (b) {
+      if (!b) return;
+      shots++;
+      stNum.textContent = ('00' + (shots + 1)).slice(-3);
+      var u = URL.createObjectURL(b);
+      var a = document.createElement('a');
+      a.href = u;
+      a.download = 'field-' + ('00' + shots).slice(-3) + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 8000);
+    }, 'image/png');
+  });
+
+  document.getElementById('file').addEventListener('change', function (e) {
+    if (e.target.files && e.target.files[0]) fromFile(e.target.files[0]);
+  });
+  ['dragenter', 'dragover'].forEach(function (n) {
+    stage.addEventListener(n, function (e) { e.preventDefault(); stage.classList.add('is-drop'); });
+  });
+  ['dragleave', 'drop'].forEach(function (n) {
+    stage.addEventListener(n, function () { stage.classList.remove('is-drop'); });
+  });
+  stage.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) fromFile(e.dataTransfer.files[0]);
+  });
+  window.addEventListener('paste', function (e) {
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf('image/') === 0) { fromFile(items[i].getAsFile()); break; }
+    }
+  });
+  window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
+
+  // ---- boot ---------------------------------------------------------------
+  for (var k = 0; k < LEV * 2; k++) buf.push([]);
+  var s = sample();
+  src.width = s.width; src.height = s.height;
+  sctx.drawImage(s, 0, 0);
+  resize();
+  setCount(+dens.value);
+  enerV.textContent = ener.value;
+  if (RM) still(); else start();
+
+  // test hooks (read-only, for the local probe)
+  window.__lab = {
+    mode: function () { return mode; },
+    fixed: function () { return fixed; },
+    count: function () { return ps.length; },
+    steps: function () { return steps; },
+    label: function () { return label; },
+    size: function () { return [W, H]; },
+    meanSpeed: function () { return movedN ? moved / movedN : 0; },
+    stats: function () {
+      var d = ctx.getImageData(0, 0, W, H).data;
+      var dark = 0, bright = 0, tot = 0, sum = 0;
+      for (var i = 0; i < d.length; i += 16) {           // every 4th pixel
+        var v = d[i] * 0.2126 + d[i + 1] * 0.7152 + d[i + 2] * 0.0722;
+        tot++; sum += v;
+        if (v < 24) dark++;
+        if (v > 170) bright++;
+      }
+      return { dark: dark / tot, bright: bright, sampled: tot, sum: Math.round(sum), mean: +(sum / tot).toFixed(3) };
+    },
+    sig: function () {
+      var d = ctx.getImageData(0, 0, W, H).data, s = 0;
+      for (var i = 0; i < d.length; i += 401) s = (s + d[i] * ((i % 7) + 1)) % 4294967291;
+      return s;
+    }
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Experiments · Xinyi</title>
+<meta name="description" content="One picture, three events. Field, Explode and Bloom run live on the same picture — drop your own, nothing leaves the browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='44' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../tokens.css?v=20260903">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto; }
+  a, button, [role="button"], label.btn {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%2387c6f2'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+
+/* ---- pixel glass: the site's one material, copied from styles.css ---- */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-glass:  rgba(255, 255, 255, 0.5);
+  --card-blur:   blur(12px) saturate(120%);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  /* colour discipline: ink, cool near-white, orchid blue. nothing warm. */
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+  --orchid:       oklch(58% 0.12 250);
+  --faint:        rgba(36, 31, 28, 0.42);
+  --tap: 0px;
+}
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+
+html { overflow-x: clip; background: var(--hero-ground); }
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: #fff; }
+a:focus-visible, button:focus-visible, label.btn:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+.hidden-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 18px;
+  line-height: 1;
+  padding-block-end: 5px;                /* optical centring for the semicolon */
+}
+.topbar__name {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---- the bench ---- */
+.lab {
+  max-width: 62rem;
+  margin-inline: auto;
+  padding: calc(var(--bar-h) + 48px) max(var(--space-md), env(safe-area-inset-left)) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.bench { width: 100%; max-width: 898px; margin-inline: auto; }
+.head { width: 100%; max-width: 898px; margin-inline: auto; }
+/* display type: Fraunces with its soft/wonky axes open — the swash forms */
+.display, .head__title, .bar__name {
+  font-family: var(--font-display);
+  font-weight: 420;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1;
+  font-feature-settings: "dlig" 1, "ss01" 1, "calt" 1;
+  letter-spacing: -0.01em;
+}
+.head__title {
+  font-size: clamp(2.2rem, 7.7vw, 3.02rem);
+  line-height: 1.08;
+}
+.head__lead { margin-top: var(--space-xs); color: var(--color-ink-2); max-width: 46ch; }
+
+/* the drop zone: one glass bar across the bench */
+.drop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
+}
+.drop.is-drop { border-color: var(--orchid); background: rgba(255, 255, 255, 0.72); }
+.drop__thumb, .drop__none {
+  flex: none;
+  display: block;
+  width: 96px;
+  height: 60px;
+  border: 1px solid var(--card-hair);
+  border-radius: 3px;
+  background: #fff;
+}
+.drop__thumb[hidden], .drop__none[hidden] { display: none; }
+.drop__none {
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+  background: rgba(255, 255, 255, 0.5);
+}
+.drop__txt { flex: 1 1 16rem; min-width: 0; }
+.drop__line {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  letter-spacing: 0.01em;
+}
+/* the three machines */
+.rig { display: flex; flex-direction: column; gap: var(--space-lg); margin-top: var(--space-lg); }
+.machine {
+  padding: 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+}
+.machine__stage { position: relative; line-height: 0; }
+.machine__cv {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  background: #08080a;
+  border: 1px solid var(--card-hair);
+  border-radius: 4px;
+  touch-action: manipulation;
+}
+.machine__hint, .machine__state {
+  position: absolute;
+  bottom: 10px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  color: var(--color-ink-2);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--card-hair);
+  border-radius: 3px;
+  padding: 1px 7px;
+  pointer-events: none;
+}
+.machine__hint { left: 10px; }
+.machine__state { right: 10px; font-variant-caps: all-small-caps; }
+.bar {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  margin-top: 8px;
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid var(--card-hair);
+  border-radius: 6px;
+}
+.bar__name {
+  font-size: var(--text-lg);
+  line-height: 1.15;
+}
+.bar__line { flex: 1 1 16rem; min-width: 0; font-size: var(--text-sm); color: var(--color-ink-2); }
+.bar__go {
+  align-self: center;
+  color: var(--color-accent);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  min-height: max(var(--tap), 0px);
+  display: inline-flex;
+  align-items: center;
+  transition: text-decoration-thickness var(--dur-micro) var(--ease-out);
+}
+.bar__go:hover { text-decoration-thickness: 2.5px; }
+
+/* glass pill buttons */
+.btn {
+  position: relative;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 34px);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  letter-spacing: 0.10em;
+  font-variant-caps: all-small-caps;
+  line-height: 1.2;
+  color: var(--color-ink-2);
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid var(--card-hair);
+  border-radius: 999px;
+  padding: 0.45em 1.1em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+.btn:hover { color: var(--color-ink); border-color: rgba(36, 31, 28, 0.30); }
+.btn input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+@media (max-width: 46rem) {
+  .machine__cv { aspect-ratio: 4 / 3; }
+  .drop { gap: var(--space-sm); }
+  .drop__thumb, .drop__none { width: 72px; height: 45px; }
+  .bar__name { font-size: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drop, .btn, .machine__cv { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<svg class="hidden-defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <filter id="pxa" color-interpolation-filters="sRGB">
+    <feComponentTransfer><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer>
+  </filter>
+</svg>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="../index.html#index">Work</a>
+    <a class="topbar__link" href="../about.html">About</a>
+  </nav>
+</header>
+
+<main class="lab">
+  <header class="head">
+    <h1 class="head__title">Experiments</h1>
+    <p class="head__lead">One picture, three events.</p>
+  </header>
+
+  <div class="bench">
+    <section class="drop" id="drop" aria-label="The picture all three machines run on">
+      <canvas class="drop__thumb" id="thumb" width="192" height="120" aria-hidden="true" hidden></canvas>
+      <p class="drop__none" id="dropNone">Upload a Picture</p>
+      <div class="drop__txt">
+        <p class="drop__line" id="dropLine">Drop or Upload a Picture — All Three Machines Take It</p>
+      </div>
+      <label class="btn">Upload<input type="file" id="file" accept="image/*" aria-label="Upload a picture"></label>
+    </section>
+
+    <div class="rig">
+      <article class="machine">
+        <div class="machine__stage">
+          <canvas class="machine__cv" id="cvField" aria-label="Field — streaks advected by the picture, live"></canvas>
+          <p class="machine__hint">Hover — wind</p>
+          <p class="machine__state" id="fieldState">Field</p>
+        </div>
+        <div class="bar">
+          <h2 class="bar__name">Field</h2>
+          <p class="bar__line">Streaks run along the picture's edges; the pointer is a wind source, a click holds the trace.</p>
+          <a class="bar__go" href="field/">Open&nbsp;→</a>
+        </div>
+      </article>
+
+      <article class="machine">
+        <div class="machine__stage">
+          <canvas class="machine__cv" id="cvExplode" aria-label="Explode — the picture bursts from where you tap, live"></canvas>
+          <p class="machine__hint">Tap — burst</p>
+        </div>
+        <div class="bar">
+          <h2 class="bar__name">Explode</h2>
+          <p class="bar__line">The picture breaks from the point you hit, then remembers itself.</p>
+          <a class="bar__go" href="explode/">Open&nbsp;→</a>
+        </div>
+      </article>
+
+      <article class="machine">
+        <div class="machine__stage">
+          <canvas class="machine__cv" id="cvBloom" aria-label="Bloom — pixel flowers growing on the picture, live"></canvas>
+          <p class="machine__hint">Hover — grow</p>
+        </div>
+        <div class="bar">
+          <h2 class="bar__name">Bloom</h2>
+          <p class="bar__line">Small flowers grow out of the dark and the edges; the pointer sows more.</p>
+          <button class="btn" type="button" id="regrow">Regrow</button>
+          <a class="bar__go" href="bloom/">Open&nbsp;→</a>
+        </div>
+      </article>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var COOL = '#f8fafd';                  /* the cool hero ground */
+  var MAXEDGE = 1200;                    /* uploads are downscaled to this long edge */
+  var DPRCAP = 2, AREACAP = 900000;      /* backing store budget per machine */
+
+  /* ---------- the pictures ----------
+     Each machine speaks its own picture: the one its own page is built on.
+     Bring a picture and it replaces all three at once — one picture, three events. */
+  var userPic = null;                                    /* null until someone brings one */
+  var picVer = 0, picName = 'no picture yet';
+
+  function mk(s) {                                       /* deterministic prng */
+    var a = s >>> 0;
+    return function () {
+      a += 0x6D2B79F5;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* Field's own picture: the X-shaped ribbon knot from lab/field — black ground,
+     white ribbons whose ridges the flow field runs along. */
+  function fieldSample() {
+    var w = 960, h = 600;
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d');
+    g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    var cx = w / 2, cy = h / 2;
+    function band(width, alpha, blur, path) {
+      g.filter = 'blur(' + blur + 'px)';
+      g.strokeStyle = 'rgba(255,255,255,' + alpha + ')';
+      g.lineWidth = width;
+      g.lineCap = 'round';
+      g.beginPath(); path(); g.stroke();
+    }
+    band(20, 0.95, 5, function () { g.moveTo(cx - 300, cy - 176); g.quadraticCurveTo(cx, cy - 26, cx + 306, cy + 172); });
+    band(20, 0.95, 5, function () { g.moveTo(cx + 300, cy - 168); g.quadraticCurveTo(cx, cy + 30, cx - 302, cy + 178); });
+    band(13, 0.80, 4, function () { g.ellipse(cx - 236, cy + 4, 88, 108, 0.35, 0, 6.2832); });
+    band(54, 0.28, 20, function () { g.moveTo(cx - 296, cy - 172); g.quadraticCurveTo(cx, cy - 26, cx + 302, cy + 168); });
+    band(54, 0.28, 20, function () { g.moveTo(cx + 296, cy - 164); g.quadraticCurveTo(cx, cy + 30, cx - 298, cy + 174); });
+    g.filter = 'none';
+    return c;
+  }
+
+  /* Explode's own picture — a cool pixel-grid still life.
+     Drawn on a 150x100 block grid and blown back up nearest-neighbour to
+     900x600: cool near-white ground, three overlapping translucent blue
+     shapes with 1-block ink outlines, one hairline horizon, a few 3-block
+     ink dots. Ink + orchid blue only; nothing warm anywhere. */
+  function explodeSample() {
+    var W = 900, H = 600, CELL = 6, GW = W / CELL, GH = H / CELL;   /* 150 x 100 blocks */
+    var INK = '#12171b';                                            /* oklch(20% .012 250) */
+    var BLUE = '60,126,190';                                        /* oklch(58% .12 250) */
+    var lo = document.createElement('canvas');
+    lo.width = GW; lo.height = GH;
+    var g = lo.getContext('2d');
+
+    /* the ground: cool near-white cooling and deepening downwards */
+    var gr = g.createLinearGradient(0, 0, 0, GH);
+    gr.addColorStop(0, '#f8fafd');
+    gr.addColorStop(0.68, '#eef2f7');
+    gr.addColorStop(1, '#e2e9f0');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, GW, GH);
+
+    /* a faint blue register grid, one block every ten */
+    g.fillStyle = 'rgba(' + BLUE + ',0.13)';
+    for (var gy = 5; gy < GH; gy += 10) for (var gx = 5; gx < GW; gx += 10) g.fillRect(gx, gy, 1, 1);
+
+    /* the horizon: one block high, edge to edge */
+    var HZ = 58;
+    g.fillStyle = INK;
+    g.fillRect(0, HZ, GW, 1);
+
+    /* three overlapping shapes. each is filled at its own alpha, then outlined
+       with exactly one block of ink, so the overlaps stay legible. */
+    function paint(inside, alpha) {
+      var x, y, m = [];
+      for (y = 0; y < GH; y++) { m[y] = []; for (x = 0; x < GW; x++) m[y][x] = inside(x, y) ? 1 : 0; }
+      g.fillStyle = 'rgba(' + BLUE + ',' + alpha + ')';
+      for (y = 0; y < GH; y++) {
+        var run = -1;
+        for (x = 0; x <= GW; x++) {
+          if (x < GW && m[y][x]) { if (run < 0) run = x; }
+          else if (run >= 0) { g.fillRect(run, y, x - run, 1); run = -1; }
+        }
+      }
+      g.fillStyle = INK;
+      for (y = 0; y < GH; y++) for (x = 0; x < GW; x++) {
+        if (!m[y][x]) continue;
+        var edge = !m[y][x - 1] || !m[y][x + 1] || !(m[y - 1] && m[y - 1][x]) || !(m[y + 1] && m[y + 1][x]);
+        if (edge) g.fillRect(x, y, 1, 1);
+      }
+    }
+    function box(x0, y0, w, h) { return function (x, y) { return x >= x0 && x < x0 + w && y >= y0 && y < y0 + h; }; }
+    function disc(cx, cy, r) {
+      return function (x, y) { var dx = x + 0.5 - cx, dy = y + 0.5 - cy; return dx * dx + dy * dy <= r * r; };
+    }
+    paint(box(20, 22, 40, 40), 0.35);      /* left square */
+    paint(disc(70, 45, 22), 0.50);         /* the circle it leans on */
+    paint(box(84, 34, 38, 38), 0.35);      /* right square, standing across the horizon */
+
+    /* a few 3-block ink dots, the punctuation of the plate */
+    g.fillStyle = INK;
+    var dots = [[32, 80], [45, 85], [58, 79], [112, 84], [126, 79], [138, 88], [14, 12], [134, 15]];
+    for (var d = 0; d < dots.length; d++) g.fillRect(dots[d][0], dots[d][1], 3, 3);
+
+    /* blow the block grid back up, nearest neighbour */
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var x2 = c.getContext('2d');
+    x2.imageSmoothingEnabled = false;
+    x2.drawImage(lo, 0, 0, W, H);
+    return c;
+  }
+
+  /* Bloom's own picture: the concrete slab with the dark drain grate, from lab/bloom. */
+  function bloomSample() {
+    var SW = 900, SH = 600, i, j;
+    var c = document.createElement('canvas'); c.width = SW; c.height = SH;
+    var x = c.getContext('2d'), r = mk(4711);
+    function sh(col, k) { return [Math.min(255, col[0] * k), Math.min(255, col[1] * k), Math.min(255, col[2] * k)]; }
+    function rgba(col, a) { return 'rgba(' + (col[0] | 0) + ',' + (col[1] | 0) + ',' + (col[2] | 0) + ',' + a + ')'; }
+    x.fillStyle = '#a29c93'; x.fillRect(0, 0, SW, SH);
+    for (i = 0; i < 150; i++) {                          /* mottled concrete */
+      var k = 0.86 + r() * 0.26;
+      x.fillStyle = rgba(sh([162, 156, 147], k), 0.16);
+      x.beginPath(); x.arc(r() * SW, r() * SH, 9 + r() * 42, 0, 6.2832); x.fill();
+    }
+    for (i = 0; i < 2600; i++) {                         /* aggregate speckle */
+      var v = r() < 0.5 ? 52 : 240;
+      x.fillStyle = 'rgba(' + v + ',' + v + ',' + (v - 4) + ',' + (0.07 + r() * 0.24) + ')';
+      x.fillRect(r() * SW | 0, r() * SH | 0, 1 + (r() * 2 | 0), 1 + (r() * 2 | 0));
+    }
+    x.save();
+    x.translate(SW / 2, SH / 2); x.rotate(-0.075);
+    x.fillStyle = '#8f8a82'; x.fillRect(-540, -215, 1080, 430);       /* the grate frame */
+    x.fillStyle = 'rgba(60,56,50,0.25)';
+    x.fillRect(-540, -215, 1080, 6); x.fillRect(-540, 209, 1080, 6);
+    for (j = 0; j < 2; j++) {
+      var top = j ? 26 : -176;
+      for (i = 0; i < 17; i++) {
+        var sx = -520 + i * 62 + (j ? 8 : 0), sw = 36, sht = 150;
+        var slot = x.createLinearGradient(0, top, 0, top + sht);
+        slot.addColorStop(0, '#0f0d0b'); slot.addColorStop(0.55, '#1b1815'); slot.addColorStop(1, '#080706');
+        x.fillStyle = slot;
+        x.beginPath(); x.roundRect(sx, top, sw, sht, 7); x.fill();
+        var n = 3 + (r() * 4 | 0);                       /* a hint of leaf in the dark */
+        for (var q = 0; q < n; q++) {
+          x.fillStyle = 'rgba(46,72,40,' + (0.28 + r() * 0.4) + ')';
+          x.beginPath();
+          x.ellipse(sx + 6 + r() * (sw - 12), top + sht * (0.35 + r() * 0.6), 3 + r() * 7, 2 + r() * 5, r() * 3, 0, 6.2832);
+          x.fill();
+        }
+        x.strokeStyle = 'rgba(255,252,244,0.30)'; x.lineWidth = 2;
+        x.beginPath(); x.moveTo(sx + sw + 5, top + 3); x.lineTo(sx + sw + 5, top + sht - 3); x.stroke();
+        x.strokeStyle = 'rgba(40,36,30,0.30)';
+        x.beginPath(); x.moveTo(sx - 5, top + 3); x.lineTo(sx - 5, top + sht - 3); x.stroke();
+      }
+    }
+    x.restore();
+    x.strokeStyle = 'rgba(46,42,36,0.30)'; x.lineWidth = 1.4; x.lineCap = 'round';
+    for (i = 0; i < 4; i++) {                            /* hairline cracks in the slab */
+      var cx = r() * SW, cy = r() * SH;
+      x.beginPath(); x.moveTo(cx, cy);
+      for (j = 0; j < 7; j++) { cx += (r() - 0.35) * 34; cy += (r() - 0.5) * 22; x.lineTo(cx, cy); }
+      x.stroke();
+    }
+    var sh2 = x.createLinearGradient(0, 0, SW * 0.75, SH);            /* soft leaf shadow */
+    sh2.addColorStop(0, 'rgba(28,26,22,0.26)'); sh2.addColorStop(0.5, 'rgba(28,26,22,0.04)');
+    sh2.addColorStop(1, 'rgba(28,26,22,0)');
+    x.fillStyle = sh2; x.fillRect(0, 0, SW, SH);
+    return c;
+  }
+
+  function lazy(fn) { var c = null; return function () { return c || (c = fn()); }; }
+  /* what a machine is looking at right now: the upload if there is one, else its own */
+  function srcFor(own) { return userPic || own(); }
+
+  /* cover-fit a picture into a w x h canvas — every machine works on this */
+  function coverInto(w, h, src) {
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d', { willReadFrequently: true });
+    g.fillStyle = COOL; g.fillRect(0, 0, w, h);
+    var s = Math.max(w / src.width, h / src.height);
+    var dw = src.width * s, dh = src.height * s;
+    g.imageSmoothingEnabled = s < 1;                     /* upscaling stays pixelly */
+    g.drawImage(src, 0, 0, src.width, src.height, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    return c;
+  }
+
+  /* ======================= 1 · FIELD ======================= */
+  /* streaks advected by the picture's gradients turned 90 degrees; the pointer
+     is a wind source that bends the streaks towards it within 160 CSS px. */
+  function makeField(cv, own) {
+    var g = cv.getContext('2d', { alpha: false });
+    var W = 0, H = 0, SC = 1, WIND = 160;
+    var CS = 6, gw = 0, gh = 0, FX = null, FY = null, FM = null, CDF = null;
+    var ps = [], mode = 'field', tt = 0, seed = 20260903 >>> 0;
+    var wx = 0, wy = 0, wOn = false;
+    var f3 = [0, 0, 0], dim = [], bright = [];
+
+    function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+    function hash3(i, j, k) {
+      var n = (Math.imul(i, 1597334677) ^ Math.imul(j, -482912295) ^ Math.imul(k, -1640531527)) >>> 0;
+      n = Math.imul(n ^ (n >>> 15), 2246822519);
+      n = Math.imul(n ^ (n >>> 13), -1028477379);
+      return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+    }
+    function noise(x, y, z) {
+      var i = Math.floor(x), j = Math.floor(y), k = Math.floor(z);
+      var fx = x - i, fy = y - j, fz = z - k;
+      var ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy), uz = fz * fz * (3 - 2 * fz);
+      var a = hash3(i, j, k) + (hash3(i + 1, j, k) - hash3(i, j, k)) * ux;
+      var b = hash3(i, j + 1, k) + (hash3(i + 1, j + 1, k) - hash3(i, j + 1, k)) * ux;
+      var c = hash3(i, j, k + 1) + (hash3(i + 1, j, k + 1) - hash3(i, j, k + 1)) * ux;
+      var d = hash3(i, j + 1, k + 1) + (hash3(i + 1, j + 1, k + 1) - hash3(i, j + 1, k + 1)) * ux;
+      var e = a + (b - a) * uy, f = c + (d - c) * uy;
+      return e + (f - e) * uz;
+    }
+    function blur(a, t, w, h, times) {
+      for (var p = 0; p < times; p++) {
+        var x, y, k;
+        for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+          k = y * w + x;
+          t[k] = (a[k] + a[y * w + (x > 0 ? x - 1 : 0)] + a[y * w + (x < w - 1 ? x + 1 : w - 1)]) / 3;
+        }
+        for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+          k = y * w + x;
+          a[k] = (t[k] + t[(y > 0 ? y - 1 : 0) * w + x] + t[(y < h - 1 ? y + 1 : h - 1) * w + x]) / 3;
+        }
+      }
+    }
+
+    function build() {                                   /* the flow field of the picture */
+      gw = Math.max(3, Math.ceil(W / CS));
+      gh = Math.max(3, Math.ceil(H / CS));
+      var n = gw * gh;
+      var small = coverInto(gw, gh, srcFor(own));
+      var d = small.getContext('2d').getImageData(0, 0, gw, gh).data;
+      var lum = new Float32Array(n), tmp = new Float32Array(n), i, x, y, k, m;
+      for (i = 0; i < n; i++) lum[i] = (0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]) / 255;
+      blur(lum, tmp, gw, gh, 3);
+      FX = new Float32Array(n); FY = new Float32Array(n); FM = new Float32Array(n);
+      var VX = new Float32Array(n), VY = new Float32Array(n), mmax = 1e-6, gx, gy;
+      for (y = 0; y < gh; y++) for (x = 0; x < gw; x++) {
+        k = y * gw + x;
+        var xl = x > 0 ? x - 1 : 0, xr = x < gw - 1 ? x + 1 : gw - 1;
+        var yu = y > 0 ? y - 1 : 0, yd = y < gh - 1 ? y + 1 : gh - 1;
+        gx = (lum[yu * gw + xr] + 2 * lum[y * gw + xr] + lum[yd * gw + xr])
+           - (lum[yu * gw + xl] + 2 * lum[y * gw + xl] + lum[yd * gw + xl]);
+        gy = (lum[yd * gw + xl] + 2 * lum[yd * gw + x] + lum[yd * gw + xr])
+           - (lum[yu * gw + xl] + 2 * lum[yu * gw + x] + lum[yu * gw + xr]);
+        VX[k] = gy; VY[k] = -gx;                        /* the gradient turned 90 degrees */
+        m = Math.sqrt(gx * gx + gy * gy);
+        FM[k] = m; if (m > mmax) mmax = m;
+      }
+      blur(VX, tmp, gw, gh, 2); blur(VY, tmp, gw, gh, 2); blur(FM, tmp, gw, gh, 1);
+      for (y = 0; y < gh; y++) for (x = 0; x < gw; x++) {
+        k = y * gw + x;
+        var lx = VX[k], ly = VY[k], len = Math.sqrt(lx * lx + ly * ly);
+        var wt = len / (mmax * 0.10); if (wt > 1) wt = 1;
+        var na = noise(x * 0.014, y * 0.014, 4.7) * 6.2832;
+        var ux = (len > 1e-9 ? lx / len : 0) * wt + Math.cos(na) * (1 - wt);
+        var uy = (len > 1e-9 ? ly / len : 0) * wt + Math.sin(na) * (1 - wt);
+        var ul = Math.sqrt(ux * ux + uy * uy) || 1;
+        FX[k] = ux / ul; FY[k] = uy / ul;
+        m = FM[k] / (mmax * 0.62); FM[k] = m > 1 ? 1 : m;
+      }
+      CDF = new Float32Array(n);
+      var acc = 0;
+      for (k = 0; k < n; k++) { acc += 0.006 + Math.pow(FM[k], 1.5) * 6; CDF[k] = acc; }
+    }
+
+    function flowAt(x, y, out) {
+      var ax = x / CS - 0.5, ay = y / CS - 0.5;
+      if (ax < 0) ax = 0; if (ay < 0) ay = 0;
+      var i0 = ax | 0, j0 = ay | 0;
+      if (i0 > gw - 2) i0 = gw - 2;
+      if (j0 > gh - 2) j0 = gh - 2;
+      var u = ax - i0, v = ay - j0;
+      if (u < 0) u = 0; if (u > 1) u = 1;
+      if (v < 0) v = 0; if (v > 1) v = 1;
+      var a = j0 * gw + i0, b = a + 1, c = a + gw, e = c + 1;
+      var w0 = (1 - u) * (1 - v), w1 = u * (1 - v), w2 = (1 - u) * v, w3 = u * v;
+      out[0] = FX[a] * w0 + FX[b] * w1 + FX[c] * w2 + FX[e] * w3;
+      out[1] = FY[a] * w0 + FY[b] * w1 + FY[c] * w2 + FY[e] * w3;
+      out[2] = FM[a] * w0 + FM[b] * w1 + FM[c] * w2 + FM[e] * w3;
+    }
+
+    function seedPos(p) {
+      var total = CDF[CDF.length - 1], r = rnd() * total;
+      var lo = 0, hi = CDF.length - 1, mid;
+      while (lo < hi) { mid = (lo + hi) >> 1; if (CDF[mid] < r) lo = mid + 1; else hi = mid; }
+      p.x = (lo % gw + rnd()) * CS;
+      p.y = ((lo / gw) | 0) * CS + rnd() * CS;
+      p.px = p.x; p.py = p.y;
+      p.age = 0;
+      p.life = 70 + rnd() * 200;
+      p.sp = 0.45 + rnd() * 1.15;
+      p.br = rnd() < 0.26 ? 1 : 0;
+      flowAt(p.x, p.y, f3);
+      var d = rnd() < 0.5 ? 1 : -1;
+      p.ang = Math.atan2(f3[1] * d, f3[0] * d);
+    }
+    function setCount(n) {
+      while (ps.length > n) ps.pop();
+      while (ps.length < n) {
+        var p = { x: 0, y: 0, px: 0, py: 0, ang: 0, age: 0, life: 1, sp: 1, br: 0 };
+        seedPos(p); p.age = rnd() * p.life; ps.push(p);
+      }
+    }
+
+    function step() {
+      var fa = mode === 'trace' ? 0 : 0.030;
+      if (fa > 0) {
+        g.globalCompositeOperation = 'source-over';
+        g.fillStyle = 'rgba(6,6,9,' + fa + ')';
+        g.fillRect(0, 0, W, H);
+      }
+      var base = 2.0 * SC, turb = 0.30, turn = 0.10, R = WIND * SC;
+      tt += 0.0022;
+      dim.length = 0; bright.length = 0;
+      for (var i = 0; i < ps.length; i++) {
+        var p = ps[i];
+        flowAt(p.x, p.y, f3);
+        var vx = f3[0], vy = f3[1];
+        if (vx * Math.cos(p.ang) + vy * Math.sin(p.ang) < 0) { vx = -vx; vy = -vy; }
+        var ang = Math.atan2(vy, vx);
+        ang += (noise(p.x * 0.0024, p.y * 0.0024, tt) - 0.5) * turb;
+        var da = ang - p.ang;
+        while (da > Math.PI) da -= 6.28318;
+        while (da < -Math.PI) da += 6.28318;
+        p.ang += da * turn;
+        if (wOn) {                                       /* the wind source */
+          var dxp = wx - p.x, dyp = wy - p.y, dd = Math.sqrt(dxp * dxp + dyp * dyp);
+          if (dd < R && dd > 1) {
+            var w = 1 - dd / R;
+            var db = Math.atan2(dyp, dxp) - p.ang;
+            while (db > Math.PI) db -= 6.28318;
+            while (db < -Math.PI) db += 6.28318;
+            p.ang += db * w * 0.42;
+          }
+        }
+        var sp = base * p.sp * (0.55 + f3[2] * 0.8);
+        p.px = p.x; p.py = p.y;
+        p.x += Math.cos(p.ang) * sp;
+        p.y += Math.sin(p.ang) * sp;
+        p.age++;
+        if (p.age > p.life || p.x < -20 || p.y < -20 || p.x > W + 20 || p.y > H + 20) { seedPos(p); continue; }
+        var taper = Math.sin(Math.PI * p.age / p.life);
+        taper = Math.pow(taper < 0 ? 0 : taper, 0.55);
+        if (taper < 0.06) continue;
+        (p.br ? bright : dim).push(p.px, p.py, p.x, p.y);
+      }
+      g.globalCompositeOperation = 'lighter';
+      g.lineCap = 'round';
+      var lay = mode === 'trace' ? 0.34 : 1;
+      paintSegs(dim, 0.9 * SC, 0.16 * lay);
+      paintSegs(bright, 1.5 * SC, 0.78 * lay);
+    }
+    function paintSegs(seg, lw, alpha) {
+      if (!seg.length) return;
+      g.lineWidth = lw;
+      g.strokeStyle = 'rgba(255,255,255,' + alpha.toFixed(3) + ')';
+      g.beginPath();
+      for (var i = 0; i < seg.length; i += 4) { g.moveTo(seg[i], seg[i + 1]); g.lineTo(seg[i + 2], seg[i + 3]); }
+      g.stroke();
+    }
+    function clear() {
+      g.globalCompositeOperation = 'source-over';
+      g.fillStyle = '#08080a'; g.fillRect(0, 0, W, H);
+    }
+    function still() { clear(); var keep = mode; mode = 'trace'; for (var i = 0; i < 40; i++) step(); mode = keep; }
+
+    var M = {
+      name: 'field',
+      ticks: 0, ms: 0, dirty: true,
+      resize: function (w, h, sc) {
+        W = w; H = h; SC = sc; cv.width = W; cv.height = H;
+        build();
+        setCount(Math.max(260, Math.min(1400, Math.round(W * H / (430 * SC * SC)))));
+        for (var i = 0; i < ps.length; i++) seedPos(ps[i]);
+        clear(); M.dirty = true;
+      },
+      setPic: function () {
+        build();
+        for (var i = 0; i < ps.length; i++) seedPos(ps[i]);
+        clear(); M.dirty = true;
+      },
+      tick: function () {
+        if (RM) { if (!M.dirty) return; M.dirty = false; still(); return; }
+        step();
+      },
+      pointer: function (x, y, on) { wx = x * SC; wy = y * SC; wOn = on; },
+      hit: function () {
+        mode = mode === 'field' ? 'trace' : 'field';
+        if (mode === 'field') clear();
+        document.getElementById('fieldState').textContent = mode === 'field' ? 'Field' : 'Trace';
+        M.dirty = true;
+      },
+      mode: function () { return mode; },
+      dirs: function () {
+        var o = [];
+        for (var i = 0; i < ps.length; i++) o.push([+(ps[i].x / SC).toFixed(1), +(ps[i].y / SC).toFixed(1), +ps[i].ang.toFixed(4)]);
+        return o;
+      },
+      flowSig: function () {                             /* checksum of the picture's flow field */
+        var s = 0;
+        for (var i = 0; i < FM.length; i += 7) {
+          s = (s + Math.round((FX[i] + 2) * 1000) + Math.round((FM[i] + 2) * 997) * 3) % 2147483647;
+        }
+        return s;
+      },
+      mean: function () {
+        var d = g.getImageData(0, 0, W, H).data, s = 0, n = 0;
+        for (var i = 0; i < d.length; i += 64) { s += d[i]; n++; }
+        return +(s / n).toFixed(3);
+      },
+      count: function () { return ps.length; }
+    };
+    return M;
+  }
+
+  /* ======================= 2 · EXPLODE ======================= */
+  function makeExplode(cv, own) {
+    var g = cv.getContext('2d');
+    var W = 0, H = 0, SC = 1, srcC = null;
+    var frags = [], animating = false, t0 = 0, hover = false, bursts = 0;
+    var T_OUT = RM ? 1 : 600, T_BACK = RM ? 1 : 1800, WAVE = RM ? 0 : 90;
+    var BREATH = 5000;                                   /* the idle breath: one whole pixel, 5 s */
+    var armed = false, enterAt = 0, autoAt = 0;
+
+    function build() {
+      srcC = coverInto(W, H, srcFor(own));
+      var want = Math.max(40, Math.min(220, Math.round(W * H / (1400 * SC * SC))));
+      var cols = Math.max(3, Math.round(Math.sqrt(want * (W / H))));
+      var rows = Math.max(3, Math.round(want / cols));
+      var fw = W / cols, fh = H / rows, r = mk(9137 + cols * 131 + rows);
+      frags = [];
+      for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) {
+        frags.push({
+          sx: x * fw, sy: y * fh, sw: fw, sh: fh,
+          cx: x * fw + fw / 2, cy: y * fh + fh / 2,
+          j1: r(), j2: r(), j3: r(),
+          ox: 0, oy: 0, rot: 0, ax: 0, ay: 0, ar: 0, delay: 0
+        });
+      }
+    }
+    function wave(t) {
+      if (t <= 0) return 0;
+      if (t < T_OUT) { var p = t / T_OUT; return 1 - Math.pow(1 - p, 3); }
+      var u = (t - T_OUT) / T_BACK;
+      if (u >= 1) return 0;
+      return (1 - u) * Math.exp(-4 * u) * Math.cos(5.5 * u);
+    }
+    /* kind 0 = exactly at rest (or mid-burst), 1 = the idle breath, 2 = the hover shiver.
+       Both idle motions are rounded to a whole CSS pixel so the blocks stay crisp. */
+    function draw(now, kind) {
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      /* while it is at rest the picture itself lies under the blocks, so the one-pixel
+         breath never opens a bright seam; a burst flies over the cool ground as before */
+      if (kind === 0) { g.fillStyle = COOL; g.fillRect(0, 0, W, H); }
+      else { g.imageSmoothingEnabled = false; g.drawImage(srcC, 0, 0); }
+      for (var i = 0; i < frags.length; i++) {
+        var f = frags[i], dw = f.sw + 0.8, dh = f.sh + 0.8;
+        var ox = f.ox, oy = f.oy;
+        if (kind === 1) {
+          ox += Math.round(Math.sin(now / BREATH * 6.2832 + f.j3 * 6.2832)) * SC;
+          oy += Math.round(Math.cos(now / BREATH * 6.2832 + f.j2 * 6.2832)) * SC;
+        } else if (kind === 2) {
+          ox += Math.round(Math.sin(now / 150 + f.j1 * 6.2832)) * SC;
+          oy += Math.round(Math.cos(now / 170 + f.j2 * 6.2832)) * SC;
+        }
+        if (f.rot === 0 && ox === 0 && oy === 0) {
+          g.drawImage(srcC, f.sx, f.sy, f.sw, f.sh, f.cx - dw / 2, f.cy - dh / 2, dw, dh);
+        } else {
+          g.save();
+          g.translate(f.cx + ox, f.cy + oy);
+          g.rotate(f.rot);
+          g.drawImage(srcC, f.sx, f.sy, f.sw, f.sh, -dw / 2, -dh / 2, dw, dh);
+          g.restore();
+        }
+      }
+    }
+    function burst(px, py) {
+      var i, f, dx, dy, d, far = 1;
+      for (i = 0; i < frags.length; i++) {
+        d = Math.hypot(frags[i].cx - px, frags[i].cy - py);
+        if (d > far) far = d;
+      }
+      var budget = Math.min(W, H) * 0.17;
+      for (i = 0; i < frags.length; i++) {
+        f = frags[i];
+        dx = f.cx - px; dy = f.cy - py; d = Math.hypot(dx, dy);
+        if (d < 0.001) { dx = f.j1 - 0.5; dy = f.j2 - 0.5; d = Math.hypot(dx, dy) || 1; }
+        var amp = budget * (0.34 + 0.66 * (d / far)) * (0.8 + f.j1 * 0.45);
+        f.ax = (dx / d) * amp + (f.j2 - 0.5) * budget * 0.16;
+        f.ay = (dy / d) * amp + (f.j3 - 0.5) * budget * 0.16;
+        f.ar = (f.j3 - 0.5) * 2.2;
+        f.delay = Math.min(1, d / far) * WAVE;
+      }
+      bursts++;
+      t0 = performance.now();
+      animating = true;
+      if (RM) {                                          /* still frames: peak, then rest */
+        for (i = 0; i < frags.length; i++) { frags[i].ox = frags[i].ax; frags[i].oy = frags[i].ay; frags[i].rot = frags[i].ar; }
+        draw(0, 0);
+        setTimeout(function () {
+          for (var k = 0; k < frags.length; k++) { frags[k].ox = 0; frags[k].oy = 0; frags[k].rot = 0; }
+          animating = false; draw(0, 0);
+        }, 700);
+      }
+    }
+
+    var M = {
+      name: 'explode',
+      ticks: 0, ms: 0,
+      resize: function (w, h, sc) { W = w; H = h; SC = sc; cv.width = W; cv.height = H; build(); draw(0, 0); },
+      setPic: function () { build(); draw(0, 0); },
+      tick: function (now) {
+        if (RM) return;                                  /* still frames; a click draws its own */
+        if (animating) {
+          var t = now - t0, live = false;
+          for (var i = 0; i < frags.length; i++) {
+            var f = frags[i], lt = t - f.delay, v = wave(lt);
+            if (lt < T_OUT + T_BACK) live = true;
+            f.ox = f.ax * v; f.oy = f.ay * v; f.rot = f.ar * v;
+          }
+          if (!live) {
+            for (var k = 0; k < frags.length; k++) { frags[k].ox = 0; frags[k].oy = 0; frags[k].rot = 0; }
+            animating = false;
+          }
+          draw(now, 0);
+          return;
+        }
+        draw(now, hover ? 2 : 1);                        /* at rest the picture still breathes */
+      },
+      /* the first time the tile is properly on screen it bursts by itself, once */
+      arm: function () {
+        if (RM || armed) return;
+        armed = true;
+        enterAt = performance.now();
+        setTimeout(function () { autoAt = performance.now(); burst(W / 2, H / 2); }, 1200);
+      },
+      autoInfo: function () {
+        return { armed: armed, fired: autoAt > 0, delayMs: autoAt ? Math.round(autoAt - enterAt) : -1 };
+      },
+      /* the biggest resting displacement of any fragment right now, in CSS px */
+      breathMax: function (now) {
+        var m = 0;
+        for (var i = 0; i < frags.length; i++) {
+          var f = frags[i];
+          var ox = Math.abs(Math.round(Math.sin(now / BREATH * 6.2832 + f.j3 * 6.2832)));
+          var oy = Math.abs(Math.round(Math.cos(now / BREATH * 6.2832 + f.j2 * 6.2832)));
+          if (ox > m) m = ox;
+          if (oy > m) m = oy;
+        }
+        return m;
+      },
+      stillFrame: function () { draw(0, 0); },           /* the exact rest state, for the probe */
+      pointer: function (x, y, on) { hover = on; },
+      hit: function (x, y) { burst(x * SC, y * SC); },
+      count: function () { return frags.length; },
+      bursts: function () { return bursts; },
+      animating: function () { return animating; },
+      meanDist: function (x, y) {                         /* CSS px, from a point on the tile */
+        var px = x * SC, py = y * SC, s = 0;
+        for (var i = 0; i < frags.length; i++) {
+          var f = frags[i];
+          s += Math.hypot(f.cx + f.ox - px, f.cy + f.oy - py);
+        }
+        return +(s / frags.length / SC).toFixed(2);
+      }
+    };
+    return M;
+  }
+
+  /* ======================= 3 · BLOOM ======================= */
+  /* pixel flowers on the picture: placed on its dark and edgy parts, swaying
+     with a gust, sown by the pointer, rastered on a block grid like lab/bloom */
+  function makeBloom(cv, own) {
+    var g = cv.getContext('2d');
+    var W = 0, H = 0, SC = 1, srcC = null, map = null;
+    var flowers = [], seed = 20260903, frame = 0, target = 0;
+    var PXB = 3, B = 3, CAP = 220;
+    var SWAY = 6 * Math.PI / 180, LAT = 3, BREATH = 0.06;
+    var GUSTA = 4 * Math.PI / 180, GUSTMS = 600;
+    var PAL = [
+      { w: 34, p: [255, 255, 255], c: [135, 198, 242] },
+      { w: 26, p: [239, 246, 251], c: [96, 166, 222] },
+      { w: 20, p: [199, 226, 246], c: [60, 126, 190] },
+      { w: 14, p: [155, 203, 237], c: [40, 104, 168] },
+      { w: 6,  p: [109, 179, 228], c: [255, 255, 255] }
+    ];
+    var bufs = {};
+
+    function rgb(c, a) { return 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + (a === undefined ? 1 : a) + ')'; }
+    function mix(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function shade(c, k) { return [Math.min(255, c[0] * k), Math.min(255, c[1] * k), Math.min(255, c[2] * k)]; }
+
+    function analyse() {                                  /* luminance + edge weights */
+      var LE = 160, w, h, i;
+      if (W >= H) { w = LE; h = Math.max(2, Math.round(LE * H / W)); }
+      else { h = LE; w = Math.max(2, Math.round(LE * W / H)); }
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var x = c.getContext('2d', { willReadFrequently: true });
+      x.drawImage(srcC, 0, 0, w, h);
+      var d = x.getImageData(0, 0, w, h).data, n = w * h;
+      var lum = new Float32Array(n);
+      for (i = 0; i < n; i++) lum[i] = (0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]) / 255;
+      var edge = new Float32Array(n), mxe = 0;
+      for (var y = 1; y < h - 1; y++) for (var xx = 1; xx < w - 1; xx++) {
+        var k = y * w + xx;
+        var gx = lum[k - w + 1] + 2 * lum[k + 1] + lum[k + w + 1] - lum[k - w - 1] - 2 * lum[k - 1] - lum[k + w - 1];
+        var gy = lum[k + w - 1] + 2 * lum[k + w] + lum[k + w + 1] - lum[k - w - 1] - 2 * lum[k - w] - lum[k - w + 1];
+        var m = Math.sqrt(gx * gx + gy * gy);
+        edge[k] = m; if (m > mxe) mxe = m;
+      }
+      var wt = new Float32Array(n), mxw = 0;
+      for (i = 0; i < n; i++) {
+        var v = 0.58 * Math.pow(1 - lum[i], 1.5) + 0.42 * Math.min(1, (mxe ? edge[i] / mxe : 0) * 1.9) + 0.06;
+        wt[i] = v; if (v > mxw) mxw = v;
+      }
+      for (i = 0; i < n; i++) wt[i] /= mxw;
+      map = { w: w, h: h, d: d, wt: wt };
+    }
+    function idx(x, y) {
+      var mx = Math.min(map.w - 1, (x / W * map.w) | 0), my = Math.min(map.h - 1, (y / H * map.h) | 0);
+      return my * map.w + mx;
+    }
+    function colAt(x, y) { var i = idx(x, y) * 4; return [map.d[i], map.d[i + 1], map.d[i + 2]]; }
+
+    function place(n, rnd) {                              /* weighted dart throwing */
+      var base = Math.sqrt(W * H / n), cell = base * 0.44;
+      var gw = Math.max(1, Math.ceil(W / cell)), gh = Math.max(1, Math.ceil(H / cell));
+      var grid = new Array(gw * gh), pts = [];
+      function near(x, y, r) {
+        var cx = Math.min(gw - 1, x / cell | 0), cy = Math.min(gh - 1, y / cell | 0);
+        var rad = Math.ceil(r / cell);
+        for (var yy = Math.max(0, cy - rad); yy <= Math.min(gh - 1, cy + rad); yy++)
+          for (var xx = Math.max(0, cx - rad); xx <= Math.min(gw - 1, cx + rad); xx++) {
+            var b = grid[yy * gw + xx];
+            if (!b) continue;
+            for (var i = 0; i < b.length; i++) {
+              var dx = b[i][0] - x, dy = b[i][1] - y;
+              if (dx * dx + dy * dy < r * r) return true;
+            }
+          }
+        return false;
+      }
+      var passes = [[2.6, 0.66], [1.3, 0.60], [0.6, 0.53], [0.22, 0.47]];
+      for (var p = 0; p < passes.length && pts.length < n; p++) {
+        var gamma = passes[p][0], minD = base * passes[p][1], tries = n * 90;
+        while (pts.length < n && tries-- > 0) {
+          var x = rnd() * W, y = rnd() * H;
+          if (rnd() > Math.pow(map.wt[idx(x, y)], gamma)) continue;
+          if (near(x, y, minD)) continue;
+          var gi = Math.min(gh - 1, y / cell | 0) * gw + Math.min(gw - 1, x / cell | 0);
+          (grid[gi] || (grid[gi] = [])).push([x, y]);
+          pts.push([x, y]);
+        }
+      }
+      return { pts: pts, base: base };
+    }
+    function flower(x, y, base, rnd, born) {
+      var loc = colAt(x, y), pickW = rnd() * 100, acc = 0, e = PAL[0];
+      for (var k = 0; k < PAL.length; k++) { acc += PAL[k].w; if (pickW <= acc) { e = PAL[k]; break; } }
+      var petal = mix(e.p, loc, 0.08);
+      return {
+        x: x, y: y,
+        r: base * 0.17 * (0.78 + rnd() * 0.52),
+        pa: rnd() * 6.2832,
+        /* the outline is cooled towards ink-blue so a white flower still reads on a pale picture */
+        col: rgb(petal, 1), line: rgb(mix(shade(petal, 0.62), [42, 96, 150], 0.45), 0.88), core: rgb(e.c, 0.95),
+        stem: rgb(mix([116, 156, 176], loc, 0.2), 0.9),
+        lean: (rnd() - 0.5) * 1.1, bend: (rnd() - 0.5) * 1.0, leaf: rnd() < 0.55,
+        per: 2200 + rnd() * 1000, ph: rnd() * 6.2832,
+        bp: 2200 + rnd() * 1600, bh: rnd() * 6.2832,
+        born: born
+      };
+    }
+    function grow(reseed) {
+      if (reseed) seed = (Math.random() * 4294967295) >>> 0;
+      var rnd = mk(seed);
+      target = Math.max(24, Math.min(CAP, Math.round(W * H / (3200 * SC * SC))));
+      var res = place(target, rnd), out = [];
+      for (var i = 0; i < res.pts.length; i++) {
+        out.push(flower(res.pts[i][0], res.pts[i][1], res.base, rnd, RM ? -99 : frame - (i % 24) * 0.9));
+      }
+      out.sort(function (a, b) { return a.y - b.y; });
+      flowers = out;
+      M.base = res.base;
+    }
+    /* one gust every 6-9 s */
+    var gustAt = 0, gustRnd = null;
+    function gust(t) {
+      if (RM) return 0;
+      if (!gustRnd) { gustRnd = mk((seed ^ 0x5bf03635) >>> 0); gustAt = 3000 + gustRnd() * 2000; }
+      while (t > gustAt + GUSTMS) gustAt += 6000 + gustRnd() * 3000;
+      var u = (t - gustAt) / GUSTMS;
+      if (u < 0) return 0;
+      if (u < 0.25) return 0.5 - 0.5 * Math.cos(Math.PI * u / 0.25);
+      if (u < 0.5) return 1;
+      return 0.5 + 0.5 * Math.cos(Math.PI * (u - 0.5) / 0.5);
+    }
+    function pose(f, t) {
+      if (RM) return { a: 0, dx: 0, br: 1 };
+      var w = Math.sin(t / f.per * 6.2832 + f.ph);
+      return { a: SWAY * w + GUSTA * gust(t), dx: LAT * w * SC, br: 1 + BREATH * Math.sin(t / f.bp * 6.2832 + f.bh) };
+    }
+    function open(f) { return RM ? 1 : Math.min(1, (frame - f.born + 1) / 6); }
+
+    function drawF(x, f, t) {
+      var k = open(f);
+      if (k <= 0) return;
+      var R = f.r * k;
+      if (R < 0.6) return;
+      var q = pose(f, t), br = q.br;
+      x.save();
+      x.translate(f.x + q.dx, f.y + R * 3.0);
+      x.rotate(q.a);
+      x.translate(0, -R * 3.0);
+      x.strokeStyle = f.stem;
+      x.lineWidth = Math.max(B, R * 0.09);
+      x.lineCap = 'butt';
+      x.beginPath();
+      x.moveTo(f.lean * R, R * 3.0);
+      x.quadraticCurveTo(f.bend * R, R * 1.5, 0, R * 0.15);
+      x.stroke();
+      if (f.leaf) {
+        x.fillStyle = f.stem;
+        x.beginPath();
+        x.ellipse(f.bend * R * 0.95, R * 1.8, Math.max(B * 0.9, R * 0.44), Math.max(B * 0.5, R * 0.17), f.bend * 0.9 + 0.4, 0, 6.2832);
+        x.fill();
+      }
+      x.fillStyle = f.col;
+      x.strokeStyle = f.line;
+      x.lineWidth = B;
+      var ring = Math.max(B * 0.95, 0.68 * R * br);
+      var pw = Math.max(B * 0.8, 0.40 * R * br), ph = Math.max(B * 0.65, 0.335 * R * br);
+      for (var i = 0; i < 5; i++) {
+        var a = f.pa + i * 1.25664;
+        x.beginPath();
+        x.ellipse(Math.cos(a) * ring, Math.sin(a) * ring, pw, ph, a, 0, 6.2832);
+        x.fill(); x.stroke();
+      }
+      x.beginPath(); x.arc(0, 0, Math.max(B * 0.62, 0.19 * R * br), 0, 6.2832);
+      x.fillStyle = f.core; x.fill();
+      x.restore();
+    }
+    /* draw the flowers at 1/B, blow the raster back up nearest-neighbour */
+    function raster(t) {
+      var pw = Math.max(1, Math.ceil(W / B)), ph = Math.max(1, Math.ceil(H / B));
+      var key = B + ':' + pw + 'x' + ph, e = bufs[key];
+      if (!e) { e = bufs[key] = { c: document.createElement('canvas') }; e.c.width = pw; e.c.height = ph; e.x = e.c.getContext('2d'); }
+      var x = e.x;
+      x.setTransform(1, 0, 0, 1, 0, 0);
+      x.clearRect(0, 0, pw, ph);
+      x.setTransform(1 / B, 0, 0, 1 / B, 0, 0);
+      x.lineJoin = 'round';
+      for (var i = 0; i < flowers.length; i++) drawF(x, flowers[i], t);
+      x.setTransform(1, 0, 0, 1, 0, 0);
+      g.imageSmoothingEnabled = false;
+      g.filter = 'url(#pxa)';                              /* a block is lit or it is not */
+      g.drawImage(e.c, 0, 0, pw, ph, 0, 0, pw * B, ph * B);
+      g.filter = 'none';
+      g.imageSmoothingEnabled = true;
+    }
+    function render(t) {
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.globalAlpha = 1;
+      g.imageSmoothingEnabled = true;
+      g.drawImage(srcC, 0, 0);
+      raster(t);
+    }
+
+    var travel = 0, lastPx = -1e9, lastPy = -1e9, sown = 0;
+
+    var M = {
+      name: 'bloom',
+      ticks: 0, ms: 0, base: 10, dirty: true,
+      resize: function (w, h, sc) {
+        W = w; H = h; SC = sc; cv.width = W; cv.height = H;
+        B = Math.max(2, Math.round(PXB * SC));
+        bufs = {};
+        srcC = coverInto(W, H, srcFor(own)); analyse(); grow(false);
+        M.dirty = true; render(0);
+      },
+      setPic: function () {
+        srcC = coverInto(W, H, srcFor(own)); analyse(); grow(false);
+        M.dirty = true; render(performance.now());
+      },
+      tick: function (now) {
+        frame++;
+        if (RM) { if (!M.dirty) return; M.dirty = false; render(now); return; }
+        render(now);
+      },
+      pointer: function (x, y, on) {
+        if (!on) { lastPx = -1e9; lastPy = -1e9; return; }
+        var px = x * SC, py = y * SC;
+        if (lastPx < -1e8) { lastPx = px; lastPy = py; return; }
+        travel += Math.hypot(px - lastPx, py - lastPy) / SC;
+        lastPx = px; lastPy = py;
+        while (travel >= 60) { travel -= 60; M.sow(x, y); }
+      },
+      hit: function (x, y) { M.sow(x, y); },
+      sow: function (x, y) {
+        if (flowers.length >= CAP) return;
+        var px = Math.max(1, Math.min(W - 1, x * SC)), py = Math.max(1, Math.min(H - 1, y * SC));
+        var rnd = mk((seed + sown * 7919 + ((px * 13 + py * 7) | 0)) >>> 0);
+        var f = flower(px, py, M.base, rnd, frame);
+        flowers.push(f);
+        flowers.sort(function (a, b) { return a.y - b.y; });
+        sown++;
+        M.dirty = true;
+      },
+      regrow: function () { frame += 0; grow(true); sown = 0; M.dirty = true; },
+      count: function () { return flowers.length; },
+      sown: function () { return sown; },
+      sig: function () {
+        var s = 0;
+        for (var i = 0; i < flowers.length; i++) s = (s + Math.round(flowers[i].x * 7) + Math.round(flowers[i].y * 13) * 3 + i) % 2147483647;
+        return s;
+      },
+      state: function () {
+        var t = performance.now(), o = [];
+        for (var i = 0; i < flowers.length; i++) {
+          var f = flowers[i], q = pose(f, t);
+          o.push({ i: i, x: +(f.x / SC).toFixed(1), y: +(f.y / SC).toFixed(1), deg: +(q.a * 180 / Math.PI).toFixed(3), open: +open(f).toFixed(2) });
+        }
+        return o;
+      }
+    };
+    return M;
+  }
+
+  /* ======================= the bench ======================= */
+  var thumb = document.getElementById('thumb');
+  var thumbNone = document.getElementById('dropNone');
+  var dropEl = document.getElementById('drop');
+  var fileEl = document.getElementById('file');
+
+  var machines = [];
+  function attach(id, make, own) {
+    var cv = document.getElementById(id);
+    if (!cv || !cv.getContext) return null;
+    var m = make(cv, own);
+    m.own = own;
+    m.cv = cv; m.vis = true; m.w = 0; m.h = 0;
+    machines.push(m);
+    var down = false;
+    cv.addEventListener('pointermove', function (e) {
+      var r = cv.getBoundingClientRect();
+      m.pointer(e.clientX - r.left, e.clientY - r.top, true);
+    });
+    cv.addEventListener('pointerenter', function (e) {
+      var r = cv.getBoundingClientRect();
+      m.pointer(e.clientX - r.left, e.clientY - r.top, true);
+    });
+    cv.addEventListener('pointerleave', function () { m.pointer(0, 0, false); });
+    cv.addEventListener('pointerdown', function (e) {
+      var r = cv.getBoundingClientRect();
+      down = true;
+      m.hit(e.clientX - r.left, e.clientY - r.top);
+    });
+    return m;
+  }
+  var F = attach('cvField', makeField, lazy(fieldSample));
+  var E = attach('cvExplode', makeExplode, lazy(explodeSample));
+  var Bm = attach('cvBloom', makeBloom, lazy(bloomSample));
+
+  function sizeOf(cv) {
+    var r = cv.getBoundingClientRect();
+    var dpr = Math.min(DPRCAP, window.devicePixelRatio || 1);
+    var w = Math.max(160, Math.round(r.width * dpr)), h = Math.max(120, Math.round(r.height * dpr));
+    if (w * h > AREACAP) { var k = Math.sqrt(AREACAP / (w * h)); w = Math.round(w * k); h = Math.round(h * k); dpr *= k; }
+    return [w, h, dpr];
+  }
+  function layout(force) {
+    for (var i = 0; i < machines.length; i++) {
+      var m = machines[i], s = sizeOf(m.cv);
+      if (!force && s[0] === m.w && s[1] === m.h) continue;
+      m.w = s[0]; m.h = s[1];
+      m.resize(s[0], s[1], s[2]);
+    }
+  }
+
+  /* the thumbnail is the picture you brought — there is none until you bring one */
+  function drawThumb() {
+    if (!userPic) { thumb.hidden = true; thumbNone.hidden = false; return; }
+    thumbNone.hidden = true; thumb.hidden = false;
+    var g = thumb.getContext('2d');
+    g.fillStyle = COOL; g.fillRect(0, 0, thumb.width, thumb.height);
+    var s = Math.min(thumb.width / userPic.width, thumb.height / userPic.height);
+    var dw = userPic.width * s, dh = userPic.height * s;
+    g.imageSmoothingEnabled = true;
+    g.drawImage(userPic, 0, 0, userPic.width, userPic.height, (thumb.width - dw) / 2, (thumb.height - dh) / 2, dw, dh);
+  }
+  function feed(canvas, name) {
+    userPic = canvas; picVer++; picName = name;
+    drawThumb();
+    for (var i = 0; i < machines.length; i++) machines[i].setPic();
+  }
+  function fromFile(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    var url = URL.createObjectURL(file);
+    var im = new Image();
+    im.onload = function () {
+      var sc = Math.min(1, MAXEDGE / Math.max(im.naturalWidth, im.naturalHeight));
+      var w = Math.max(2, Math.round(im.naturalWidth * sc)), h = Math.max(2, Math.round(im.naturalHeight * sc));
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(im, 0, 0, w, h);
+      feed(c, 'your picture');
+      URL.revokeObjectURL(url);
+    };
+    im.onerror = function () { URL.revokeObjectURL(url); };
+    im.src = url;
+  }
+  fileEl.addEventListener('change', function () { fromFile(fileEl.files && fileEl.files[0]); });
+  dropEl.addEventListener('click', function (e) {
+    if (e.target === fileEl || (e.target.closest && e.target.closest('label'))) return;
+    fileEl.click();
+  });
+  ['dragenter', 'dragover'].forEach(function (n) {
+    dropEl.addEventListener(n, function (e) { e.preventDefault(); dropEl.classList.add('is-drop'); });
+  });
+  ['dragleave', 'dragend', 'drop'].forEach(function (n) {
+    dropEl.addEventListener(n, function () { dropEl.classList.remove('is-drop'); });
+  });
+  dropEl.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) fromFile(e.dataTransfer.files[0]);
+  });
+  window.addEventListener('paste', function (e) {
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf('image/') === 0) { fromFile(items[i].getAsFile()); break; }
+    }
+  });
+  document.getElementById('regrow').addEventListener('click', function () { if (Bm) Bm.regrow(); });
+
+  /* on a touch screen there is no hover: the hints say what a finger can do */
+  if (matchMedia('(hover: none), (pointer: coarse)').matches) {
+    var hints = document.querySelectorAll('.machine__hint');
+    for (var hi = 0; hi < hints.length; hi++) {
+      hints[hi].textContent = hints[hi].textContent.replace('Hover', 'Tap');
+    }
+  }
+
+  drawThumb();
+  layout(true);
+
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function (es) {
+      for (var i = 0; i < es.length; i++) {
+        for (var j = 0; j < machines.length; j++) if (machines[j].cv === es[i].target) machines[j].vis = es[i].isIntersecting;
+      }
+    }, { threshold: 0.02 });
+    for (var t = 0; t < machines.length; t++) io.observe(machines[t].cv);
+    if (E) {
+      var io2 = new IntersectionObserver(function (es) {
+        for (var i = 0; i < es.length; i++) {
+          if (es[i].isIntersecting && es[i].intersectionRatio >= 0.5) { E.arm(); io2.disconnect(); }
+        }
+      }, { threshold: [0.5] });
+      io2.observe(E.cv);
+    }
+  }
+  window.addEventListener('resize', function () { layout(false); });
+
+  var costs = [];
+  var pump = function (now) {
+    requestAnimationFrame(pump);
+    if (document.hidden) return;
+    var total = 0;
+    for (var i = 0; i < machines.length; i++) {
+      var m = machines[i];
+      if (!m.vis) continue;
+      m.ticks++;
+      var t0 = performance.now();
+      m.tick(now);
+      m.ms = performance.now() - t0;
+      total += m.ms;
+    }
+    costs.push(total);
+    if (costs.length > 120) costs.shift();
+  };
+  requestAnimationFrame(pump);
+
+  /* ---- read-only hooks for the local probe ---- */
+  function sigOf(cv) {
+    var d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, s = 0;
+    for (var i = 0; i < d.length; i += 401) s = (s + d[i] * ((i % 7) + 1)) % 4294967291;
+    return s;
+  }
+  window.__bench = {
+    picVer: function () { return picVer; },
+    picInfo: function () {
+      return { name: picName, user: !!userPic, w: userPic ? userPic.width : 0, h: userPic ? userPic.height : 0 };
+    },
+    ownPics: function () {
+      return machines.map(function (m) { return [m.name, m.own().width, m.own().height]; });
+    },
+    sig: function (n) { return sigOf(document.getElementById(n)); },
+    vis: function () { return machines.map(function (m) { return [m.name, m.vis, m.ticks]; }); },
+    size: function () { return machines.map(function (m) { return [m.name, m.cv.getBoundingClientRect().width, m.cv.getBoundingClientRect().height, m.w, m.h]; }); },
+    perf: function () {
+      var s = 0, mx = 0;
+      for (var i = 0; i < costs.length; i++) { s += costs[i]; if (costs[i] > mx) mx = costs[i]; }
+      return {
+        n: costs.length, avg: +(s / (costs.length || 1)).toFixed(3), max: +mx.toFixed(3),
+        field: +F.ms.toFixed(3), explode: +E.ms.toFixed(3), bloom: +Bm.ms.toFixed(3)
+      };
+    },
+    costs: function () { return costs.slice(); },
+    field: F, explode: E, bloom: Bm, reduced: RM
+  };
+})();
+</script>
+</body>
+</html>

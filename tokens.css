@@ -1,18 +1,11 @@
-/* Hallmark · route: custom (bespoke) · structure: orbital bloom — three playable pieces circling a centre
- * idea: "the works bloom out from the name and orbit it; each piece is a toy that performs its own concept"
- * paper: oklch(99.3% 0.002 95) white · accent: oklch(50% 0.17 27) seal-red
- * display: Fraunces · body: IBM Plex Sans · mono: IBM Plex Mono
- * axes: light / roman-serif / warm · studied: no · context: user-provided
- * nav: none (single-view) · footer: one-line strip · enrichment: Tier A/B interactive toys
- * pre-emit critique: P5 H4 E4 S5 R4 V5 · contrast: pass (40-41) · slop: pass (42-45) · mobile: pass (34, 49, 50-57)
- */
-
+/* paper / ink · one typeface: Fraunces (ital, opsz 9..144, wght 300..600, SOFT, WONK).
+   Three roles, one family: display (SOFT 100 / WONK 1), body (opsz 14 / SOFT 30),
+   label (italic, opsz 12 / SOFT 0) — the old --font-body / --font-mono token names
+   are kept so nothing downstream breaks. */
 :root {
-  /* ---- colour ---- */
   --color-paper:      oklch(99.3% 0.005 95);
   --color-paper-2:    oklch(95.8% 0.005 95);
   --color-rule:       oklch(86% 0.006 95);
-  --color-rule-2:     oklch(91% 0.005 95);
   --color-muted:      oklch(46% 0.008 60);
   --color-ink-2:      oklch(32% 0.010 60);
   --color-ink:        oklch(20% 0.010 60);
@@ -20,21 +13,25 @@
   --color-accent-ink: oklch(99.3% 0.005 95);
   --color-focus:      oklch(48% 0.21 27);
 
-  /* ---- type ---- */
   --font-display: "Fraunces", "Songti SC", "Noto Serif SC", "STSong", Georgia, serif;
-  --font-body: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  /* display type: Fraunces with its wonky axes open — light weight, soft
+     terminals, swash forms (ampersand, ct ligature). One rule, everywhere. */
+  --wght-display: 420;
+  --vf-display: "opsz" 144, "SOFT" 100, "WONK" 1;
+  --ff-display: "dlig" 1, "ss01" 1, "calt" 1;
+  --track-display: -0.01em;
+  /* body and label are the same family — only the axes change */
+  --font-body: "Fraunces", "Songti SC", "Noto Serif SC", "STSong", Georgia, serif;
+  --font-mono: "Fraunces", "Songti SC", "Noto Serif SC", "STSong", Georgia, serif;
+  --vf-body:  "opsz" 14, "SOFT" 30, "WONK" 0;
+  --vf-label: "opsz" 12, "SOFT" 0, "WONK" 0;
+  --track-label: 0.02em;
 
   --text-xs:   0.8rem;
   --text-sm:   0.9rem;
   --text-base: 1rem;
-  --text-md:   1.25rem;
   --text-lg:   1.5625rem;
-  --text-xl:   1.9531rem;
-  --text-2xl:  2.4414rem;
 
-  /* ---- space ---- */
-  --space-3xs: 0.125rem;
   --space-2xs: 0.25rem;
   --space-xs:  0.5rem;
   --space-sm:  0.75rem;
@@ -44,26 +41,45 @@
   --space-2xl: 4rem;
   --space-3xl: 6rem;
 
-  /* ---- motion ---- */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long:  420ms;
-  --dur-fold:  520ms;
-  --orbit-turn: 150s;
 
-  /* ---- geometry ---- */
-  --R: clamp(180px, 24vmin, 260px);         /* orbit radius */
-  --disc: clamp(190px, 23vmin, 232px);      /* piece diameter */
-  --net: calc(var(--disc) * 0.45);          /* unfold centre square */
-  --depth: calc(var(--disc) * 0.225);       /* unfold room depth */
-  --above: calc(var(--R) + 17rem);          /* orbit centre offset from field top */
+  --disc: clamp(190px, 23vmin, 232px);
 
-  /* ---- misc ---- */
   --rule-hair: 1px solid var(--color-rule);
   --radius-sm: 2px;
-  --z-base: 1;
   --z-raised: 10;
 }
+
+/* the display rule — apply with `.u-display` or copy the five lines */
+.u-display {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  letter-spacing: var(--track-display);
+}
+
+/* body text — Fraunces at reading size */
+.u-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  line-height: 1.55;
+}
+
+/* the label voice — what used to be mono: small italic Fraunces */
+.u-label {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+}
+.u-label--caps { font-variant-caps: all-small-caps; }
+.u-label--nums { font-variant-numeric: tabular-nums; }

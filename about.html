@@ -1,0 +1,2767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About · Xinyi Zhang</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='46' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<meta name="description" content="Xinyi — AI-native product manager and designer.">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:title" content="About · Xinyi Zhang">
+<meta property="og:description" content="experiments in translation — an AI-native product manager &amp; designer">
+<meta property="og:image" content="https://whereisxinyi.github.io/assets/og.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://whereisxinyi.github.io/about.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://whereisxinyi.github.io/assets/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css?v=20260903">
+<style>
+/* about · self-contained. the pixel language of the home page, copied:
+   cool near-white ground, the static pixel grid, glass top bar, glass plate,
+   the pixel cursor. nothing here imports styles.css.
+   the sheet is a set of calm states; a click crossfades to another. */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-tint:   oklch(60% 0.03 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+
+  /* one typeface for the whole page: Fraunces, in three voices */
+  --font-display: "Fraunces", Georgia, "Songti SC", serif;
+  --font-body:    "Fraunces", Georgia, "Songti SC", serif;
+  --font-label:   "Fraunces", Georgia, "Songti SC", serif;
+  --font-mono:    "Fraunces", Georgia, "Songti SC", serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---------- the type: Fraunces with its wonky axes opened ----------
+   one display rule for every display element on the page. the body reads
+   Fraunces at opsz 14, the labels are its italic at opsz 12; the swash
+   ampersand comes from WONK + dlig. */
+h1, h2, h3, .say, .sect__title {
+  font-family: var(--font-display);
+  font-weight: 420;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1;
+  font-feature-settings: "dlig" 1, "ss01" 1, "calt" 1;
+  letter-spacing: -0.01em;
+}
+.say__first { font-style: italic; }
+.say__second { display: block; white-space: nowrap; }
+@media (max-width: 560px) { .say__second { white-space: normal; } }
+
+html { height: 100%; }
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: "opsz" 14, "SOFT" 30, "WONK" 0;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* touch devices get 44px hit areas; a mouse keeps the small ones */
+:root { --tap: 0px; }
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+html.is-coarse { --tap: 44px; }
+
+/* ---------- the stage: the states sheet, exactly one screen ---------- */
+.stage {
+  position: relative;
+  height: 100dvh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- the sheet: one canvas, the whole viewport ---------- */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;                  /* clicks land on the page; blank ones build */
+}
+
+/* ---------- the top bar (copied from the home page) ---------- */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
+  font-size: 19px;
+  line-height: 1;
+  padding-block-end: 6px;                /* optical centring for the semicolon */
+}
+.topbar__name {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-variation-settings: "opsz" 14, "SOFT" 30, "WONK" 0;
+  font-feature-settings: normal;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-label);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---------- the plate (the hero's glass, centred) ---------- */
+.about {
+  position: relative;
+  z-index: 10;
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--bar-h) + var(--space-xl)) max(var(--space-md), env(safe-area-inset-left)) var(--space-xl);
+  pointer-events: none;
+}
+.plate {
+  pointer-events: auto;
+  max-width: min(40rem, calc(100vw - 2 * var(--space-md)));
+  padding: var(--space-lg) clamp(var(--space-md), 5vw, var(--space-xl));
+  text-align: center;
+  background: var(--hero-glass);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border: 1px solid var(--hero-hair);
+  border-radius: 14px;
+  box-shadow: var(--hero-shadow);
+  transition: opacity var(--dur-long) var(--ease-out);
+}
+/* while the flowers hold the semicolon, the plate steps back */
+.plate.is-quiet {
+  opacity: 0.16;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.strip__link { font-family: var(--font-mono); font-style: italic; font-variation-settings: "opsz" 12, "SOFT" 0, "WONK" 0; font-size: 0.95rem; letter-spacing: 0.02em; color: var(--color-muted); text-decoration: none; border-bottom: 1px solid rgba(36,31,28,.25); }
+.strip__link:hover { color: var(--color-ink); border-color: var(--color-ink); }
+.foot-mail { position: relative; z-index: 10; display: flex; justify-content: center; padding: var(--space-lg) var(--space-md) max(var(--space-lg), env(safe-area-inset-bottom)); background: var(--hero-ground, #f8fafd); }
+.from__mail { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(36,31,28,.25); }
+.from__mail:hover { color: var(--color-ink); border-color: var(--color-ink); }
+.say__mail {
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono); font-style: italic; font-weight: 400;
+  font-variation-settings: "opsz" 12, "SOFT" 0, "WONK" 0;
+  font-size: 0.95rem; letter-spacing: 0.02em; color: var(--color-muted);
+}
+.say__mail a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(36,31,28,.25); }
+.say__mail a:hover { color: var(--color-ink); border-color: var(--color-ink); }
+.say {
+  font-size: clamp(1.25rem, 3.9vw, 1.65rem);
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.strip {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-md);
+  padding-block-end: max(var(--space-lg), env(safe-area-inset-bottom));
+  font-family: var(--font-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* ---------- god is in the details: the callout ---------- */
+.detail {
+  position: fixed;
+  z-index: 40;
+  left: 24px;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  width: 176px;
+  height: 176px;
+  background: var(--hero-glass);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border: 1px solid var(--hero-hair);
+  border-radius: 10px;
+  box-shadow: var(--hero-shadow);
+  opacity: 0;
+  transition: opacity 100ms var(--ease-out);
+  pointer-events: none;
+}
+.detail.is-on { opacity: 1; }
+.detail--right { left: auto; right: 24px; }
+.detail__px {
+  position: absolute;
+  left: 24px;
+  top: 26px;
+  width: 128px;
+  height: 128px;
+  image-rendering: pixelated;
+}
+.detail__rule { position: absolute; background: rgba(36, 31, 28, 0.28); }
+.detail__rule--w { left: 24px; top: 16px; width: 128px; height: 1px; }
+.detail__rule--w::before, .detail__rule--w::after {
+  content: ""; position: absolute; top: -3px; width: 1px; height: 7px; background: rgba(36, 31, 28, 0.28);
+}
+.detail__rule--w::before { left: 0; }
+.detail__rule--w::after { right: 0; }
+.detail__rule--h { left: 158px; top: 26px; width: 1px; height: 128px; }
+.detail__rule--h::before, .detail__rule--h::after {
+  content: ""; position: absolute; left: -3px; width: 7px; height: 1px; background: rgba(36, 31, 28, 0.28);
+}
+.detail__rule--h::before { top: 0; }
+.detail__rule--h::after { bottom: 0; }
+.detail__dim {
+  position: absolute;
+  font-family: var(--font-label);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-muted);
+}
+.detail__dim--w { left: 24px; top: 1px; width: 128px; text-align: center; }
+.detail__dim--h { left: 162px; top: 80px; }
+.detail__label {
+  position: absolute;
+  left: 12px;
+  right: 10px;
+  bottom: 4px;
+  font-family: var(--font-label);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* ---------- the state's name, said once, quietly ---------- */
+.statename {
+  position: fixed;
+  z-index: 45;
+  left: max(24px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  font-family: var(--font-label);
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  opacity: 0;
+  transition: opacity 420ms var(--ease-out);
+  pointer-events: none;
+}
+.statename.is-on { opacity: 0.75; transition-duration: 180ms; }
+
+/* ---------- the hint: the click, said once ----------
+   the sheet has no button and no affordance of its own, so one mono line sits
+   above the footer and says what to do. it is spent by the first click. */
+.hint {
+  position: relative;
+  z-index: 45;
+  padding-inline: var(--space-md);
+  text-align: center;
+  font-family: var(--font-label);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  opacity: 0.8;
+  transition: opacity 600ms var(--ease-out);
+  pointer-events: none;
+}
+.hint.is-out { opacity: 0; }
+.hint.is-gone { visibility: hidden; }   /* spent, but its line keeps its space */
+
+/* ---------- below the sheet: the same ground, the same grid ----------
+   the sections are opaque so the fixed canvas never shows through them. */
+.below {
+  position: relative;
+  z-index: 20;
+  min-height: 100dvh;
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  border-block-start: 1px solid var(--hero-hair);
+}
+.sect {
+  scroll-margin-block-start: calc(var(--bar-h) + 12px);
+  max-width: 68rem;
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) max(var(--space-md), env(safe-area-inset-left))
+           clamp(2.5rem, 6vw, 4.5rem) max(var(--space-md), env(safe-area-inset-right));
+}
+.sect + .sect { border-block-start: 1px solid var(--hero-hair); }
+.sect__title {
+  font-size: clamp(1.7rem, 5.2vw, 2.6rem);
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+.sect__lead {
+  margin-block-start: var(--space-sm);
+  max-width: 34rem;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+
+/* ---------- photography: one viewer, two series ----------
+   a glass frame at 16:10, two pixel-arrow pills, a mono counter, and a row of
+   6 px mosaic thumbs. slides cross-dissolve in blocks; a series change slides
+   the reel sideways. everything after the first slide loads on demand. */
+.viewer {
+  margin-block-start: clamp(1.4rem, 3.5vw, 2.2rem);
+  max-width: 56rem;
+  outline: none;
+}
+.viewer:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 6px; border-radius: 12px; }
+.viewer__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.viewer__title {
+  font-family: var(--font-display);
+  font-weight: 420;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1;
+  font-feature-settings: "dlig" 1, "ss01" 1, "calt" 1;
+  font-size: clamp(1.15rem, 3.4vw, 1.55rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: max(var(--tap), 30px);
+  padding-inline: var(--space-sm);
+  background: var(--hero-glass);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border: 1px solid var(--hero-hair);
+  border-radius: 999px;
+  box-shadow: var(--hero-shadow);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--color-muted);
+  transition: color var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+}
+.pill:hover { color: var(--color-ink); transform: translateY(-1px); }
+.pill__ar { display: block; fill: currentColor; }
+.viewer__ser {
+  margin-block-start: var(--space-2xs);
+  /* the only line in this section is the section's own lead */
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+}
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-block-start: var(--space-sm);
+  padding: 6px;
+  aspect-ratio: 16 / 10;
+  background: var(--hero-glass);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border: 1px solid var(--hero-hair);
+  border-radius: 10px;
+  box-shadow: var(--hero-shadow);
+  font: inherit;
+  color: inherit;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.frame__reel {
+  position: absolute;
+  inset: 6px;
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: var(--hero-ground);
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 300ms steps(5, end);
+}
+.slide.is-on { opacity: 1; }
+.frame__veil {                                   /* the dissolve: 16 px blocks, five steps */
+  position: absolute;
+  inset: 6px;
+  border-radius: 5px;
+  background-color: var(--hero-ground);
+  -webkit-mask-image: repeating-conic-gradient(#000 0% 25%, transparent 0% 50%);
+  mask-image: repeating-conic-gradient(#000 0% 25%, transparent 0% 50%);
+  -webkit-mask-size: 16px 16px;
+  mask-size: 16px 16px;
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes reel-next {
+  0%   { transform: translateX(0); }
+  44%  { transform: translateX(-30px); }
+  56%  { transform: translateX(30px); }
+  100% { transform: translateX(0); }
+}
+@keyframes reel-prev {
+  0%   { transform: translateX(0); }
+  44%  { transform: translateX(30px); }
+  56%  { transform: translateX(-30px); }
+  100% { transform: translateX(0); }
+}
+.frame.is-ser-next .frame__reel { animation: reel-next 400ms steps(12, end) both; }
+.frame.is-ser-prev .frame__reel { animation: reel-prev 400ms steps(12, end) both; }
+.viewer__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-block-start: var(--space-sm);
+}
+.nav {
+  display: inline-grid;
+  place-items: center;
+  min-width: 40px;
+  min-height: max(var(--tap), 30px);
+  background: var(--hero-glass);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border: 1px solid var(--hero-hair);
+  border-radius: 999px;
+  box-shadow: var(--hero-shadow);
+  color: var(--color-muted);
+  transition: color var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+}
+.nav:hover { color: var(--color-ink); transform: translateY(-1px); }
+.nav svg { display: block; fill: currentColor; }
+.counter {
+  margin-inline-start: auto;
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: var(--space-sm);
+}
+.thumb {
+  display: inline-block;
+  padding: 3px;
+  background: var(--hero-glass);
+  border: 1px solid var(--hero-hair);
+  border-radius: 6px;
+  line-height: 0;
+  transition: border-color var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+}
+.thumb[hidden] { display: none; }
+.thumb:hover { transform: translateY(-2px); }
+.thumb.is-on { border-color: rgba(36, 31, 28, 0.34); }
+.thumb__px {
+  display: block;
+  width: 72px;
+  height: 48px;
+  border-radius: 3px;
+  image-rendering: pixelated;
+}
+@media (max-width: 460px) { .thumb__px { width: 60px; height: 40px; } }
+.series-sep { margin-block-start: clamp(2rem, 5vw, 3rem); }
+
+/* ---------- the lightbox ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(var(--space-md), 4vw, var(--space-xl));
+  background: rgba(247, 248, 250, 0.72);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  opacity: 0;
+  transition: opacity var(--dur-short) var(--ease-out);
+}
+.lightbox[hidden] { display: none; }      /* the attribute must win over the grid */
+.lightbox.is-on { opacity: 1; }
+.lightbox__img {
+  max-width: min(1100px, 100%);
+  max-height: 84dvh;
+  width: auto;
+  height: auto;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--hero-hair);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px -34px rgba(36, 31, 28, 0.55);
+}
+.lightbox__close {
+  position: absolute;
+  top: max(var(--space-md), env(safe-area-inset-top));
+  right: max(var(--space-md), env(safe-area-inset-right));
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border: 1px solid var(--hero-hair);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+.lightbox__close:hover { color: var(--color-ink); }
+
+/* ---------- from: two mono blocks ---------- */
+.from__block { margin-block-start: clamp(1.2rem, 3vw, 1.8rem); max-width: 56rem; }
+.from__label {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.from {
+  margin-block-start: var(--space-2xs);
+  max-width: 56rem;
+  list-style: none;
+}
+.from__line {
+  padding-block: var(--space-sm);
+  border-block-end: 1px solid var(--hero-hair);
+  font-family: var(--font-label);
+  font-size: clamp(0.72rem, 2.5vw, var(--text-sm));
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: var(--color-ink-2);
+  overflow-wrap: break-word;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.from__line:hover { color: var(--color-ink); }
+.from__when { color: var(--color-muted); }
+
+/* ---------- the label voice: Fraunces italic, small, tabular ----------
+   everything that used to be set in mono — the hint, the state name, the
+   counters, the timeline, the callout, the pills, the bar links. */
+.topbar__link, .strip, .detail__dim, .detail__label, .statename, .hint,
+.pill, .viewer__ser, .counter, .lightbox__close, .from__label, .from__line, .from__when {
+  font-family: var(--font-label);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 12, "SOFT" 0, "WONK" 0;
+  font-feature-settings: "calt" 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.from__label {
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+  letter-spacing: 0.06em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 150ms !important;
+    transition-duration: 150ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* ---------- the pointer: a pixel arrow on the same 2 px grid ---------- */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto;
+  }
+  a, button, [role="button"] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%23efcd82'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+</style>
+</head>
+<body>
+
+<canvas class="sheet" id="sheet" aria-hidden="true"></canvas>
+
+<header class="topbar">
+  <a class="topbar__brand" href="index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="index.html#index">Work</a>
+  </nav>
+</header>
+
+<section class="stage" id="stage">
+  <main class="about">
+    <div class="plate" id="plate">
+      <p class="say"><em class="say__first">AI-Native Product Manager &amp; Designer.</em><span class="say__second">0→1 Consumer AI Products, Owned End to End.</span></p>
+    </div>
+  </main>
+
+  <p class="hint" id="hint" aria-hidden="true">Click — another scene</p>
+
+  <footer class="strip" aria-hidden="true"></footer>
+</section>
+
+<div class="below">
+  <section class="sect" id="photography" aria-labelledby="photography-title">
+    <h2 class="sect__title" id="photography-title">Photography</h2>
+    <p class="sect__lead">A tribute to Mies van der Rohe.</p>
+
+    <div class="viewer" id="viewer" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Photography — two series">
+      <div class="viewer__head">
+        <h3 class="viewer__title" id="sertitle">Ichigo Ichie</h3>
+        <button class="pill" id="serpill" type="button">Next Series <svg class="pill__ar" width="12" height="12" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h2v2H3zM5 3h2v2H5zM7 5h2v2H7zM5 7h2v2H5zM3 9h2v2H3z"/></svg></button>
+      </div>
+      <p class="viewer__ser" id="serind">Series 1 / 2</p>
+
+      <button class="frame" id="frame" type="button" aria-label="Open this photograph larger">
+        <span class="frame__reel" id="reel">
+          <img class="slide is-on" data-series="0" src="assets/about/ichigo-01.jpg" data-src="assets/about/ichigo-01.jpg" data-full="assets/about/ichigo-01.jpg" width="936" height="622" decoding="async" alt="Sydney: a group sitting on a rug under Norfolk pines, bicycles parked behind them.">
+          <img class="slide" data-series="0" data-src="assets/about/ichigo-02.jpg" data-full="assets/about/ichigo-02.jpg" width="936" height="622" loading="lazy" decoding="async" alt="Sydney: two men talking at the harbour railing, a ferry and the Harbour Bridge behind them.">
+          <img class="slide" data-series="0" data-src="assets/about/ichigo-03.jpg" data-full="assets/about/ichigo-03.jpg" width="936" height="623" loading="lazy" decoding="async" alt="Sydney: a man resting on his bicycle beside a child on a small bike, the surf behind them.">
+          <img class="slide" data-series="0" data-src="assets/about/ichigo-04.jpg" data-full="assets/about/ichigo-04.jpg" width="936" height="623" loading="lazy" decoding="async" alt="Sydney: a man and a child walking their bicycles down the beach promenade, seen from behind.">
+          <img class="slide" data-series="1" data-src="assets/about/pavilion-05.jpg" data-full="assets/about/pavilion-05.jpg" width="1600" height="900" loading="lazy" decoding="async" alt="Barcelona Pavilion: a visitor stands before the bronze figure, seen through glass and green marble.">
+          <img class="slide" data-series="1" data-src="assets/about/pavilion-02.jpg" data-full="assets/about/pavilion-02.jpg" width="838" height="471" loading="lazy" decoding="async" alt="Barcelona Pavilion: the onyx wall at the left, white glass and steel columns receding into the room.">
+          <img class="slide" data-series="1" data-src="assets/about/pavilion-03.jpg" data-full="assets/about/pavilion-03.jpg" width="837" height="472" loading="lazy" decoding="async" alt="Barcelona Pavilion: grey marble at the left, the glass wall and the pool through it, the onyx wall at the right.">
+          <img class="slide" data-series="1" data-src="assets/about/pavilion-04.jpg" data-full="assets/about/pavilion-04.jpg" width="838" height="472" loading="lazy" decoding="async" alt="Barcelona Pavilion: the golden onyx wall with two Barcelona chairs, the figure in the water court beyond.">
+          <img class="slide" data-series="1" data-src="assets/about/pavilion-01.jpg" data-full="assets/about/pavilion-01.jpg" width="837" height="471" loading="lazy" decoding="async" alt="Barcelona Pavilion: the travertine terrace along the glass wall, the pool and the garden beyond.">
+        </span>
+        <span class="frame__veil" id="veil" aria-hidden="true"></span>
+      </button>
+
+      <div class="viewer__bar">
+        <button class="nav" id="prev" type="button" aria-label="Previous photograph">
+          <svg width="12" height="12" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path d="M7 1h2v2H7zM5 3h2v2H5zM3 5h2v2H3zM5 7h2v2H5zM7 9h2v2H7z"/></svg>
+        </button>
+        <button class="nav" id="next" type="button" aria-label="Next photograph">
+          <svg width="12" height="12" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h2v2H3zM5 3h2v2H5zM7 5h2v2H7zM5 7h2v2H5zM3 9h2v2H3z"/></svg>
+        </button>
+        <p class="counter" id="counter" aria-live="polite">01 / 04</p>
+      </div>
+
+      <div class="thumbs" id="thumbs">
+        <button class="thumb is-on" type="button" data-series="0" aria-label="Photograph 1"><img class="thumb__px" src="assets/about/ichigo-01-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="0" aria-label="Photograph 2"><img class="thumb__px" src="assets/about/ichigo-02-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="0" aria-label="Photograph 3"><img class="thumb__px" src="assets/about/ichigo-03-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="0" aria-label="Photograph 4"><img class="thumb__px" src="assets/about/ichigo-04-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="1" hidden aria-label="Photograph 1"><img class="thumb__px" src="assets/about/pavilion-05-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="1" hidden aria-label="Photograph 2"><img class="thumb__px" src="assets/about/pavilion-02-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="1" hidden aria-label="Photograph 3"><img class="thumb__px" src="assets/about/pavilion-03-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="1" hidden aria-label="Photograph 4"><img class="thumb__px" src="assets/about/pavilion-04-t.png" width="12" height="8" alt=""></button>
+        <button class="thumb" type="button" data-series="1" hidden aria-label="Photograph 5"><img class="thumb__px" src="assets/about/pavilion-01-t.png" width="12" height="8" alt=""></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect" id="from" aria-labelledby="from-title">
+    <h2 class="sect__title" id="from-title">From</h2>
+    <div class="from__block">
+      <p class="from__label">Experience</p>
+      <ol class="from">
+        <li class="from__line"><span class="from__when">2025&#8211;2026</span> · VocalBeats.AI · AI PM — AI for Note-taking &amp; Knowledge Retrieval</li>
+        <li class="from__line"><span class="from__when">2024&#8211;2025</span> · Freedom.AI · AI PM — AI for Healthcare</li>
+        <li class="from__line"><span class="from__when">02/2022&#8211;06/2022</span> · Douban · Product Designer — Web &amp; Mobile Design, Brand Campaigns</li>
+        <li class="from__line"><span class="from__when">07/2020&#8211;07/2021</span> · Liquid Atelier · Co-founder — Visual &amp; Brand Identities</li>
+      </ol>
+    </div>
+    <div class="from__block">
+      <p class="from__label">Education</p>
+      <ol class="from">
+        <li class="from__line"><span class="from__when">2023&#8211;2024</span> · Parsons School of Design · MPS Communication Design</li>
+        <li class="from__line"><span class="from__when">2018&#8211;2022</span> · UNSW · Bachelor of Design · Visual &amp; Spatial</li>
+      </ol>
+    </div>
+    <div class="from__block">
+      <p class="from__label">Contact</p>
+      <ol class="from">
+        <li class="from__line"><a class="from__mail" href="mailto:xinyizhangx@163.com">xinyizhangx@163.com</a></li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photograph" hidden>
+  <img class="lightbox__img" id="lightboximg" alt="">
+  <button class="lightbox__close" id="lightboxclose" type="button">Esc · Close</button>
+</div>
+
+<p class="statename" id="statename" aria-hidden="true"></p>
+
+<div class="detail" id="detail" hidden aria-hidden="true">
+  <i class="detail__rule detail__rule--w"></i>
+  <i class="detail__rule detail__rule--h"></i>
+  <span class="detail__dim detail__dim--w" id="dimw">64</span>
+  <span class="detail__dim detail__dim--h" id="dimh">64</span>
+  <canvas class="detail__px" id="detailpx" width="128" height="128"></canvas>
+  <p class="detail__label" id="detaillabel">Detail</p>
+</div>
+
+<script src="orchid-sprites.js?v=20260903"></script>
+<script>
+/* about · the sheet is not one drawing but a set of calm states.
+   one canvas, one rAF loop, one crossfade compositor. a click on blank sheet
+   dissolves the state you are looking at into a different one, drawn from a
+   shuffle bag, so nothing repeats until all six have been seen. every state
+   is slow on purpose: nothing travels faster than about 40 px/s, everything
+   breathes on a 3–7 s period, everything eases.
+     1 free plan     the Barcelona pavilion: walls arrive by themselves
+     2 drift         sprays floating on water
+     3 tide          the glass field itself becomes a slow wave
+     4 constellation blue-noise blooms joined by hairlines, turning
+     5 lattice       a strict grid breathing in a radial wave
+     6 frame         the border only, opening clockwise
+   kept from before: the plate, the detail callout on hover, the pointer hold,
+   the plate-line magnet, the double-click semicolon, reduced motion, touch. */
+(function () {
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var cv = document.getElementById("sheet");
+  var ctx = cv && cv.getContext ? cv.getContext("2d") : null;
+  var plate = document.getElementById("plate");
+  var bar = document.querySelector(".topbar");
+  var strip = document.querySelector(".strip");
+  var foot = document.querySelector(".strip span");
+  var nameEl = document.getElementById("statename");
+  if (!ctx) return;
+  var OR = window.ORCHID;
+  if (!OR) return;
+
+  var dEl = document.getElementById("detail");
+  var dPx = document.getElementById("detailpx");
+  var dCtx = dPx.getContext("2d");
+  var dLab = document.getElementById("detaillabel");
+  var dimW = document.getElementById("dimw");
+  var dimH = document.getElementById("dimh");
+
+  var DP = Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1)));
+  var W = 0, H = 0;
+
+  /* ---------- measures ---------- */
+  var CELL = 14, PITCH = 84, RS = 64, SIDE = 64, HALF = 32;
+  var CLEAR = 76, GAPMIN = 70, GAPMAX = 224, COLCLR = 56, SIGHT = 260;
+  var MAXW = 7, WALL_MS = 2200, ENTER = 1600, ENTER_OFF = 40, FRMS = 90, OPENMS = 540;
+  var FA = 0.9, DIMA = 0.22, REFA = 0.22;
+  var COLARM = CELL, COLLEN = CELL * 3, COLINK = 0.28;
+  var PLW = 56, PLH = 14, FIGW = 64, FIGH = 128;
+  var GSC = 0.5;                                         /* the semicolon packs them smaller */
+  var XFADE = 900;                                       /* the crossfade between states */
+
+  /* ---------- colours: read the tokens once, through the canvas ---------- */
+  var probe = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  var rgbOf = function (css, fallback) {
+    try {
+      probe.clearRect(0, 0, 1, 1);
+      probe.fillStyle = "#000";
+      probe.fillStyle = css;
+      probe.fillRect(0, 0, 1, 1);
+      var d = probe.getImageData(0, 0, 1, 1).data;
+      return [d[0], d[1], d[2]];
+    } catch (e) { return fallback; }
+  };
+  var cssVar = function (n) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+    catch (e) { return ""; }
+  };
+  var INK = rgbOf(cssVar("--color-ink"), [36, 31, 28]);
+  var INK_RGB = INK.join(",");
+  var ink = function (a) { return "rgba(" + INK_RGB + "," + a + ")"; };
+
+  /* the three materials of the pavilion */
+  var MATS = ["onyx", "marble", "glass"];
+  var MATFILL = {
+    onyx:   "oklch(82% 0.05 80)",
+    marble: "oklch(78% 0.03 160)",
+    glass:  "rgba(255,255,255,0.35)"
+  };
+  var OPAQUE = { onyx: true, marble: true, glass: false };
+
+  /* ---------- the shared sprites ---------- */
+  var OPENF = [], oi;
+  for (oi = 0; oi < OR.OPEN.length; oi++) OPENF.push(OR.bake(OR.OPEN[oi]));
+  var BLOOM = OPENF[OPENF.length - 1];
+  var TQF = OR.bake(OR.TQ);
+  var SPRAYF = OR.bake(OR.SPRAY);
+  var SPRW = SPRAYF.width, SPRH = SPRAYF.height;
+  var crop = function (src, x, y, w, h) {
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var g = c.getContext("2d");
+    g.imageSmoothingEnabled = false;
+    g.drawImage(src, x, y, w, h, 0, 0, w, h);
+    return c;
+  };
+  /* one lateral petal, cut from the front view at x1 */
+  var PETAL = crop(BLOOM, 5, 16, 22, 26), PTW = 22, PTH = 26;
+  /* the three blooms of a spray, in their own boxes, for the detail callout */
+  var SPRB = [];
+  for (oi = 0; oi < OR.SPRAY_BLOOMS.length; oi++) {
+    var sb = OR.SPRAY_BLOOMS[oi];
+    SPRB.push({ x: sb.x, y: sb.y, w: sb.w, h: sb.h, img: OR.bake(sb.open[sb.open.length - 1]) });
+  }
+
+  var FIG_ROWS = [
+    "..........ollo....ollo..........",
+    ".........ollldo..ollldo.........",
+    ".........ollldo..ollldo.........",
+    ".........ollldo..ollldo.........",
+    "........ollldo....ollldo........",
+    "........olldo......olldo........",
+    ".......olldo........olldo.......",
+    ".......olldo........olldo.......",
+    "......olldo..........olldo......",
+    "......olldo..........olldo......",
+    ".....olldo...ollldo...olldo.....",
+    "....ollldo..ollllddo..ollldo....",
+    "....ollldo..ollllddo..ollldo....",
+    "...ollldo...ollllddo...ollldo...",
+    "...ollldo...ollllddo...ollldo...",
+    "...ollldo...ollllddo...ollldo...",
+    "....ollldo..ollllddo..ollldo....",
+    ".....ollldo..ollldo..ollldo.....",
+    "......ollldo..ollo..ollldo......",
+    ".......ollldo.ollo.ollldo.......",
+    "........ollllllldddddddo........",
+    ".........ollllllddddddo.........",
+    ".........ollllllddddddo.........",
+    "..........ollllldddddo..........",
+    "..........ollllldddddo..........",
+    "...........olllllddbo...........",
+    "...........olllllddbo...........",
+    "...........olllllddbo...........",
+    "...........olllllddbo...........",
+    "...........olllllddbo...........",
+    "...........olllllddbo...........",
+    "..........olllllddddbo..........",
+    "..........olllllddddbo..........",
+    ".........olllllldddddbo.........",
+    ".........olllllldddddbo.........",
+    ".........olllllllddddddo........",
+    ".........olllllllddddddo........",
+    ".........ollllllddddddo.........",
+    "..........olllllldddddo.........",
+    "..........ollllldddddo..........",
+    ".........ollldddolllddo.........",
+    ".........ollldddolllddo.........",
+    ".........ollldddolllddo.........",
+    ".........ollldddolllddo.........",
+    ".........ollldddollldbo.........",
+    ".........ollldddollldbo.........",
+    ".........ollldddollldbo.........",
+    "..........olllddolllbo..........",
+    "..........olllddolllbo..........",
+    "..........olllddolllbo..........",
+    "..........olllddolllbo..........",
+    "..........olllddolllbo..........",
+    "..........olllddolllbo..........",
+    "...........ollddolldo...........",
+    "...........ollddolldo...........",
+    "...........ollddolldo...........",
+    "...........ollddolldo...........",
+    "...........ollddolldo...........",
+    "...........ollo..ollo...........",
+    "...........ollo..ollo...........",
+    "........olllddo..olllddo........",
+    "........olllddo..olllddo........",
+    "........olllddo..olllddo........",
+    "................................"
+  ];
+  var FIG_PAL = {
+    o: ["rgba(" + INK_RGB + ",0.9)", 1],
+    l: ["oklch(88% 0.004 250)", 1],
+    d: ["oklch(72% 0.008 250)", 1],
+    b: ["oklch(74% 0.10 240)", 1]
+  };
+  var bakeRows = function (rows, pal) {
+    var Wc = rows[0].length, Hc = rows.length;
+    var c = document.createElement("canvas"); c.width = Wc; c.height = Hc;
+    var g = c.getContext("2d");
+    for (var y = 0; y < Hc; y++) for (var x = 0; x < Wc; x++) {
+      var e = pal[rows[y][x]]; if (!e) continue;
+      g.globalAlpha = e[1]; g.fillStyle = e[0]; g.fillRect(x, y, 1, 1);
+    }
+    g.globalAlpha = 1;
+    return c;
+  };
+  var FIG = bakeRows(FIG_ROWS, FIG_PAL);
+
+  /* ---------- geometry: keep-outs, the pool, the column grid ---------- */
+  var G = { top: 0, bottom: 0, poolTop: 0, poolBottom: 0, ko: [], cols: [] };
+  var snap = function (v) { return Math.round(v / CELL) * CELL; };
+  var geo = function () {
+    var b = bar.getBoundingClientRect();
+    var p = plate.getBoundingClientRect();
+    var s = strip.getBoundingClientRect();
+    var f = (foot || strip).getBoundingClientRect();
+    G.top = b.bottom + 16;
+    G.bottom = Math.max(G.top + 80, s.top - 6);
+    var span = G.bottom - G.top;
+    G.poolTop = snap(G.bottom - span * 0.26);
+    G.poolBottom = G.bottom;
+    G.ko = [
+      { x: b.left, y: b.top, w: b.width, h: b.height + 16 },
+      { x: p.left - 24, y: p.top - 24, w: p.width + 48, h: p.height + 48 },
+      { x: f.left - 6, y: f.top - 6, w: f.width + 12, h: f.height + 12 }
+    ];
+    G.cols = [];
+    for (var j = 0; j < 2; j++) {
+      for (var i = 0; i < 4; i++) {
+        G.cols.push({ x: snap(W * (i + 0.5) / 4), y: snap(G.top + span * (0.40 + j * 0.35)) });
+      }
+    }
+  };
+
+  /* ---------- small helpers ---------- */
+  var ease = function (p) { return 1 - Math.pow(1 - p, 3); };            /* out-cubic */
+  var easeIO = function (p) { return 0.5 - 0.5 * Math.cos(Math.PI * Math.min(1, Math.max(0, p))); };
+  var smooth = function (p) { p = Math.min(1, Math.max(0, p)); return p * p * (3 - 2 * p); };
+  var sp = function (cur, tgt, k, dt) { return cur + (tgt - cur) * (1 - Math.pow(1 - k, dt / 16.7)); };
+  var rnd = function (a, b) { return a + Math.random() * (b - a); };
+  var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+  var gap1 = function (v, lo, hi) { return v < lo ? lo - v : (v > hi ? v - hi : 0); };
+  var gapR = function (a1, a2, b1, b2) { return a2 < b1 ? b1 - a2 : (b2 < a1 ? a1 - b2 : 0); };
+  var rectHit = function (a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  };
+  var pRect = function (x, y, r) {
+    return Math.hypot(x < r.x ? r.x - x : (x > r.x + r.w ? x - r.x - r.w : 0),
+                      y < r.y ? r.y - y : (y > r.y + r.h ? y - r.y - r.h : 0));
+  };
+  var mulberry = function (a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+  var offKO = function (x, y, pad) {                     /* clear of bar / plate / footer */
+    for (var i = 0; i < G.ko.length; i++) if (pRect(x, y, G.ko[i]) < (pad || 0)) return false;
+    return true;
+  };
+
+  /* ---------- items: every state's movable things speak the same language ----------
+     hx,hy is home; dx,dy the offset the shared gestures push it by; sc the scale.
+     one spring integrator serves the magnet, the hold and the semicolon alike. */
+  var newItem = function (hx, hy) {
+    return { hx: hx, hy: hy, dx: 0, dy: 0, tdx: 0, tdy: 0, sc: 1, tsc: 1,
+             br: 0, tbr: 0, x: hx, y: hy, side: SIDE, alpha: 1 };
+  };
+  var springItems = function (list, dt) {
+    var k = reduced ? 1 : 0.14;
+    for (var i = 0; i < list.length; i++) {
+      var f = list[i];
+      if (reduced) { f.dx = f.tdx; f.dy = f.tdy; f.sc = f.tsc; f.br = f.tbr; }
+      else {
+        f.dx = sp(f.dx, f.tdx, k, dt); f.dy = sp(f.dy, f.tdy, k, dt);
+        f.sc = sp(f.sc, f.tsc, k, dt); f.br = sp(f.br, f.tbr, k, dt);
+      }
+      f.x = f.hx + f.dx; f.y = f.hy + f.dy;
+    }
+  };
+
+  /* ---------- the big pixel semicolon (kept) ---------- */
+  var SEMI = [[2, 0, 3, 3], [2, 6, 3, 3], [1, 9, 2, 2.5]];   /* grid units, 6 × 11.5 */
+  var semiUntil = 0, semiOn = false, seed = (Math.random() * 1e9) | 0;
+  var semiGhost = null;
+  var semiRects = function () {
+    var u = Math.min(H * 0.72 / 11.5, W * 0.44 / 6);
+    var x0 = W / 2 - 3 * u, y0 = H / 2 - 5.75 * u, out = [];
+    for (var i = 0; i < SEMI.length; i++) {
+      var r = SEMI[i];
+      out.push({ x: x0 + r[0] * u, y: y0 + r[1] * u, w: r[2] * u, h: r[3] * u });
+    }
+    return out;
+  };
+  var semiTargets = function (n) {
+    var rs = semiRects(), inset = Math.min(rs[0].w, rs[0].h) * 0.14;
+    var area = 0, i, j, targets = [];
+    for (i = 0; i < rs.length; i++) area += rs[i].w * rs[i].h;
+    for (i = 0; i < rs.length; i++) {
+      var r = rs[i];
+      var x0 = r.x + inset, y0 = r.y + inset, w = r.w - inset * 2, h = r.h - inset * 2;
+      var m = Math.max(1, Math.round(n * (r.w * r.h) / area));
+      var cols = Math.max(1, Math.round(Math.sqrt(m * w / h)));
+      var rows = Math.max(1, Math.ceil(m / cols));
+      var rng = mulberry(seed + i * 977);
+      for (j = 0; j < m; j++) {
+        var cxi = j % cols, cyi = (j / cols) | 0;
+        var px = x0 + (cxi + 0.5) / cols * w + (rng() - 0.5) * (w / cols) * 0.35;
+        var py = y0 + (cyi + 0.5) / rows * h + (rng() - 0.5) * (h / rows) * 0.35;
+        targets.push([Math.max(x0, Math.min(x0 + w, px)), Math.max(y0, Math.min(y0 + h, py))]);
+      }
+    }
+    return targets;
+  };
+  var gather = function () {
+    var items = (active && active.items) ? active.items() : [];
+    if (dTimer) { clearTimeout(dTimer); dTimer = 0; }
+    dOver = null; closeDetail();
+    semiOn = true;
+    if (plate) plate.classList.add("is-quiet");
+    semiUntil = performance.now() + 2000;
+    if (items.length >= 6) {
+      var targets = semiTargets(items.length);
+      var key = function (p) { return p[1] * 4 + p[0]; };
+      var live = items.slice();
+      live.sort(function (a, b) { return key([a.hx, a.hy]) - key([b.hx, b.hy]); });
+      targets.sort(function (a, b) { return key(a) - key(b); });
+      for (var i = 0; i < live.length; i++) {
+        var t = targets[Math.min(i, targets.length - 1)];
+        live[i].tdx = t[0] - live[i].hx;
+        live[i].tdy = t[1] - live[i].hy;
+        live[i].tsc = GSC;
+      }
+      semiGhost = null;
+    } else {
+      /* nothing on the sheet to gather: the semicolon comes as its own flowers */
+      semiGhost = { t0: performance.now(), pts: semiTargets(34) };
+    }
+  };
+  var relax = function () {
+    semiOn = false;
+    semiGhost = null;
+    if (plate) plate.classList.remove("is-quiet");
+    var items = (active && active.items) ? active.items() : [];
+    for (var i = 0; i < items.length; i++) {
+      items[i].tdx = 0; items[i].tdy = 0; items[i].tsc = 1;
+    }
+    if (magnet) applyMagnet(magnet);
+  };
+
+  /* ---------- the magnet: a hovered line on the plate (kept) ---------- */
+  var magnet = null;
+  var applyMagnet = function (el) {
+    var r = el.getBoundingClientRect();
+    var items = (active && active.items) ? active.items() : [];
+    for (var i = 0; i < items.length; i++) {
+      var f = items[i];
+      var nx = Math.max(r.left, Math.min(r.right, f.hx));
+      var ny = Math.max(r.top, Math.min(r.bottom, f.hy));
+      var dx = nx - f.hx, dy = ny - f.hy, d = Math.hypot(dx, dy) || 1;
+      f.tdx = dx / d * 12; f.tdy = dy / d * 12;
+    }
+  };
+
+  /* ---------- the hold: things near the pointer breathe (kept) ---------- */
+  var holdOn = false, holdX = 0, holdY = 0, HOLD_R = 220;
+  var setHold = function (on, x, y) {
+    holdOn = on; holdX = x; holdY = y;
+    var items = (active && active.items) ? active.items() : [];
+    for (var i = 0; i < items.length; i++) {
+      var f = items[i];
+      var near = on && Math.hypot(f.x - x, f.y - y) <= HOLD_R;
+      f.tbr = near ? 1 : 0;
+      if (!semiOn) f.tsc = near ? 1.12 : 1;
+    }
+  };
+  /* while a gesture owns the offsets, the states leave them alone */
+  var owned = function () { return semiOn || !!magnet || holdOn; };
+
+  /* ---------- the detail callout ---------- */
+  var dOn = false, dTimer = 0, dHold = 0, dOver = null, dInfo = null;
+  var drawDetail = function (src, sw, sh) {
+    var z = Math.max(1, Math.min(2, Math.floor(128 / Math.max(sw, sh))));
+    dCtx.imageSmoothingEnabled = false;
+    dCtx.clearRect(0, 0, dPx.width, dPx.height);
+    var dw = sw * z, dh = sh * z;
+    dCtx.drawImage(src, 0, 0, sw, sh, Math.round((dPx.width - dw) / 2), Math.round((dPx.height - dh) / 2), dw, dh);
+    return z;
+  };
+  var openDetail = function (b, ms) {
+    var z = drawDetail(b.src, b.sw, b.sh);
+    dLab.textContent = b.label;
+    dimW.textContent = String(Math.round(b.w));
+    dimH.textContent = String(Math.round(b.h));
+    dEl.classList.toggle("detail--right", viewer.x < W / 3);
+    dEl.hidden = false;
+    void dEl.offsetWidth;
+    dEl.classList.add("is-on");
+    dOn = true;
+    dInfo = { label: b.label, w: Math.round(b.w), h: Math.round(b.h), kind: b.kind || "bloom", zoom: z };
+    if (dHold) clearTimeout(dHold);
+    if (ms) dHold = setTimeout(function () { closeDetail(); }, ms);
+  };
+  var closeDetail = function () {
+    if (!dOn) return;
+    dOn = false;
+    dEl.classList.remove("is-on");
+    setTimeout(function () { if (!dOn) dEl.hidden = true; }, 140);
+  };
+  var bloomList = function () { return (active && active.blooms) ? active.blooms() : []; };
+  var hitTest = function (x, y) {
+    var bs = bloomList();
+    for (var i = bs.length - 1; i >= 0; i--) {
+      var b = bs[i];
+      if (Math.abs(x - b.x) <= b.w / 2 && Math.abs(y - b.y) <= b.h / 2) return b;
+    }
+    return null;
+  };
+  var hover = function (x, y) {
+    var t = hitTest(x, y);
+    var id = t ? t.id : null;
+    if (id === dOver) return;
+    dOver = id;
+    if (dTimer) { clearTimeout(dTimer); dTimer = 0; }
+    if (dHold) { clearTimeout(dHold); dHold = 0; }
+    if (t) dTimer = setTimeout(function () { openDetail(t, 0); }, 120);
+    else dTimer = setTimeout(function () { closeDetail(); }, 200);
+  };
+
+  /* ---------- the visitor ---------- */
+  var viewer = { x: -1e4, y: -1e4, on: false, src: "none" };
+
+  /* ---------- the drawn cursor (the home hero's, copied) ----------
+     one hollow 14 px cell, snapped to the same grid the ground is ruled on,
+     following the pointer about 80 ms behind. mouse and pen only: a finger
+     leaves no cursor, so the first touch takes it away. */
+  var cxT = 0, cyT = 0, cxS = 0, cyS = 0, curOn = false;
+  var aimCell = function (x, y) {
+    cxT = x; cyT = y;
+    if (!curOn) { cxS = x; cyS = y; curOn = true; }
+  };
+  var dropCell = function () { curOn = false; };
+  var drawCell = function (g, dt) {
+    if (!curOn) return;
+    if (reduced || !(dt > 0)) { cxS = cxT; cyS = cyT; }
+    else {
+      var k = 1 - Math.exp(-(dt / 1000) / 0.08);         /* ~80 ms of lag */
+      cxS += (cxT - cxS) * k; cyS += (cyT - cyS) * k;
+    }
+    var gx = Math.floor(cxS / CELL) * CELL, gy = Math.floor(cyS / CELL) * CELL;
+    g.save();
+    g.setTransform(DP, 0, 0, DP, 0, 0);
+    g.imageSmoothingEnabled = false;
+    g.lineWidth = 1;
+    g.strokeStyle = ink(0.55);
+    g.strokeRect(gx + 0.5, gy + 0.5, CELL - 1, CELL - 1);
+    g.fillStyle = ink(0.7);
+    g.fillRect(gx + CELL / 2 - 1, gy + CELL / 2 - 1, 2, 2);
+    g.restore();
+  };
+
+  /* ---------- the hint, and the demonstration ----------
+     the line under the plate says what a click does; the first click spends it,
+     for the whole session. and if nobody clicks within seven seconds the sheet
+     shows rather than tells: it changes state once, by itself, and then waits. */
+  var hintEl = document.getElementById("hint");
+  var finePtr = true;
+  try { finePtr = matchMedia("(hover: hover) and (pointer: fine)").matches; } catch (e) { finePtr = true; }
+  var HINT = (finePtr ? "Click" : "Tap") + " \u2014 another scene";
+  var hintSpent = false, hintTimer = 0;
+  try { hintSpent = sessionStorage.getItem("about-hint") === "spent"; } catch (e) { hintSpent = false; }
+  if (hintEl) {
+    hintEl.textContent = HINT;
+    if (hintSpent) { hintEl.classList.add("is-out"); hintEl.classList.add("is-gone"); }
+  }
+  var spendHint = function () {
+    if (hintSpent) return;
+    hintSpent = true;
+    try { sessionStorage.setItem("about-hint", "spent"); } catch (e) {}
+    if (!hintEl) return;
+    hintEl.classList.add("is-out");
+    if (hintTimer) clearTimeout(hintTimer);
+    hintTimer = setTimeout(function () { hintEl.classList.add("is-gone"); }, 640);
+  };
+
+  var DEMO_MS = 7000;
+  var demoTimer = 0, demoDone = false, demoAt = 0;
+  var stopDemo = function () {
+    if (demoTimer) { clearTimeout(demoTimer); demoTimer = 0; }
+    demoDone = true;
+  };
+  var armDemo = function () {
+    if (demoDone || demoTimer) return;
+    demoTimer = setTimeout(function () {
+      demoTimer = 0;
+      if (demoDone) return;
+      demoDone = true;                                   /* once, and never again */
+      demoAt = performance.now();
+      switchTo(nextName());
+    }, Math.max(1200, DEMO_MS - performance.now()));       /* seven seconds after the page began */
+  };
+
+  /* =====================================================================
+     the states. each one is {name, enter, update, draw, leave, pointer,
+     items, blooms, info} and knows nothing about the others.
+     ===================================================================== */
+  var make = {};
+
+  /* ---------- 1 · free plan: the Barcelona pavilion ---------- */
+  make["free plan"] = function () {
+    var walls = [], flowers = [], addCount = 0, figure = null, lastPlace = null;
+    var nextWall = 0, pending = [], planFull = false, planMs = 0, planQueued = 0;
+    var tries = 0, TRIES = 18, stalled = false;
+
+    var wallBox = function (o, a, b1, b2) {
+      return o === "H" ? { x: b1 - HALF, y: a - HALF, w: b2 - b1 + SIDE, h: SIDE }
+                       : { x: a - HALF, y: b1 - HALF, w: SIDE, h: b2 - b1 + SIDE };
+    };
+    var bandOf = function (o, a, b1, b2) {
+      return o === "H" ? { x: b1 - CELL, y: a, w: b2 - b1 + 2 * CELL, h: CELL }
+                       : { x: a, y: b1 - CELL, w: CELL, h: b2 - b1 + 2 * CELL };
+    };
+    var segDist = function (A, B) {
+      if (A.o === B.o) {
+        var along = gapR(A.b1, A.b2, B.b1, B.b2), across = Math.abs(A.a - B.a);
+        return Math.hypot(along, across);
+      }
+      var Hh = A.o === "H" ? A : B, Vv = A.o === "H" ? B : A;
+      return Math.hypot(gap1(Vv.a, Hh.b1, Hh.b2), gap1(Hh.a, Vv.b1, Vv.b2));
+    };
+    /* the crossing: one plane reaches the meeting point, the other stops
+       56–140 px short of it. the planes slide past, they never close a room. */
+    var crossGap = function (A, B) {
+      var Hh = A.o === "H" ? A : B, Vv = A.o === "H" ? B : A;
+      var gh = gap1(Vv.a, Hh.b1, Hh.b2), gv = gap1(Hh.a, Vv.b1, Vv.b2);
+      if (gh > 0 && gv > 0) return -1;
+      return gh + gv;
+    };
+    var segPoint = function (S, x, y) {
+      if (S.o === "H") return Math.hypot(gap1(x, S.b1, S.b2), Math.abs(y - S.a));
+      return Math.hypot(Math.abs(x - S.a), gap1(y, S.b1, S.b2));
+    };
+    var segRect = function (x0, y0, x1, y1, r) {           /* liang–barsky */
+      var t0 = 0, t1 = 1, dx = x1 - x0, dy = y1 - y0;
+      var p = [-dx, dx, -dy, dy];
+      var q = [x0 - r.x, r.x + r.w - x0, y0 - r.y, r.y + r.h - y0];
+      for (var i = 0; i < 4; i++) {
+        if (p[i] === 0) { if (q[i] < 0) return false; continue; }
+        var t = q[i] / p[i];
+        if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; }
+        else { if (t < t0) return false; if (t < t1) t1 = t; }
+      }
+      return true;
+    };
+    var floorK = function () { return Math.min(W, H) >= 560 ? 3 : 2; };
+    var fits = function (o, a, b1, k, list) {
+      list = list || walls;
+      var b2 = b1 + k * PITCH, i;
+      var box = wallBox(o, a, b1, b2);
+      if (box.x < 2 || box.y < 2 || box.x + box.w > W - 2 || box.y + box.h > H - 2) return false;
+      if (box.y + box.h > G.poolTop) return false;
+      for (i = 0; i < G.ko.length; i++) if (rectHit(box, G.ko[i])) return false;
+      var seg = { o: o, a: a, b1: b1, b2: b2 };
+      for (i = 0; i < G.cols.length; i++) if (segPoint(seg, G.cols[i].x, G.cols[i].y) < COLCLR) return false;
+      var perp = 0, crossed = 0;
+      for (i = 0; i < list.length; i++) {
+        var wl = list[i];
+        if (segDist(seg, wl) < CLEAR) return false;
+        if (wl.o !== o) {
+          perp++;
+          var g = crossGap(seg, wl);
+          if (g >= GAPMIN && g <= GAPMAX) crossed++;
+        }
+      }
+      if (perp > 0 && !crossed) return false;
+      return true;
+    };
+    var lenList = function (o) {
+      var span = o === "H" ? W : H;
+      var lo = Math.max(floorK(), Math.ceil(span * 0.22 / PITCH));
+      var hi = Math.max(lo, Math.floor(span * 0.55 / PITCH));
+      var out = [];
+      for (var k = lo; k <= hi; k++) out.push(k);
+      return out;
+    };
+    var axisRange = function (o) {
+      return o === "H" ? [G.top + HALF, G.poolTop - HALF] : [HALF + 2, W - HALF - 2];
+    };
+    var startRange = function (o, k) {
+      return o === "H" ? [HALF + 2, W - HALF - 2 - k * PITCH]
+                       : [G.top + HALF, G.poolTop - HALF - k * PITCH];
+    };
+    var gridPick = function (lo, hi) {
+      var i0 = Math.ceil(lo / CELL), i1 = Math.floor(hi / CELL);
+      if (i1 < i0) return null;
+      return (i0 + Math.floor(Math.random() * (i1 - i0 + 1))) * CELL;
+    };
+    var kOrder = function (o) {
+      var ks = lenList(o), order = ks.slice(), lo = floorK();
+      for (var k = ks[0] - 1; k >= lo; k--) order.push(k);
+      return order;
+    };
+    var sampleSpots = function (o, list, want) {
+      var ks = lenList(o), out = [], t, k, a, b1, ar, sr, i;
+      for (t = 0; t < 60 && out.length < want; t++) {
+        k = ks[Math.floor(Math.pow(Math.random(), 2) * ks.length)];
+        ar = axisRange(o); sr = startRange(o, k);
+        a = gridPick(ar[0], ar[1]); b1 = gridPick(sr[0], sr[1]);
+        if (a === null || b1 === null) continue;
+        if (fits(o, a, b1, k, list)) out.push({ o: o, a: a, b1: b1, k: k, b2: b1 + k * PITCH });
+      }
+      if (out.length) return out;
+      var order = kOrder(o);
+      for (var ki = 0; ki < order.length; ki++) {
+        k = order[ki]; ar = axisRange(o); sr = startRange(o, k);
+        var hits = [];
+        for (a = Math.ceil(ar[0] / CELL) * CELL; a <= ar[1]; a += CELL) {
+          for (b1 = Math.ceil(sr[0] / CELL) * CELL; b1 <= sr[1]; b1 += CELL) {
+            if (fits(o, a, b1, k, list)) hits.push([a, b1]);
+          }
+        }
+        if (hits.length) {
+          for (i = 0; i < want && hits.length; i++) {
+            var h = hits.splice(Math.floor(Math.random() * hits.length), 1)[0];
+            out.push({ o: o, a: h[0], b1: h[1], k: k, b2: h[1] + k * PITCH });
+          }
+          return out;
+        }
+      }
+      return out;
+    };
+    /* the plan is laid out ahead of the hand: a depth-first search under the
+       same rules, so seven planes are known to fit before the first arrives. */
+    var makePlan = function (list, budget) {
+      var end = performance.now() + budget, best = list.slice();
+      var rec = function (cur) {
+        if (cur.length >= MAXW) return cur;
+        if (cur.length > best.length) best = cur.slice();
+        if (performance.now() > end) return null;
+        var o = cur.length % 2 === 0 ? "H" : "V";
+        var cands = sampleSpots(o, cur, 12);
+        if (!cands.length) cands = sampleSpots(o === "H" ? "V" : "H", cur, 12);
+        for (var i = 0; i < cands.length; i++) {
+          var r = rec(cur.concat([cands[i]]));
+          if (r) return r;
+          if (performance.now() > end) return null;
+        }
+        return null;
+      };
+      var got = rec(list);
+      return { plan: got || best, full: !!got };
+    };
+    var replan = function (budget) {
+      var t0 = performance.now(), total = budget || 120, best = null;
+      while (performance.now() - t0 < total) {
+        var r = makePlan(walls.slice(), 25);
+        if (!best || r.plan.length > best.plan.length) best = r;
+        if (r.full) break;
+      }
+      var got = best.plan.slice(walls.length);
+      if (best.full || got.length > pending.length) { pending = got; planFull = best.full; }
+      planMs = performance.now() - t0;
+    };
+    /* the search never runs inside a frame: it is queued out of the rAF */
+    var queuePlan = function () {
+      if (planQueued || stalled) return;
+      planQueued = setTimeout(function () {
+        planQueued = 0;
+        if (walls.length + pending.length >= MAXW || walls.length >= MAXW) return;
+        tries++;
+        replan(70);
+        if (tries >= TRIES) stalled = true;
+        else queuePlan();
+      }, 16);
+    };
+
+    var addWall = function (now) {
+      var spot = null;
+      while (pending.length) {
+        var c = pending.shift();
+        if (fits(c.o, c.a, c.b1, c.k)) { spot = c; break; }
+        pending.length = 0;                              /* the rest of that plan is stale */
+      }
+      lastPlace = { ok: !!spot, planned: pending.length, full: planFull, planMs: +planMs.toFixed(1) };
+      if (!spot) { queuePlan(); return false; }
+      tries = 0; stalled = false;
+      var o = spot.o, b1 = spot.b1, b2 = spot.b2, a = spot.a;
+      var mat = MATS[addCount % 3];
+      var w = {
+        id: ++addCount, o: o, a: a, b1: b1, b2: b2, len: b2 - b1,
+        mat: mat, opaque: OPAQUE[mat], band: bandOf(o, a, b1, b2),
+        ox: 0, oy: 0, t0: now, ex: 0, fade: 0, flowers: []
+      };
+      /* it slides in along its own axis, from the nearer edge — but only the
+         last 40 px of that journey, so nothing on the sheet ever hurries */
+      var mid = (b1 + b2) / 2;
+      w.ex = (o === "H" ? mid < W / 2 : mid < H / 2) ? -1 : 1;
+      var n = spot.k + 1, i;
+      for (i = 0; i < n; i++) {
+        var along = b1 + i * PITCH;
+        var lead = w.ex < 0 ? (n - 1 - i) : i;
+        var f = newItem(o === "H" ? along : a, o === "H" ? a : along);
+        f.w = w; f.k = i;
+        f.t0 = now + (reduced ? 0 : (n > 1 ? lead / (n - 1) : 0) * 1000);
+        f.dim = 0; f.ry = null; f.ralpha = 0;
+        flowers.push(f); w.flowers.push(f);
+      }
+      walls.push(w);
+      if (reduced) w.t0 = now - ENTER;
+      if (walls.length === MAXW) placeFigure(now);
+      if (walls.length < MAXW) queuePlan();
+      if (magnet) applyMagnet(magnet);
+      sight();
+      return true;
+    };
+
+    /* der morgen: the sculpture in the deepest pocket */
+    var figBox = function (x, y) { return { x: x - FIGW / 2, y: y - PLH - FIGH, w: FIGW, h: FIGH + PLH }; };
+    var figSprite = function (x, y) { return { x: x - FIGW / 2, y: y - PLH - FIGH, w: FIGW, h: FIGH }; };
+    var figPlinth = function (x, y) { return { x: x - PLW / 2, y: y - PLH, w: PLW, h: PLH }; };
+    var placeFigure = function (now) {
+      var best = null, x, y, i;
+      for (y = G.top + CELL; y <= G.poolTop; y += CELL) {
+        for (x = CELL * 3; x <= W - CELL * 3; x += CELL) {
+          var box = figBox(x, y);
+          if (box.x < 2 || box.y < 2 || box.x + box.w > W - 2) continue;
+          var bad = false;
+          for (i = 0; i < G.ko.length; i++) if (rectHit(box, G.ko[i])) { bad = true; break; }
+          if (bad) continue;
+          for (i = 0; i < walls.length; i++) {
+            if (rectHit(box, walls[i].band)) { bad = true; break; }
+            if (segPoint(walls[i], x, y - PLH - FIGH / 2) < 48) { bad = true; break; }
+          }
+          if (bad) continue;
+          for (i = 0; i < G.cols.length; i++) {
+            if (Math.abs(G.cols[i].x - x) < 60 &&
+                G.cols[i].y > y - FIGH - PLH - 30 && G.cols[i].y < y + 30) { bad = true; break; }
+          }
+          if (bad) continue;
+          var n = 0;
+          for (i = 0; i < walls.length; i++) {
+            if (walls[i].opaque && segPoint(walls[i], x, y - PLH - FIGH / 2) <= SIGHT) n++;
+          }
+          if (!best || n > best.n || (n === best.n && y > best.y)) best = { x: x, y: y, n: n };
+        }
+      }
+      if (!best) return;
+      figure = { x: best.x, y: best.y, n: best.n, t0: now, a: reduced ? 1 : 0 };
+    };
+
+    /* the promenade: what the visitor can see from here */
+    var sight = function () {
+      var i, j, own = null, od = 1e9;
+      for (i = 0; i < walls.length; i++) {
+        var d = pRect(viewer.x, viewer.y, walls[i].band);
+        if (d < od) { od = d; own = walls[i]; }
+      }
+      if (od > COLCLR) own = null;
+      for (i = 0; i < flowers.length; i++) {
+        var f = flowers[i], dim = 0;
+        if (viewer.on && f.w !== own) {
+          for (j = 0; j < walls.length; j++) {
+            var wl = walls[j];
+            if (!wl.opaque || wl === f.w || wl === own) continue;
+            var b = wl.band;
+            var br = { x: b.x + wl.ox, y: b.y + wl.oy, w: b.w, h: b.h };
+            if (segRect(viewer.x, viewer.y, f.x, f.y, br)) { dim = 1; break; }
+          }
+        }
+        f.dim = dim;
+      }
+    };
+
+    var drawFigure = function (g, fx, fy, a, flip) {
+      g.globalAlpha = a;
+      g.save();
+      if (flip) { g.translate(0, fy); g.scale(1, -1); g.translate(0, -fy); }
+      g.fillStyle = ink(0.30);
+      g.fillRect(Math.round(fx - PLW / 2), Math.round(fy - PLH), PLW, PLH);
+      g.drawImage(FIG, Math.round(fx - FIGW / 2), Math.round(fy - PLH - FIGH), FIGW, FIGH);
+      g.restore();
+      g.globalAlpha = 1;
+    };
+
+    return {
+      name: "free plan",
+      enter: function (now) {
+        walls = []; flowers = []; addCount = 0; figure = null;
+        pending = []; tries = 0; stalled = false;
+        replan(reduced ? 260 : 45);
+        if (!reduced) queuePlan();                         /* the rest of the plan is found between frames */
+        nextWall = now + WALL_MS;
+        if (reduced) {                                   /* a still frame: the whole plan */
+          for (var i = 0; i < MAXW; i++) if (!addWall(now - ENTER)) break;
+          if (!figure) placeFigure(now);
+        }
+      },
+      leave: function () { if (planQueued) { clearTimeout(planQueued); planQueued = 0; } },
+      update: function (dt, now) {
+        if (!reduced && walls.length < MAXW && now >= nextWall) {
+          if (addWall(now)) nextWall = now + WALL_MS;
+          else if (stalled) {                              /* fewer than seven fit: she takes the last pocket */
+            nextWall = now + 1e9;
+            if (!figure && walls.length) placeFigure(now);
+          } else nextWall = now + 250;
+        }
+        var i;
+        for (i = 0; i < walls.length; i++) {
+          var w = walls[i];
+          var p = Math.min(1, (now - w.t0) / ENTER);
+          var off = w.ex * ENTER_OFF * (1 - easeIO(p));
+          w.ox = w.o === "H" ? off : 0;
+          w.oy = w.o === "H" ? 0 : off;
+          w.fade = reduced ? 1 : Math.min(1, (now - w.t0) / 900);
+        }
+        springItems(flowers, dt);
+        for (i = 0; i < flowers.length; i++) {           /* the wall carries its flowers */
+          var f = flowers[i];
+          f.x = f.hx + f.w.ox + f.dx;
+          f.y = f.hy + f.w.oy + f.dy;
+        }
+        if (figure && !reduced && figure.a < 1) figure.a = Math.min(1, (now - figure.t0) / 700);
+      },
+      pointer: function () { sight(); },
+      draw: function (g, now) {
+        var i;
+        /* the pool: a hairline and a shade darker */
+        g.fillStyle = ink(0.015);
+        g.fillRect(0, G.poolTop, W, G.poolBottom - G.poolTop);
+        g.fillStyle = ink(0.12);
+        g.fillRect(0, G.poolTop, W, 1);
+
+        /* the material bands, then the columns: the strict grid under free planes */
+        for (i = 0; i < walls.length; i++) {
+          var wb = walls[i], b = wb.band;
+          g.globalAlpha = wb.fade;
+          g.fillStyle = MATFILL[wb.mat];
+          g.fillRect(Math.round(b.x + wb.ox), Math.round(b.y + wb.oy), b.w, b.h);
+          if (wb.mat === "glass") {
+            g.fillStyle = ink(0.10);
+            if (wb.o === "H") {
+              g.fillRect(Math.round(b.x + wb.ox), Math.round(b.y + wb.oy), b.w, 1);
+              g.fillRect(Math.round(b.x + wb.ox), Math.round(b.y + wb.oy) + b.h - 1, b.w, 1);
+            } else {
+              g.fillRect(Math.round(b.x + wb.ox), Math.round(b.y + wb.oy), 1, b.h);
+              g.fillRect(Math.round(b.x + wb.ox) + b.w - 1, Math.round(b.y + wb.oy), 1, b.h);
+            }
+          }
+        }
+        g.globalAlpha = 1;
+        for (i = 0; i < G.cols.length; i++) {
+          var c = G.cols[i], cx = Math.round(c.x), cy = Math.round(c.y);
+          g.fillStyle = ink(COLINK);
+          g.beginPath();
+          g.rect(cx - COLARM / 2, cy - COLLEN / 2, COLARM, COLLEN);
+          g.rect(cx - COLLEN / 2, cy - COLARM / 2, COLLEN, COLARM);
+          g.fill();
+        }
+
+        /* the flowers, and their reflections in the pool */
+        for (i = 0; i < flowers.length; i++) {
+          var f = flowers[i], alpha = 1, fr = OPENF.length - 1;
+          var age = now - f.t0;
+          if (age < 0) { f.alpha = 0; f.ry = null; continue; }
+          if (!reduced && age < OPENMS) {
+            alpha = Math.min(1, age / 160);
+            fr = Math.max(0, Math.min(OPENF.length - 1, Math.floor(age / FRMS)));
+          }
+          alpha *= f.w.fade;
+          var src = OPENF[fr];
+          var side = Math.round(SIDE * f.sc);
+          f.side = side;
+          f.alpha = f.dim ? DIMA * alpha : Math.min(1, alpha * FA * (1 + 0.2 * f.br));
+          g.globalAlpha = f.alpha;
+          var px = Math.round(f.x - side / 2), py = Math.round(f.y - side / 2);
+          g.drawImage(src, px, py, side, side);
+          var ry = 2 * G.poolTop - f.y;
+          if (ry >= G.poolTop && ry <= G.poolBottom) {
+            f.ry = ry;
+            f.ralpha = REFA * alpha * (f.dim ? 0.6 : 1);
+            g.globalAlpha = f.ralpha;
+            g.save();
+            g.translate(0, Math.round(ry));
+            g.scale(1, -1);
+            g.drawImage(src, px, Math.round(-side / 2), side, side);
+            g.restore();
+          } else { f.ry = null; f.ralpha = 0; }
+        }
+        g.globalAlpha = 1;
+
+        /* der morgen, and her reflection */
+        if (figure) {
+          drawFigure(g, figure.x, figure.y, 0.9 * figure.a, false);
+          g.save();
+          g.beginPath();
+          g.rect(0, G.poolTop, W, G.poolBottom - G.poolTop);
+          g.clip();
+          g.translate(0, G.poolTop - figure.y);
+          drawFigure(g, figure.x, figure.y, 0.3 * figure.a, true);
+          g.restore();
+        }
+      },
+      items: function () { return flowers; },
+      blooms: function () {
+        var out = [], i;
+        for (i = 0; i < flowers.length; i++) {
+          var f = flowers[i];
+          out.push({ id: "f" + i, x: f.x, y: f.y, w: f.side, h: f.side, src: BLOOM, sw: RS, sh: RS,
+                     label: "Detail · wall " + pad2(walls.indexOf(f.w) + 1) + " · flower " + pad2(f.k + 1) });
+        }
+        if (figure) {
+          out.push({ id: "fig", x: figure.x, y: figure.y - PLH - FIGH / 2, w: FIGW, h: FIGH,
+                     src: FIG, sw: FIG.width, sh: FIG.height, kind: "figure", label: "Detail · Der Morgen" });
+        }
+        return out;
+      },
+      info: function () {
+        var a = [], i;
+        for (i = 0; i < walls.length; i++) {
+          var w = walls[i];
+          a.push({ i: i, id: w.id, orient: w.o, material: w.mat, opaque: w.opaque,
+                   x1: w.o === "H" ? w.b1 : w.a, y1: w.o === "H" ? w.a : w.b1,
+                   x2: w.o === "H" ? w.b2 : w.a, y2: w.o === "H" ? w.a : w.b2,
+                   len: w.len, flowers: w.flowers.length, fade: +w.fade.toFixed(3),
+                   band: { x: w.band.x + w.ox, y: w.band.y + w.oy, w: w.band.w, h: w.band.h },
+                   offset: [+w.ox.toFixed(2), +w.oy.toFixed(2)], entry: w.ex });
+        }
+        var fl = [];
+        for (i = 0; i < flowers.length; i++) {
+          var f = flowers[i];
+          fl.push({ wall: walls.indexOf(f.w), k: f.k, x: +f.x.toFixed(2), y: +f.y.toFixed(2),
+                    alpha: +f.alpha.toFixed(3), dim: !!f.dim, side: f.side,
+                    ry: f.ry === null ? null : +f.ry.toFixed(2), ralpha: +f.ralpha.toFixed(3) });
+        }
+        return { walls: a, wallCount: walls.length, flowers: fl, next: +nextWall.toFixed(0),
+                 interval: WALL_MS, max: MAXW, plan: { pending: pending.length, full: planFull, ms: +planMs.toFixed(1) },
+                 lastPlace: lastPlace, columns: G.cols.slice(), pool: { top: G.poolTop, bottom: G.poolBottom },
+                 figure: figure ? { x: figure.x, y: figure.y, box: figBox(figure.x, figure.y),
+                                    sprite: figSprite(figure.x, figure.y), plinth: figPlinth(figure.x, figure.y),
+                                    alpha: +(0.9 * figure.a).toFixed(3), pocket: figure.n,
+                                    reflection: { x: figure.x - FIGW / 2, y: G.poolTop, w: FIGW, h: FIGH + PLH,
+                                                  alpha: +(0.3 * figure.a).toFixed(3) } } : null };
+      }
+    };
+  };
+
+  /* ---------- 2 · drift: sprays on water ---------- */
+  make.drift = function () {
+    var sprays = [], t0 = 0;
+    var place = function () {
+      var n = 5 + Math.floor(Math.random() * 3), i, j;
+      var x0 = SPRW * 0.45, x1 = W - SPRW * 0.45;
+      var y0 = G.top + SPRH * 0.55, y1 = G.bottom - SPRH * 0.55;
+      if (x1 < x0) { x0 = W / 2; x1 = W / 2; }
+      if (y1 < y0) { y0 = (G.top + G.bottom) / 2; y1 = y0; }
+      for (i = 0; i < n; i++) {
+        var best = null, bd = -1;
+        for (j = 0; j < 24; j++) {                       /* best candidate: they keep apart */
+          var cx = rnd(x0, x1), cy = rnd(y0, y1), d = 1e9, m;
+          for (m = 0; m < sprays.length; m++) d = Math.min(d, Math.hypot(cx - sprays[m].cx, cy - sprays[m].cy));
+          if (d > bd) { bd = d; best = [cx, cy]; }
+        }
+        var s = newItem(best[0], best[1]);
+        s.cx = best[0]; s.cy = best[1];
+        s.ax = rnd(46, 78); s.ay = rnd(26, 46);
+        s.wx = 2 * Math.PI / rnd(46, 66); s.wy = 2 * Math.PI / rnd(38, 58);
+        s.px = rnd(0, 6.28); s.py = rnd(0, 6.28);
+        s.bp = rnd(0, 6.28); s.bt = rnd(4.2, 6.6);
+        sprays.push(s);
+      }
+    };
+    return {
+      name: "drift",
+      enter: function (now) { sprays = []; t0 = now; place(); },
+      update: function (dt, now) {
+        var t = (now - t0) / 1000, i;
+        for (i = 0; i < sprays.length; i++) {
+          var s = sprays[i];
+          var mx = SPRW / 2 + 6, my = SPRH / 2 + 4;
+          s.hx = Math.max(mx, Math.min(W - mx, s.cx + s.ax * Math.sin(s.wx * t + s.px)));
+          s.hy = Math.max(G.top + my - 20, Math.min(G.bottom - my + 20, s.cy + s.ay * Math.sin(s.wy * t + s.py)));
+          s.alpha = 0.62 + 0.10 * Math.sin(2 * Math.PI * t / s.bt + s.bp) + 0.10 * s.br;
+        }
+        if (!owned() && viewer.on) {                     /* the pointer nudges the nearest */
+          var near = null, nd = 1e9;
+          for (i = 0; i < sprays.length; i++) {
+            var d = Math.hypot(sprays[i].x - viewer.x, sprays[i].y - viewer.y);
+            if (d < nd) { nd = d; near = sprays[i]; }
+          }
+          for (i = 0; i < sprays.length; i++) {
+            var s2 = sprays[i];
+            if (s2 === near && nd < 260) {
+              var vx = s2.hx - viewer.x, vy = s2.hy - viewer.y, vl = Math.hypot(vx, vy) || 1;
+              var push = 16 * (1 - nd / 260);
+              s2.tdx = vx / vl * push; s2.tdy = vy / vl * push;
+            } else { s2.tdx = 0; s2.tdy = 0; }
+          }
+        }
+        springItems(sprays, dt);
+      },
+      draw: function (g, now) {
+        for (var i = 0; i < sprays.length; i++) {
+          var s = sprays[i];
+          g.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+          var w = Math.round(SPRW * s.sc), h = Math.round(SPRH * s.sc);
+          g.drawImage(SPRAYF, Math.round(s.x - w / 2), Math.round(s.y - h / 2), w, h);
+        }
+        g.globalAlpha = 1;
+      },
+      items: function () { return sprays; },
+      blooms: function () {
+        var out = [], i, j;
+        for (i = 0; i < sprays.length; i++) {
+          var s = sprays[i], w = SPRW * s.sc, h = SPRH * s.sc;
+          for (j = 0; j < SPRB.length; j++) {
+            var b = SPRB[j];
+            out.push({ id: "s" + i + "b" + j,
+                       x: s.x - w / 2 + (b.x + b.w / 2) * s.sc, y: s.y - h / 2 + (b.y + b.h / 2) * s.sc,
+                       w: b.w * s.sc, h: b.h * s.sc, src: b.img, sw: b.w, sh: b.h,
+                       label: "Detail · spray " + pad2(i + 1) + " · bloom " + pad2(j + 1) });
+          }
+        }
+        return out;
+      },
+      info: function () {
+        var a = [];
+        for (var i = 0; i < sprays.length; i++) {
+          var s = sprays[i];
+          a.push({ x: +s.x.toFixed(2), y: +s.y.toFixed(2), alpha: +s.alpha.toFixed(3),
+                   w: SPRW, h: SPRH, amp: [+s.ax.toFixed(1), +s.ay.toFixed(1)],
+                   peak: +(Math.max(s.ax * s.wx, s.ay * s.wy)).toFixed(2) });
+        }
+        return { sprays: a, count: sprays.length };
+      }
+    };
+  };
+
+  /* ---------- 3 · tide: the glass field itself becomes a wave ---------- */
+  make.tide = function () {
+    var t0 = 0, big = null, ripples = [], lastP = null, travel = 0;
+    var STEP = 8, LAM = 268, PERIOD = 9000, BASE = 0.030, AMP = 0.026;
+    var alphaAt = function (x, now) {
+      var t = (now - t0) / PERIOD;
+      return BASE + AMP * (0.7 * Math.sin(2 * Math.PI * (x / LAM - t)) +
+                           0.3 * Math.sin(2 * Math.PI * (x / (LAM * 1.9) - t * 0.6) + 1.1));
+    };
+    return {
+      name: "tide",
+      enter: function (now) {
+        t0 = now; ripples = []; lastP = null; travel = 0;
+        var s = 3, side = RS * s;
+        var y = Math.max(G.top + side * 0.55, G.poolTop - side * 0.55);
+        var bx = Math.min(W - side * 0.60, Math.max(side * 0.55, W * 0.84));
+        big = newItem(Math.round(bx), Math.round(y));
+        big.side = side; big.scale = s;
+      },
+      update: function (dt, now) {
+        springItems([big], dt);
+        big.alpha = 0.84 + 0.08 * Math.sin(2 * Math.PI * (now - t0) / 6400) + 0.08 * big.br;
+        for (var i = ripples.length - 1; i >= 0; i--) if (now - ripples[i].t0 > 2200) ripples.splice(i, 1);
+      },
+      pointer: function (e) {
+        if (reduced) return;
+        if (lastP) travel += Math.hypot(e.x - lastP[0], e.y - lastP[1]);
+        lastP = [e.x, e.y];
+        if (travel >= 120) {
+          travel = 0;
+          ripples.push({ x: e.x, y: e.y, t0: performance.now() });
+          if (ripples.length > 4) ripples.shift();
+        }
+      },
+      draw: function (g, now) {
+        var x, i;
+        /* the field: vertical strips whose alpha is a wave crossing the sheet */
+        for (x = 0; x < W; x += STEP) {
+          var a = alphaAt(x + STEP / 2, now);
+          if (a <= 0.001) continue;
+          g.fillStyle = ink(+a.toFixed(4));
+          g.fillRect(x, G.top, STEP, G.bottom - G.top);
+        }
+        /* the pool, and the ripple the pointer leaves on it */
+        g.fillStyle = ink(0.015);
+        g.fillRect(0, G.poolTop, W, G.poolBottom - G.poolTop);
+        g.fillStyle = ink(0.12);
+        g.fillRect(0, G.poolTop, W, 1);
+        g.lineWidth = 1;
+        for (i = 0; i < ripples.length; i++) {
+          var r = ripples[i], age = now - r.t0;
+          for (var k = 0; k < 3; k++) {
+            var rad = 6 + 28 * age / 1000 - k * 16;
+            if (rad <= 2) continue;
+            var al = 0.05 * (1 - age / 2200) * (1 - k * 0.3);
+            if (al <= 0.002) continue;
+            g.strokeStyle = ink(+al.toFixed(4));
+            g.beginPath();
+            g.arc(r.x, r.y, rad, 0, Math.PI * 2);
+            g.stroke();
+          }
+        }
+        /* one bloom at x3, and what the water makes of her */
+        var side = Math.round(big.side * big.sc);
+        var px = Math.round(big.x - side / 2), py = Math.round(big.y - side / 2);
+        g.globalAlpha = Math.max(0, Math.min(1, big.alpha));
+        g.drawImage(BLOOM, px, py, side, side);
+        var ry = 2 * G.poolTop - big.y;
+        g.save();
+        g.beginPath();
+        g.rect(0, G.poolTop, W, G.poolBottom - G.poolTop);
+        g.clip();
+        g.globalAlpha = 0.22 * big.alpha;
+        g.translate(0, Math.round(ry));
+        g.scale(1, -1);
+        g.drawImage(BLOOM, px, Math.round(-side / 2), side, side);
+        g.restore();
+        g.globalAlpha = 1;
+      },
+      items: function () { return [big]; },
+      blooms: function () {
+        var side = big.side * big.sc;
+        return [{ id: "big", x: big.x, y: big.y, w: side, h: side, src: BLOOM, sw: RS, sh: RS,
+                  label: "Detail · bloom ×3 · in the tide" }];
+      },
+      info: function () {
+        var now = performance.now(), samples = [];
+        for (var x = 0; x < W; x += 64) samples.push([x, +alphaAt(x, now).toFixed(4)]);
+        return { period: PERIOD, lambda: LAM, base: BASE, amp: AMP, samples: samples,
+                 bloom: { x: big.x, y: big.y, side: Math.round(big.side * big.sc), scale: 3,
+                          alpha: +big.alpha.toFixed(3), reflection: 2 * G.poolTop - big.y },
+                 ripples: ripples.length, pool: { top: G.poolTop, bottom: G.poolBottom } };
+      }
+    };
+  };
+
+  /* ---------- 4 · constellation ---------- */
+  make.constellation = function () {
+    var stars = [], links = [], cx = 0, cy = 0, t0 = 0, turn = 0, hoverI = -1;
+    var N = 18, TURN_MS = 240000;
+    var place = function () {
+      stars = []; links = [];
+      var i, j, x0 = 54, x1 = W - 54, y0 = G.top + 40, y1 = G.bottom - 40;
+      for (i = 0; i < N; i++) {
+        var best = null, bd = -1;
+        for (j = 0; j < 26; j++) {                       /* blue noise by best candidate */
+          var x = rnd(x0, x1), y = rnd(y0, y1), d = 1e9, m;
+          for (m = 0; m < stars.length; m++) d = Math.min(d, Math.hypot(x - stars[m].ox, y - stars[m].oy));
+          if (d > bd) { bd = d; best = [x, y]; }
+        }
+        var s = newItem(best[0], best[1]);
+        s.ox = best[0]; s.oy = best[1];
+        s.bp = rnd(0, 6.28); s.bt = rnd(4.5, 7);
+        stars.push(s);
+      }
+      cx = W / 2; cy = (G.top + G.bottom) / 2;
+      for (i = 0; i < stars.length; i++) {
+        var s2 = stars[i];
+        s2.r = Math.hypot(s2.ox - cx, s2.oy - cy);
+        s2.th = Math.atan2(s2.oy - cy, s2.ox - cx);
+        var d1 = [];
+        for (j = 0; j < stars.length; j++) {
+          if (j === i) continue;
+          d1.push([Math.hypot(stars[j].ox - s2.ox, stars[j].oy - s2.oy), j]);
+        }
+        d1.sort(function (a, b) { return a[0] - b[0]; });
+        for (j = 0; j < 2 && j < d1.length; j++) {
+          var a = Math.min(i, d1[j][1]), b = Math.max(i, d1[j][1]);
+          var key = a + ":" + b, seen = false;
+          for (var m2 = 0; m2 < links.length; m2++) if (links[m2].key === key) { seen = true; break; }
+          if (!seen) links.push({ a: a, b: b, key: key });
+        }
+      }
+    };
+    return {
+      name: "constellation",
+      enter: function (now) { t0 = now; turn = 0; hoverI = -1; place(); },
+      update: function (dt, now) {
+        if (!reduced && !semiOn) turn += (dt / TURN_MS) * Math.PI * 2;
+        var i;
+        for (i = 0; i < stars.length; i++) {
+          var s = stars[i];
+          s.hx = cx + s.r * Math.cos(s.th + turn);
+          s.hy = cy + s.r * Math.sin(s.th + turn);
+          s.alpha = 0.72 + 0.14 * Math.sin(2 * Math.PI * (now - t0) / 1000 / s.bt + s.bp) + 0.12 * s.br;
+        }
+        springItems(stars, dt);
+        hoverI = -1;
+        if (viewer.on) {
+          for (i = 0; i < stars.length; i++) {
+            if (Math.abs(viewer.x - stars[i].x) <= 32 && Math.abs(viewer.y - stars[i].y) <= 32) { hoverI = i; break; }
+          }
+        }
+      },
+      draw: function (g, now) {
+        var i;
+        g.lineWidth = 1;
+        for (i = 0; i < links.length && !semiOn; i++) {
+          var L = links[i], A = stars[L.a], B = stars[L.b];
+          var lit = (hoverI === L.a || hoverI === L.b);
+          g.strokeStyle = ink(lit ? 0.30 : 0.12);
+          g.beginPath();
+          g.moveTo(Math.round(A.x) + 0.5, Math.round(A.y) + 0.5);
+          g.lineTo(Math.round(B.x) + 0.5, Math.round(B.y) + 0.5);
+          g.stroke();
+        }
+        for (i = 0; i < stars.length; i++) {
+          var s = stars[i], side = Math.round(RS * s.sc);
+          g.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+          g.drawImage(BLOOM, Math.round(s.x - side / 2), Math.round(s.y - side / 2), side, side);
+        }
+        g.globalAlpha = 1;
+      },
+      items: function () { return stars; },
+      blooms: function () {
+        var out = [];
+        for (var i = 0; i < stars.length; i++) {
+          var s = stars[i], side = RS * s.sc;
+          out.push({ id: "c" + i, x: s.x, y: s.y, w: side, h: side, src: BLOOM, sw: RS, sh: RS,
+                     label: "Detail · star " + pad2(i + 1) + " of " + N });
+        }
+        return out;
+      },
+      info: function () {
+        var a = [], i;
+        for (i = 0; i < stars.length; i++) {
+          a.push({ x: +stars[i].x.toFixed(2), y: +stars[i].y.toFixed(2), alpha: +stars[i].alpha.toFixed(3),
+                   r: +stars[i].r.toFixed(1) });
+        }
+        var l = [];
+        for (i = 0; i < links.length; i++) l.push([links[i].a, links[i].b]);
+        return { stars: a, count: stars.length, links: l, linkCount: links.length,
+                 centre: [cx, cy], turn: +turn.toFixed(5), turnMs: TURN_MS, hover: hoverI, lineInk: 0.12 };
+      }
+    };
+  };
+
+  /* ---------- 5 · lattice: a strict grid, breathing outward ---------- */
+  make.lattice = function () {
+    var cells = [], t0 = 0, nextSwap = 0, cx = 0, cy = 0;
+    var P = 112, WAVE = 6000, SWAP = 8000, SWAPMS = 700, HOLD = 2600;
+    var place = function () {
+      cells = [];
+      var nx = Math.max(2, Math.floor((W - RS - 16) / P) + 1);
+      var ny = Math.max(2, Math.floor((G.bottom - G.top - RS - 16) / P) + 1);
+      var x0 = Math.round((W - (nx - 1) * P) / 2), y0 = Math.round(G.top + (G.bottom - G.top - (ny - 1) * P) / 2);
+      cx = W / 2; cy = (G.top + G.bottom) / 2;
+      for (var j = 0; j < ny; j++) {
+        for (var i = 0; i < nx; i++) {
+          var c = newItem(x0 + i * P, y0 + j * P);
+          c.i = i; c.j = j;
+          c.d = Math.hypot(c.hx - cx, c.hy - cy);
+          c.tq = 0;                                      /* 0 = front, 1 = three-quarter */
+          cells.push(c);
+        }
+      }
+    };
+    return {
+      name: "lattice",
+      enter: function (now) {
+        t0 = now; place(); nextSwap = now + SWAP;
+        if (reduced && cells.length) cells[(Math.random() * cells.length) | 0].tq = 1;
+      },
+      update: function (dt, now) {
+        var i;
+        if (!reduced && now >= nextSwap) {
+          var c = cells[(Math.random() * cells.length) | 0];
+          c.swap = now; nextSwap = now + SWAP;
+        }
+        for (i = 0; i < cells.length; i++) {
+          var s = cells[i];
+          var ph = 2 * Math.PI * ((now - t0) / WAVE - s.d / 620);
+          s.alpha = 0.62 + 0.24 * Math.sin(ph) + 0.12 * s.br;
+          if (s.swap !== undefined) {
+            var age = now - s.swap;
+            if (age < SWAPMS) s.tq = smooth(age / SWAPMS);
+            else if (age < SWAPMS + HOLD) s.tq = 1;
+            else if (age < SWAPMS * 2 + HOLD) s.tq = 1 - smooth((age - SWAPMS - HOLD) / SWAPMS);
+            else { s.tq = 0; s.swap = undefined; }
+          }
+        }
+        springItems(cells, dt);
+      },
+      draw: function (g) {
+        for (var i = 0; i < cells.length; i++) {
+          var s = cells[i], side = Math.round(RS * s.sc);
+          var px = Math.round(s.x - side / 2), py = Math.round(s.y - side / 2);
+          var a = Math.max(0, Math.min(1, s.alpha));
+          if (s.tq < 1) {
+            g.globalAlpha = a * (1 - s.tq);
+            g.drawImage(BLOOM, px, py, side, side);
+          }
+          if (s.tq > 0) {
+            g.globalAlpha = a * s.tq;
+            g.drawImage(TQF, px, py, side, side);
+          }
+        }
+        g.globalAlpha = 1;
+      },
+      items: function () { return cells; },
+      blooms: function () {
+        var out = [];
+        for (var i = 0; i < cells.length; i++) {
+          var s = cells[i], side = RS * s.sc;
+          out.push({ id: "l" + i, x: s.x, y: s.y, w: side, h: side,
+                     src: s.tq > 0.5 ? TQF : BLOOM, sw: RS, sh: RS,
+                     label: "Detail · lattice " + pad2(s.i + 1) + "," + pad2(s.j + 1) });
+        }
+        return out;
+      },
+      info: function () {
+        var a = [], sw = -1, i;
+        for (i = 0; i < cells.length; i++) {
+          var s = cells[i];
+          a.push({ i: s.i, j: s.j, x: +s.x.toFixed(1), y: +s.y.toFixed(1),
+                   alpha: +s.alpha.toFixed(3), tq: +s.tq.toFixed(3) });
+          if (s.tq > 0.5) sw = i;
+        }
+        return { cells: a, count: cells.length, pitch: P, wave: WAVE, swapEvery: SWAP, swapped: sw };
+      }
+    };
+  };
+
+  /* ---------- 6 · frame: the border only, opening clockwise ---------- */
+  make.frame = function () {
+    var edge = [], t0 = 0, MARG = 44, BOT = 70, P = 98, STAG = 120;
+    var place = function () {
+      edge = [];
+      var i, n, run, start;
+      var L = MARG, R = W - MARG, T = MARG, B = H - BOT;
+      var add = function (x, y) { var c = newItem(Math.round(x), Math.round(y)); edge.push(c); };
+      /* clockwise: top left→right, right top→bottom, bottom right→left, left bottom→top */
+      run = R - L; n = Math.max(1, Math.floor(run / P)); start = L + (run - n * P) / 2;
+      for (i = 0; i <= n; i++) add(start + i * P, T);
+      run = B - T; n = Math.max(1, Math.floor(run / P)); start = T + (run - n * P) / 2;
+      for (i = 1; i <= n; i++) add(R, start + i * P);
+      run = R - L; n = Math.max(1, Math.floor(run / P)); start = L + (run - n * P) / 2;
+      for (i = n - 1; i >= 0; i--) add(start + i * P, B);
+      run = B - T; n = Math.max(1, Math.floor(run / P)); start = T + (run - n * P) / 2;
+      for (i = n - 1; i >= 1; i--) add(L, start + i * P);
+      for (i = 0; i < edge.length; i++) {
+        edge[i].k = i;
+        edge[i].open0 = i * STAG;
+        edge[i].bp = i * 0.4;
+      }
+    };
+    return {
+      name: "frame",
+      enter: function (now) { t0 = now; place(); },
+      update: function (dt, now) {
+        var seq = (now - t0);
+        for (var i = 0; i < edge.length; i++) {
+          var s = edge[i];
+          var age = seq - s.open0;
+          if (reduced) { s.fr = OPENF.length - 1; s.a0 = 1; }
+          else if (age < 0) { s.fr = -1; s.a0 = 0; }
+          else {
+            s.fr = Math.min(OPENF.length - 1, Math.floor(age / 90));
+            s.a0 = Math.min(1, age / 200);
+          }
+          var done = seq - (s.open0 + OPENF.length * 90);
+          var br = done > 0 ? 1 : 0;
+          s.alpha = s.a0 * (0.70 + (br ? 0.16 * Math.sin(2 * Math.PI * (now - t0) / 5200 + s.bp) : 0) + 0.12 * s.br);
+        }
+        springItems(edge, dt);
+      },
+      draw: function (g) {
+        for (var i = 0; i < edge.length; i++) {
+          var s = edge[i];
+          if (s.fr < 0) continue;
+          var side = Math.round(RS * s.sc);
+          g.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+          g.drawImage(OPENF[s.fr], Math.round(s.x - side / 2), Math.round(s.y - side / 2), side, side);
+        }
+        g.globalAlpha = 1;
+      },
+      items: function () { return edge; },
+      blooms: function () {
+        var out = [];
+        for (var i = 0; i < edge.length; i++) {
+          var s = edge[i];
+          if (s.fr < 0) continue;
+          var side = RS * s.sc;
+          out.push({ id: "e" + i, x: s.x, y: s.y, w: side, h: side, src: OPENF[s.fr], sw: RS, sh: RS,
+                     label: "Detail · border " + pad2(i + 1) + " of " + pad2(edge.length) });
+        }
+        return out;
+      },
+      info: function () {
+        var a = [], i, worst = 0;
+        for (i = 0; i < edge.length; i++) {
+          var s = edge[i];
+          var d = Math.min(s.x, s.y, W - s.x, H - s.y);
+          if (d > worst) worst = d;
+          a.push({ k: i, x: +s.x.toFixed(1), y: +s.y.toFixed(1), edge: +d.toFixed(1),
+                   frame: s.fr, alpha: +s.alpha.toFixed(3) });
+        }
+        return { blooms: a, count: edge.length, pitch: P, stagger: STAG, frameMs: 90,
+                 margin: [MARG, BOT], maxEdge: +worst.toFixed(1) };
+      }
+    };
+  };
+
+  /* =====================================================================
+     the compositor: one rAF loop, one crossfade
+     ===================================================================== */
+  var NAMES = ["free plan", "drift", "tide", "constellation", "lattice", "frame"];
+  var active = null, bag = [], trans = null, switches = 0, clicks = 0, since = 0;
+  var lastMs = 0, raf = 0, lastT = 0;
+  var layer = null, layerG = null, snapC = null, snapG = null;
+
+  var makeLayer = function () {
+    var c = document.createElement("canvas");
+    c.width = cv.width; c.height = cv.height;
+    return c;
+  };
+  var sizeLayers = function () {
+    if (!layer) { layer = makeLayer(); layerG = layer.getContext("2d"); }
+    if (!snapC) { snapC = makeLayer(); snapG = snapC.getContext("2d"); }
+    layer.width = cv.width; layer.height = cv.height;
+    snapC.width = cv.width; snapC.height = cv.height;
+  };
+
+  var paint = function (g, st, now) {
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, cv.width, cv.height);
+    g.imageSmoothingEnabled = false;
+    g.save();
+    g.scale(DP, DP);
+    st.draw(g, now);
+    /* the semicolon, when the sheet had nothing of its own to gather */
+    if (semiGhost) {
+      var age = now - semiGhost.t0;
+      var a = Math.min(1, age / 400) * Math.min(1, Math.max(0, (2400 - age) / 400));
+      var side = Math.round(RS * GSC);
+      g.globalAlpha = 0.85 * a;
+      for (var i = 0; i < semiGhost.pts.length; i++) {
+        g.drawImage(BLOOM, Math.round(semiGhost.pts[i][0] - side / 2),
+                    Math.round(semiGhost.pts[i][1] - side / 2), side, side);
+      }
+      g.globalAlpha = 1;
+    }
+    g.restore();
+  };
+
+  var fill = function () {
+    var a = NAMES.slice(), i, j, t;
+    for (i = a.length - 1; i > 0; i--) {
+      j = (Math.random() * (i + 1)) | 0;
+      t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    if (active && a[0] === active.name) {                /* never twice in a row */
+      j = 1 + ((Math.random() * (a.length - 1)) | 0);
+      t = a[0]; a[0] = a[j]; a[j] = t;
+    }
+    bag = a;
+  };
+  var nextName = function () {
+    if (!bag.length) fill();
+    return bag.shift();
+  };
+
+  var nameTimer = 0;
+  var showName = function (n) {
+    if (!nameEl) return;
+    nameEl.textContent = n.charAt(0).toUpperCase() + n.slice(1);
+    nameEl.classList.add("is-on");
+    if (nameTimer) clearTimeout(nameTimer);
+    nameTimer = setTimeout(function () { nameEl.classList.remove("is-on"); }, 1200);
+  };
+
+  var switchTo = function (name, instant) {
+    var now = performance.now();
+    if (!make[name]) return null;
+    if (active) {
+      if (trans) trans = null;                           /* a switch mid-fade: take what is drawn */
+      paint(snapG, active, now);
+      if (active.leave) active.leave();
+    }
+    if (semiOn) { semiOn = false; semiGhost = null; if (plate) plate.classList.remove("is-quiet"); }
+    dOver = null;
+    if (dTimer) { clearTimeout(dTimer); dTimer = 0; }
+    if (dHold) { clearTimeout(dHold); dHold = 0; }
+    closeDetail();
+    active = make[name]();
+    active.enter(now);
+    active.update(0, now);
+    since = now;
+    switches++;
+    showName(name);
+    trans = (reduced || instant || switches <= 1) ? null : { t0: now, ms: XFADE, from: snapC ? true : false, name: name };
+    if (!reduced) kick();
+    else render(now, 0);
+    return name;
+  };
+
+  var render = function (now, dt) {
+    if (!active) return;
+    var m0 = performance.now();
+    if (active.update) active.update(dt, now);
+    if (trans) {
+      var p = Math.min(1, (now - trans.t0) / trans.ms);
+      paint(layerG, active, now);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.globalAlpha = 1 - smooth(p);
+      ctx.drawImage(snapC, 0, 0);
+      ctx.globalAlpha = smooth(p);
+      ctx.drawImage(layer, 0, 0);
+      ctx.globalAlpha = 1;
+      trans.p = p;
+      if (p >= 1) trans = null;
+    } else {
+      paint(ctx, active, now);
+    }
+    drawCell(ctx, dt);                                   /* on top of the crossfade, never inside it */
+    if (semiOn && now >= semiUntil) relax();
+    lastMs = performance.now() - m0;
+  };
+
+  var loop = function (ts) {
+    raf = 0;
+    var now = performance.now();
+    var dt = lastT ? Math.min(50, now - lastT) : 16.7;
+    lastT = now;
+    render(now, dt);
+    if (!reduced && !document.hidden) raf = requestAnimationFrame(loop);
+  };
+  var kick = function () {
+    if (reduced || raf || document.hidden) return;
+    lastT = 0;
+    raf = requestAnimationFrame(loop);
+  };
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) kick(); });
+
+  /* ---------- fit ---------- */
+  var fit = function () {
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * DP); cv.height = Math.round(H * DP);
+    cv.style.width = W + "px"; cv.style.height = H + "px";
+    sizeLayers();
+    geo();
+    if (active) {                                        /* the sheet is re-laid, not re-chosen */
+      var n = active.name;
+      if (active.leave) active.leave();
+      active = make[n]();
+      active.enter(performance.now());
+    }
+    if (active) render(performance.now(), 0);
+  };
+
+  /* ---------- input ---------- */
+  var blank = function (t) {
+    return !(t && t.closest && t.closest(".plate, .topbar, .strip, .below, .lightbox, a, button"));
+  };
+  var downAt = null, holdTimer = 0, lastTap = 0, lastTapXY = [0, 0], pendTap = 0;
+
+  var tap = function (x, y, touch) {
+    clicks++;
+    stopDemo();
+    viewer.x = x; viewer.y = y; viewer.on = true; viewer.src = touch ? "tap" : "pointer";
+    switchTo(nextName());
+  };
+
+  window.addEventListener("pointerdown", function (e) {
+    if (e.pointerType === "touch") dropCell();            /* a finger draws no cursor */
+    if (!blank(e.target)) { downAt = null; return; }
+    downAt = [e.clientX, e.clientY, e.pointerId, performance.now(), false, e.pointerType];
+    if (holdTimer) clearTimeout(holdTimer);
+    holdTimer = setTimeout(function () {
+      if (!downAt) return;
+      downAt[4] = true;
+      setHold(true, downAt[0], downAt[1]);
+      if (downAt[5] === "touch") {                        /* press and hold is the phone's hover */
+        viewer.x = downAt[0]; viewer.y = downAt[1]; viewer.on = true; viewer.src = "press";
+        var t = hitTest(downAt[0], downAt[1]);
+        if (t) openDetail(t, 2500);
+      }
+    }, 350);
+  });
+  window.addEventListener("pointermove", function (e) {
+    viewer.x = e.clientX; viewer.y = e.clientY;
+    if (e.pointerType !== "touch") {
+      viewer.on = true; viewer.src = "pointer";
+      aimCell(e.clientX, e.clientY);
+      if (active && active.pointer) active.pointer({ x: e.clientX, y: e.clientY });
+      /* the callout belongs to the sheet: over the sections below it steps away */
+      if (blank(e.target)) hover(e.clientX, e.clientY);
+      else hover(-9999, -9999);
+      if (reduced) render(performance.now(), 0);
+    }
+    if (!downAt) return;
+    if (Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 12 && !downAt[4]) {
+      clearTimeout(holdTimer); holdTimer = 0; downAt = null;
+    }
+  });
+  var release = function () {
+    if (holdTimer) { clearTimeout(holdTimer); holdTimer = 0; }
+    if (holdOn) setHold(false, 0, 0);
+  };
+  window.addEventListener("pointerup", function (e) {
+    var d = downAt; downAt = null;
+    release();
+    if (!d || d[2] !== e.pointerId) return;
+    if (d[4]) return;                                     /* that was a hold */
+    if (!blank(e.target)) return;
+    if (Math.hypot(e.clientX - d[0], e.clientY - d[1]) > 12) return;
+    spendHint();                                          /* said once; that is enough */
+    stopDemo();                                           /* they clicked; no need to show them */
+    var now = performance.now();
+    if (now - lastTap < 340 && Math.hypot(e.clientX - lastTapXY[0], e.clientY - lastTapXY[1]) < 40) {
+      lastTap = 0;
+      if (pendTap) { clearTimeout(pendTap); pendTap = 0; }  /* the second click keeps the state */
+      gather();                                           /* double-click / double-tap */
+      if (reduced) render(performance.now(), 0);
+      return;
+    }
+    lastTap = now; lastTapXY = [e.clientX, e.clientY];
+    if (semiOn) relax();
+    var cx = e.clientX, cy = e.clientY, ct = e.pointerType === "touch";
+    if (pendTap) clearTimeout(pendTap);
+    pendTap = setTimeout(function () { pendTap = 0; tap(cx, cy, ct); }, 340);
+  });
+  document.documentElement.addEventListener("pointerleave", function (e) {
+    if (e.pointerType === "touch") return;
+    dropCell();
+    if (reduced) render(performance.now(), 0);
+  });
+  window.addEventListener("blur", function () { dropCell(); });
+  window.addEventListener("pointercancel", function () { downAt = null; release(); });
+  window.addEventListener("contextmenu", function () { downAt = null; release(); });
+
+  var lines = document.querySelectorAll(".say");
+  for (var li = 0; li < lines.length; li++) {
+    (function (el) {
+      el.addEventListener("pointerenter", function () {
+        magnet = el;
+        if (!semiOn) applyMagnet(el);
+        if (reduced) render(performance.now(), 0);
+      });
+      el.addEventListener("pointerleave", function () {
+        if (magnet !== el) return;
+        magnet = null;
+        if (semiOn) return;
+        var items = (active && active.items) ? active.items() : [];
+        for (var i = 0; i < items.length; i++) { items[i].tdx = 0; items[i].tdy = 0; }
+        if (reduced) render(performance.now(), 0);
+      });
+    })(lines[li]);
+  }
+
+  /* ---------- the first state: whichever the sheet feels like ---------- */
+  fit();
+  var refit = 0;
+  window.addEventListener("resize", function () {
+    if (refit) return;
+    refit = requestAnimationFrame(function () { refit = 0; fit(); kick(); });
+  });
+  switchTo(NAMES[(Math.random() * NAMES.length) | 0]);
+  armDemo();
+  kick();
+
+  /* ---------- the test hook ---------- */
+  window.__about = {
+    names: NAMES.slice(),
+    state: function () {
+      return { name: active ? active.name : null, since: +since.toFixed(0),
+               age: +(performance.now() - since).toFixed(0), switches: switches,
+               transition: trans ? { p: +(trans.p || 0).toFixed(3), ms: trans.ms, to: trans.name } : null,
+               label: nameEl ? { text: nameEl.textContent, on: nameEl.classList.contains("is-on"),
+                                 opacity: getComputedStyle(nameEl).opacity } : null };
+    },
+    bag: function () { return bag.slice(); },
+    switch: function (n, instant) { return switchTo(n, instant !== false); },
+    crossfade: function (n) { return switchTo(n, false); },
+    info: function () { return active && active.info ? active.info() : null; },
+    items: function () {
+      var it = (active && active.items) ? active.items() : [], a = [];
+      for (var i = 0; i < it.length; i++) a.push({ x: +it[i].x.toFixed(2), y: +it[i].y.toFixed(2) });
+      return a;
+    },
+    blooms: function () {
+      var bs = bloomList(), a = [];
+      for (var i = 0; i < bs.length; i++) {
+        a.push({ id: bs[i].id, x: +bs[i].x.toFixed(2), y: +bs[i].y.toFixed(2),
+                 w: +bs[i].w.toFixed(1), h: +bs[i].h.toFixed(1), label: bs[i].label });
+      }
+      return a;
+    },
+    detail: function () {
+      return { on: dOn, hidden: dEl.hidden, opacity: getComputedStyle(dEl).opacity,
+               label: dLab.textContent, dimW: dimW.textContent, dimH: dimH.textContent,
+               canvas: [dPx.width, dPx.height], info: dInfo, rect: dEl.getBoundingClientRect().toJSON() };
+    },
+    semi: function () { return { on: semiOn, ghost: !!semiGhost, rects: semiRects() }; },
+    hold: function () { return { on: holdOn, x: holdX, y: holdY, r: HOLD_R }; },
+    viewer: function () { return { x: viewer.x, y: viewer.y, on: viewer.on, src: viewer.src }; },
+    pool: function () { return { top: G.poolTop, bottom: G.poolBottom, left: 0, right: W }; },
+    free: function () { return { top: G.top, bottom: G.bottom }; },
+    keepOut: function () { return G.ko.slice(); },
+    clicks: function () { return clicks; },
+    ms: function () { return lastMs; },
+    running: function () { return !!raf; },
+    sprites: function () { return { frames: OPENF.length, cells: RS, spray: [SPRW, SPRH], petal: [PTW, PTH] }; },
+    cursor: function () { return { on: curOn, x: +cxS.toFixed(2), y: +cyS.toFixed(2),
+                                  tx: cxT, ty: cyT, cell: CELL,
+                                  gx: Math.floor(cxS / CELL) * CELL, gy: Math.floor(cyS / CELL) * CELL }; },
+    hint: function () {
+      if (!hintEl) return null;
+      var cs = getComputedStyle(hintEl);
+      return { text: hintEl.textContent, gone: hintEl.classList.contains("is-gone"), spent: hintSpent,
+               opacity: cs.opacity, visibility: cs.visibility, fine: finePtr,
+               rect: hintEl.getBoundingClientRect().toJSON() };
+    },
+    demo: function () { return { ms: DEMO_MS, armed: !!demoTimer, done: demoDone, at: +demoAt.toFixed(0) }; },
+    reduced: reduced
+  };
+})();
+</script>
+<script>
+/* below the sheet · photography and from.
+   one viewer holds two series. inside a series the slides cross-dissolve in
+   300 ms through a mask of 16 px blocks; a series change slides the reel
+   sideways over 400 ms and swaps title, lead, counter and thumbs. the frame
+   opens the picture large on glass; Esc, or a click anywhere, puts it away.
+   only the first slide ships with a src — the rest load as they are asked for. */
+(function () {
+  var reduced = false;
+  try { reduced = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  var SERIES = [{ title: "Ichigo Ichie" }, { title: "Barcelona Pavilion" }];
+  var FADE = 300, SER = 400;
+  var AR_R = '<svg class="pill__ar" width="12" height="12" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 1h2v2H3zM5 3h2v2H5zM7 5h2v2H7zM5 7h2v2H5zM3 9h2v2H3z"/></svg>';
+  var AR_L = '<svg class="pill__ar" width="12" height="12" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path d="M7 1h2v2H7zM5 3h2v2H5zM3 5h2v2H3zM5 7h2v2H5zM7 9h2v2H7z"/></svg>';
+
+  var viewer  = document.getElementById("viewer");
+  var frame   = document.getElementById("frame");
+  var reel    = document.getElementById("reel");
+  var veil    = document.getElementById("veil");
+  var titleEl = document.getElementById("sertitle");
+  var indEl   = document.getElementById("serind");
+  var pill    = document.getElementById("serpill");
+  var counter = document.getElementById("counter");
+  var thumbsHost = document.getElementById("thumbs");
+  var lb      = document.getElementById("lightbox");
+  var lbImg   = document.getElementById("lightboximg");
+  var lbClose = document.getElementById("lightboxclose");
+  if (!viewer || !frame || !reel) return;
+
+  var slides = [].slice.call(reel.querySelectorAll(".slide"));
+  var thumbs = [].slice.call(thumbsHost.querySelectorAll(".thumb"));
+  var groups = [], tgroups = [], i;
+  for (i = 0; i < SERIES.length; i++) { groups.push([]); tgroups.push([]); }
+  for (i = 0; i < slides.length; i++) groups[+slides[i].getAttribute("data-series")].push(slides[i]);
+  for (i = 0; i < thumbs.length; i++) tgroups[+thumbs[i].getAttribute("data-series")].push(thumbs[i]);
+
+  var si = 0, idx = 0, changes = 0, serChanges = 0, lastAt = 0;
+  var pad2 = function (n) { return ("0" + n).slice(-2); };
+
+  /* ---------- the dissolve: blocks, five steps ---------- */
+  var dissolve = function () {
+    if (!veil || reduced) return;
+    veil.style.transition = "none";
+    veil.style.opacity = "1";
+    void veil.offsetWidth;
+    veil.style.transition = "opacity " + FADE + "ms steps(5, end)";
+    veil.style.opacity = "0";
+  };
+
+  var ensure = function (el) {
+    if (el && !el.getAttribute("src")) el.setAttribute("src", el.getAttribute("data-src"));
+  };
+
+  var paint = function (nsi, ni) {
+    si = nsi; idx = ni;
+    var g = groups[si], k;
+    ensure(g[idx]);
+    for (k = 0; k < slides.length; k++) {
+      if (slides[k] === g[idx]) slides[k].classList.add("is-on");
+      else slides[k].classList.remove("is-on");
+    }
+    titleEl.textContent = SERIES[si].title;
+    indEl.textContent = "Series " + (si + 1) + " / " + SERIES.length;
+    if (si === 0) { pill.innerHTML = 'Next Series ' + AR_R; pill.setAttribute("data-dir", "next"); }
+    else { pill.innerHTML = AR_L + ' Previous Series'; pill.setAttribute("data-dir", "prev"); }
+    counter.textContent = pad2(idx + 1) + " / " + pad2(g.length);
+    for (k = 0; k < thumbs.length; k++) {
+      var ts = +thumbs[k].getAttribute("data-series");
+      thumbs[k].hidden = ts !== si;
+      if (ts === si && tgroups[si][idx] === thumbs[k]) thumbs[k].classList.add("is-on");
+      else thumbs[k].classList.remove("is-on");
+    }
+    frame.setAttribute("aria-label", "Open photograph " + (idx + 1) + " of " + g.length + " larger");
+    changes++; lastAt = Math.round(performance.now());
+    var nx = g[(idx + 1) % g.length];
+    setTimeout(function () { ensure(nx); }, 360);                 /* the next one, quietly */
+  };
+
+  var toSlide = function (d) {
+    var g = groups[si], n = g.length;
+    paint(si, ((idx + d) % n + n) % n);
+    dissolve();
+  };
+  var jump = function (n) {
+    if (n === idx) return;
+    paint(si, n); dissolve();
+  };
+  var serTimer = 0, clsTimer = 0;
+  var toSeries = function (d) {
+    var nsi = ((si + d) % SERIES.length + SERIES.length) % SERIES.length;
+    if (nsi === si) return;
+    serChanges++;
+    if (reduced) { paint(nsi, 0); return; }
+    frame.classList.remove("is-ser-next", "is-ser-prev");
+    void frame.offsetWidth;
+    frame.classList.add(d > 0 ? "is-ser-next" : "is-ser-prev");
+    if (serTimer) clearTimeout(serTimer);
+    serTimer = setTimeout(function () { serTimer = 0; paint(nsi, 0); dissolve(); }, Math.round(SER * 0.46));
+    if (clsTimer) clearTimeout(clsTimer);
+    clsTimer = setTimeout(function () { clsTimer = 0; frame.classList.remove("is-ser-next", "is-ser-prev"); }, SER);
+  };
+  /* a swipe past the end of a series lands on the other one */
+  var advance = function (d) {
+    var n = groups[si].length;
+    if (d > 0 && idx === n - 1) return toSeries(1);
+    if (d < 0 && idx === 0) return toSeries(-1);
+    toSlide(d);
+  };
+
+  /* ---------- the controls ---------- */
+  document.getElementById("prev").addEventListener("click", function () { toSlide(-1); });
+  document.getElementById("next").addEventListener("click", function () { toSlide(1); });
+  pill.addEventListener("click", function () { toSeries(pill.getAttribute("data-dir") === "prev" ? -1 : 1); });
+  for (i = 0; i < thumbs.length; i++) {
+    (function (btn) {
+      btn.addEventListener("click", function () {
+        var s = +btn.getAttribute("data-series");
+        if (s !== si) { toSeries(s - si); return; }
+        jump(tgroups[s].indexOf(btn));
+      });
+    })(thumbs[i]);
+  }
+  viewer.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k !== "ArrowRight" && k !== "ArrowLeft") return;
+    var d = k === "ArrowRight" ? 1 : -1;
+    e.preventDefault();
+    if (e.shiftKey) toSeries(d); else toSlide(d);
+  });
+
+  /* ---------- the swipe ---------- */
+  var sx = 0, sy = 0, st = 0, down = false, swiped = false, guard = 0;
+  var start = function (x, y) { down = true; swiped = false; sx = x; sy = y; st = Date.now(); };
+  var end = function (x, y) {
+    if (!down) return;
+    down = false;
+    var dx = x - sx, dy = y - sy;
+    if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy) && Date.now() - st < 1200) {
+      swiped = true; guard = Date.now();
+      advance(dx < 0 ? 1 : -1);
+    }
+  };
+  frame.addEventListener("pointerdown", function (e) { start(e.clientX, e.clientY); });
+  frame.addEventListener("pointerup", function (e) { end(e.clientX, e.clientY); });
+  frame.addEventListener("pointercancel", function () { down = false; });
+  frame.addEventListener("touchstart", function (e) {
+    if (down) return;
+    var t = e.changedTouches[0]; start(t.clientX, t.clientY);
+  }, { passive: true });
+  frame.addEventListener("touchend", function (e) {
+    var t = e.changedTouches[0]; end(t.clientX, t.clientY);
+  }, { passive: true });
+
+  /* ---------- the lightbox ---------- */
+  var lbTimer = 0, opener = null;
+  var open = function () {
+    if (!lb) return;
+    var el = groups[si][idx];
+    opener = frame;
+    lbImg.src = el.getAttribute("data-full");
+    lbImg.alt = el.alt || "";
+    if (lbTimer) { clearTimeout(lbTimer); lbTimer = 0; }
+    lb.hidden = false;
+    void lb.offsetWidth;
+    lb.classList.add("is-on");
+    if (lbClose) lbClose.focus();
+  };
+  var close = function () {
+    if (!lb || lb.hidden) return;
+    lb.classList.remove("is-on");
+    if (lbTimer) clearTimeout(lbTimer);
+    lbTimer = setTimeout(function () {
+      lbTimer = 0;
+      if (!lb.classList.contains("is-on")) { lb.hidden = true; lbImg.removeAttribute("src"); }
+    }, reduced ? 160 : 240);
+    if (opener) { try { opener.focus(); } catch (e) {} }
+    opener = null;
+  };
+  frame.addEventListener("click", function (e) {
+    if (swiped || Date.now() - guard < 350) { swiped = false; e.preventDefault(); return; }
+    e.preventDefault();
+    open();
+  });
+  if (lb) lb.addEventListener("click", function () { close(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" || e.key === "Esc") close();
+  });
+
+  /* ---------- the first look: the frame dissolves in ---------- */
+  var shown = false, shownAt = 0;
+  var revealNow = function () {
+    if (shown) return;
+    shown = true; shownAt = Math.round(performance.now());
+    dissolve();
+  };
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function (es) {
+      for (var n = 0; n < es.length; n++) if (es[n].isIntersecting) { revealNow(); io.disconnect(); }
+    }, { threshold: 0.2 });
+    io.observe(frame);
+  } else { revealNow(); }
+
+  paint(0, 0);
+
+  /* ---------- the test hooks ---------- */
+  var slideInfo = function () {
+    var el = groups[si][idx], r = el.getBoundingClientRect();
+    return { src: el.getAttribute("src"), full: el.getAttribute("data-full"), alt: el.alt,
+             on: el.classList.contains("is-on"), natural: [el.naturalWidth, el.naturalHeight],
+             rect: { x: +r.x.toFixed(1), y: +r.y.toFixed(1), w: +r.width.toFixed(1), h: +r.height.toFixed(1) } };
+  };
+  window.__car = {
+    series: function () {
+      var a = [];
+      for (var n = 0; n < SERIES.length; n++) a.push({ title: SERIES[n].title, count: groups[n].length });
+      return a;
+    },
+    state: function () {
+      var vis = [], on = -1, n;
+      for (n = 0; n < thumbs.length; n++) if (!thumbs[n].hidden) { vis.push(n); if (thumbs[n].classList.contains("is-on")) on = vis.length - 1; }
+      return { si: si, i: idx, title: titleEl.textContent,
+               sectionLead: document.querySelector('#photography .sect__lead').textContent,
+               indicator: indEl.textContent, counter: counter.textContent,
+               pill: { text: pill.textContent.trim(), dir: pill.getAttribute("data-dir") },
+               thumbs: { shown: vis.length, active: on }, slide: slideInfo(),
+               changes: changes, serChanges: serChanges, at: lastAt,
+               anim: frame.className, revealed: shown, revealedAt: shownAt };
+    },
+    loaded: function () {
+      var a = [];
+      for (var n = 0; n < slides.length; n++) a.push({ i: n, s: +slides[n].getAttribute("data-series"),
+        src: slides[n].getAttribute("src"), complete: !!slides[n].getAttribute("src") && slides[n].complete,
+        natural: [slides[n].naturalWidth, slides[n].naturalHeight] });
+      return a;
+    },
+    next: function () { toSlide(1); }, prev: function () { toSlide(-1); },
+    nextSeries: function () { toSeries(1); }, prevSeries: function () { toSeries(-1); },
+    swipe: function (d) { advance(d); },
+    jump: function (n) { jump(n); },
+    ms: { slide: FADE, series: SER },
+    reduced: reduced
+  };
+  window.__photos = {
+    count: slides.length,
+    shots: function () {
+      var a = [];
+      for (var n = 0; n < slides.length; n++) {
+        var el = slides[n], r = el.getBoundingClientRect();
+        a.push({ i: n, series: +el.getAttribute("data-series"), src: el.getAttribute("src"),
+                 full: el.getAttribute("data-full"), natural: [el.naturalWidth, el.naturalHeight],
+                 complete: el.complete, lazy: el.getAttribute("loading"),
+                 "in": el.classList.contains("is-on"), alt: el.alt,
+                 opacity: +getComputedStyle(el).opacity,
+                 rect: { x: +r.x.toFixed(1), y: +r.y.toFixed(1), w: +r.width.toFixed(1), h: +r.height.toFixed(1) } });
+      }
+      return a;
+    },
+    lightbox: function () {
+      var r = lbImg.getBoundingClientRect();
+      return { hidden: lb.hidden, on: lb.classList.contains("is-on"),
+               opacity: getComputedStyle(lb).opacity, src: lbImg.getAttribute("src"),
+               alt: lbImg.alt, natural: [lbImg.naturalWidth, lbImg.naturalHeight],
+               rect: { x: +r.x.toFixed(1), y: +r.y.toFixed(1), w: +r.width.toFixed(1), h: +r.height.toFixed(1) },
+               focus: document.activeElement ? document.activeElement.id || document.activeElement.className : null };
+    },
+    open: function (n) {
+      var s = +slides[n].getAttribute("data-series");
+      if (s !== si) toSeries(s - si);
+      paint(s, groups[s].indexOf(slides[n]));
+      open();
+      return n;
+    },
+    close: close,
+    from: function () {
+      var a = [], ls = document.querySelectorAll(".from__line");
+      for (var n = 0; n < ls.length; n++) a.push(ls[n].textContent);
+      return a;
+    },
+    labels: function () {
+      var a = [], ls = document.querySelectorAll(".from__label");
+      for (var n = 0; n < ls.length; n++) a.push(ls[n].textContent);
+      return a;
+    }
+  };
+})();
+</script>
+</body>
+</html>

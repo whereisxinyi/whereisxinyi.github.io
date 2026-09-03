@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Explode · Xinyi</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='1.5' y='1.5' width='61' height='61' rx='14' fill='%23ffffff' stroke='%23dcdad6' stroke-width='2'/><text x='32' y='46' text-anchor='middle' font-family='Fraunces,Georgia,serif' font-size='44' font-weight='600' fill='%23241f1c'>;</text></svg>">
+<meta name="description" content="Explode — an image bursts into fragments, then remembers itself.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens.css?v=20260903">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* the site pointer: a 22x22 pixel arrow, ink on a 1 px near-white outline */
+@media (hover: hover) and (pointer: fine) {
+  html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3C/svg%3E") 1 1, auto; }
+  a, button, [role="button"], input[type="range"], label.btn {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'%3E%3Cpath d='M1 1H3V3H5V5H7V7H9V9H11V11H13V13H15V15H11V21H7V17H5V19H1Z' fill='%23241f1c' stroke='%23f7f8fa' stroke-width='2' paint-order='stroke'/%3E%3Crect x='1' y='3' width='4' height='4' fill='%2387c6f2'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+}
+
+/* ---- pixel glass: the site's one material, copied from styles.css ---- */
+:root {
+  --hero-ground: oklch(98.5% 0.004 240);
+  --hero-glass:  rgba(255, 255, 255, 0.55);
+  --hero-blur:   blur(14px) saturate(130%);
+  --hero-hair:   rgba(36, 31, 28, 0.08);
+  --hero-shadow: 0 8px 30px -22px rgba(36, 31, 28, 0.3);
+  --hero-grid:   rgba(36, 31, 28, 0.035);
+  --card-glass:  rgba(255, 255, 255, 0.5);
+  --card-blur:   blur(12px) saturate(120%);
+  --card-hair:   rgba(36, 31, 28, 0.10);
+  --bar-h:       56px;
+
+  /* colour discipline: ink, cool near-white, orchid blue. nothing warm. */
+  --color-accent: oklch(20% 0.010 60);
+  --color-focus:  oklch(20% 0.010 60);
+  --orchid:       oklch(58% 0.12 250);
+  --faint:        rgba(36, 31, 28, 0.42);
+  --tap: 0px;
+}
+@media (hover: none), (pointer: coarse) { :root { --tap: 44px; } }
+
+html { overflow-x: clip; background: var(--hero-ground); }
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  /* the ground + the static 14 px pixel grid */
+  background-color: var(--hero-ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--hero-grid) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(180deg, var(--hero-grid) 0 1px, transparent 1px 14px);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: #fff; }
+a:focus-visible, button:focus-visible, input:focus-visible, .btn:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* the top bar: full-width glass, ; + Xinyi Zhang on the left, links on the right */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--hero-blur);
+  backdrop-filter: var(--hero-blur);
+  border-bottom: 1px solid var(--hero-hair);
+}
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.topbar__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--card-hair);
+  box-shadow: 0 1px 2px rgba(36, 31, 28, 0.08);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: 18px;
+  line-height: 1;
+  padding-block-end: 5px;                /* optical centring for the semicolon */
+}
+.topbar__name {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-variation-settings: var(--vf-body);
+  font-feature-settings: normal;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.topbar__nav { display: flex; align-items: center; gap: var(--space-2xs); }
+.topbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  padding-inline: var(--space-sm);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.topbar__link:hover { color: var(--color-ink); }
+
+/* ---- shared lab chrome (the same block on all three lab pages) ---- */
+.lab {
+  max-width: 56rem;
+  margin-inline: auto;
+  /* hero-less: the title block starts 56 + 48 px from the top of the page */
+  padding: calc(var(--bar-h) + 48px) max(var(--space-md), env(safe-area-inset-left)) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.head__title {
+  font-family: var(--font-display);
+  font-weight: var(--wght-display);
+  font-variation-settings: var(--vf-display);
+  font-feature-settings: var(--ff-display);
+  font-size: clamp(2.2rem, 7.6vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: var(--track-display);
+  overflow-wrap: anywhere;
+}
+.head__lead { margin-top: var(--space-xs); color: var(--color-ink-2); max-width: 44ch; }
+.head__hint {
+  margin-top: var(--space-xs);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.demo { display: flex; flex-direction: column; gap: var(--space-md); }
+.note {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+
+/* the controls row is a glass bar */
+.ctls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+}
+.ctl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+.ctl__name { white-space: nowrap; }   /* one flex item, so the gap doesn't split the label */
+.ctl b { display: inline-block; font-weight: 400; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+/* Fraunces has no tabular figures (tnum is a no-op), so every live counter
+   gets a fixed cell instead: min-width in ch (the width of a zero, the widest
+   digit) + right alignment, so the number can change without moving anything. */
+#cnt { min-width: 3.3ch; text-align: end; }
+.ctl input[type="range"] {
+  width: 180px;
+  height: max(var(--tap), 28px);
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+.acts { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-inline-start: auto; }
+.btn {
+  position: relative;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(var(--tap), 32px);
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: var(--vf-label);
+  font-feature-settings: normal;
+  letter-spacing: var(--track-label);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid var(--card-hair);
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out),
+              background-color var(--dur-micro) var(--ease-out);
+}
+.btn:hover { border-color: rgba(36, 31, 28, 0.30); }
+.btn--primary {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.btn--primary:hover { background: var(--color-ink-2); border-color: var(--color-ink-2); color: #fff; }
+.btn input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+@media (max-width: 40rem) {
+  .acts { margin-inline-start: 0; }
+  .ctl { width: 100%; }
+  .ctl input[type="range"] { width: 100%; flex: 1 1 auto; min-width: 0; }
+}
+/* ---- end shared lab chrome ---- */
+
+.stage {
+  position: relative;
+  z-index: 1;                     /* mid-burst the fragments cross over the page */
+  /* keep the whole demo, controls included, close to one screen on wide displays */
+  width: min(100%, calc(58dvh * var(--ar, 1.5) + 18px));
+  margin-inline: auto;
+  /* the glass frame: 1 px hairline, radius 8, 8 px of glass around the picture */
+  border: 1px solid var(--card-hair);
+  border-radius: 8px;
+  background: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
+  padding: 8px;
+  line-height: 0;
+  transition: border-color var(--dur-short) var(--ease-out);
+}
+.stage.is-drop { border-color: var(--orchid); }
+/* the frame hugs the picture; the backing canvas is bigger and reaches past it,
+   so at rest only the picture shows and the burst carries fragments onto the ground */
+.stage__box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ar, 1.5);
+  cursor: crosshair;
+  touch-action: manipulation;
+}
+#cv {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  height: auto;
+  pointer-events: none;           /* the overhang must not swallow clicks meant for the page */
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../../index.html" aria-label="Xinyi Zhang — home">
+    <span class="topbar__tile" aria-hidden="true">;</span>
+    <span class="topbar__name">Xinyi Zhang</span>
+  </a>
+  <nav class="topbar__nav" aria-label="Site">
+    <a class="topbar__link" href="../../index.html#index">Work</a>
+    <a class="topbar__link" href="../../about.html">About</a>
+  </nav>
+</header>
+
+<main class="lab">
+  <header>
+    <h1 class="head__title">Explode</h1>
+    <p class="head__lead">An image bursts, then remembers itself.</p>
+    <p class="head__hint">Click or tap — it bursts.</p>
+  </header>
+
+  <section class="demo">
+    <div class="stage" id="stage">
+      <div class="stage__box" id="box">
+        <canvas id="cv" aria-label="Explode canvas — click or tap anywhere to burst the image"></canvas>
+      </div>
+    </div>
+
+    <div class="ctls">
+      <label class="btn btn--primary">Upload Image<input type="file" id="file" accept="image/*" aria-label="Upload an image"></label>
+      <label class="ctl"><span class="ctl__name">Fragments&nbsp;<b id="cnt">368</b></span>
+        <input type="range" id="frags" min="200" max="600" step="20" value="360" aria-label="Fragment count">
+      </label>
+      <div class="acts">
+        <button class="btn" type="button" id="boom">Explode</button>
+        <a class="btn" id="dl" download="explode.png" href="#">Download PNG</a>
+      </div>
+    </div>
+
+    <p class="note" id="note">Drawing the sample…</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var PAPER = '#fefdfa';
+  var MAXEDGE = 1200;
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d');
+  var src = document.createElement('canvas');
+  var sctx = src.getContext('2d');
+  var slider = document.getElementById('frags');
+  var cnt = document.getElementById('cnt');
+  var dl = document.getElementById('dl');
+  var stage = document.getElementById('stage');
+  var box = document.getElementById('box');
+  var note = document.getElementById('note');
+  var label = 'sample image';
+  function capf(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var T_OUT = RM ? 260 : 620;
+  var T_BACK = RM ? 700 : 1750;
+  var WAVE = RM ? 40 : 90;
+
+  var frags = [];
+  var pad = 0;
+  var raf = 0;
+  var t0 = 0;
+  var animating = false;
+  var dlUrl = null;
+  var dlTimer = 0;
+  var lastBlob = 0;
+
+  // ---- deterministic prng -------------------------------------------------
+  function mk(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  // ---- built-in sample image (900x600, drawn procedurally) ----------------
+  /* Explode's own picture — a cool pixel-grid still life.
+     Drawn on a 150x100 block grid and blown back up nearest-neighbour to
+     900x600: cool near-white ground, three overlapping translucent blue
+     shapes with 1-block ink outlines, one hairline horizon, a few 3-block
+     ink dots. Ink + orchid blue only; nothing warm anywhere. */
+  function sample() {
+    var W = 900, H = 600, CELL = 6, GW = W / CELL, GH = H / CELL;   /* 150 x 100 blocks */
+    var INK = '#12171b';                                            /* oklch(20% .012 250) */
+    var BLUE = '60,126,190';                                        /* oklch(58% .12 250) */
+    var lo = document.createElement('canvas');
+    lo.width = GW; lo.height = GH;
+    var g = lo.getContext('2d');
+
+    /* the ground: cool near-white cooling and deepening downwards */
+    var gr = g.createLinearGradient(0, 0, 0, GH);
+    gr.addColorStop(0, '#f8fafd');
+    gr.addColorStop(0.68, '#eef2f7');
+    gr.addColorStop(1, '#e2e9f0');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, GW, GH);
+
+    /* a faint blue register grid, one block every ten */
+    g.fillStyle = 'rgba(' + BLUE + ',0.13)';
+    for (var gy = 5; gy < GH; gy += 10) for (var gx = 5; gx < GW; gx += 10) g.fillRect(gx, gy, 1, 1);
+
+    /* the horizon: one block high, edge to edge */
+    var HZ = 58;
+    g.fillStyle = INK;
+    g.fillRect(0, HZ, GW, 1);
+
+    /* three overlapping shapes. each is filled at its own alpha, then outlined
+       with exactly one block of ink, so the overlaps stay legible. */
+    function paint(inside, alpha) {
+      var x, y, m = [];
+      for (y = 0; y < GH; y++) { m[y] = []; for (x = 0; x < GW; x++) m[y][x] = inside(x, y) ? 1 : 0; }
+      g.fillStyle = 'rgba(' + BLUE + ',' + alpha + ')';
+      for (y = 0; y < GH; y++) {
+        var run = -1;
+        for (x = 0; x <= GW; x++) {
+          if (x < GW && m[y][x]) { if (run < 0) run = x; }
+          else if (run >= 0) { g.fillRect(run, y, x - run, 1); run = -1; }
+        }
+      }
+      g.fillStyle = INK;
+      for (y = 0; y < GH; y++) for (x = 0; x < GW; x++) {
+        if (!m[y][x]) continue;
+        var edge = !m[y][x - 1] || !m[y][x + 1] || !(m[y - 1] && m[y - 1][x]) || !(m[y + 1] && m[y + 1][x]);
+        if (edge) g.fillRect(x, y, 1, 1);
+      }
+    }
+    function box(x0, y0, w, h) { return function (x, y) { return x >= x0 && x < x0 + w && y >= y0 && y < y0 + h; }; }
+    function disc(cx, cy, r) {
+      return function (x, y) { var dx = x + 0.5 - cx, dy = y + 0.5 - cy; return dx * dx + dy * dy <= r * r; };
+    }
+    paint(box(20, 22, 40, 40), 0.35);      /* left square */
+    paint(disc(70, 45, 22), 0.50);         /* the circle it leans on */
+    paint(box(84, 34, 38, 38), 0.35);      /* right square, standing across the horizon */
+
+    /* a few 3-block ink dots, the punctuation of the plate */
+    g.fillStyle = INK;
+    var dots = [[32, 80], [45, 85], [58, 79], [112, 84], [126, 79], [138, 88], [14, 12], [134, 15]];
+    for (var d = 0; d < dots.length; d++) g.fillRect(dots[d][0], dots[d][1], 3, 3);
+
+    /* blow the block grid back up, nearest neighbour */
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var x2 = c.getContext('2d');
+    x2.imageSmoothingEnabled = false;
+    x2.drawImage(lo, 0, 0, W, H);
+    return c;
+  }
+
+  // ---- image intake -------------------------------------------------------
+  function setImage(img, iw, ih) {
+    var sc = Math.min(1, MAXEDGE / Math.max(iw, ih));
+    var w = Math.max(1, Math.round(iw * sc));
+    var h = Math.max(1, Math.round(ih * sc));
+    src.width = w; src.height = h;
+    sctx.clearRect(0, 0, w, h);
+    sctx.drawImage(img, 0, 0, w, h);
+    pad = Math.round(Math.max(w, h) * 0.14);
+    cv.width = w + pad * 2;
+    cv.height = h + pad * 2;
+    fit();
+    build();
+  }
+
+  // the frame follows the picture; the canvas is scaled past it by the same pad it carries
+  function fit() {
+    stage.style.setProperty('--ar', (src.width / src.height).toFixed(4));
+    cv.style.width = (cv.width / src.width * 100).toFixed(4) + '%';
+  }
+
+  function fromFile(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    var url = URL.createObjectURL(file);
+    var im = new Image();
+    im.onload = function () {
+      label = 'your image';
+      setImage(im, im.naturalWidth, im.naturalHeight);
+      URL.revokeObjectURL(url);
+    };
+    im.onerror = function () { URL.revokeObjectURL(url); };
+    im.src = url;
+  }
+
+  // ---- fragments ----------------------------------------------------------
+  function build() {
+    var w = src.width, h = src.height;
+    var want = +slider.value;
+    var cols = Math.max(2, Math.round(Math.sqrt(want * (w / h))));
+    var rows = Math.max(2, Math.round(want / cols));
+    var fw = w / cols, fh = h / rows;
+    var r = mk(9137 + cols * 131 + rows);
+    frags = [];
+    for (var y = 0; y < rows; y++) {
+      for (var x = 0; x < cols; x++) {
+        frags.push({
+          sx: x * fw, sy: y * fh, sw: fw, sh: fh,
+          cx: pad + x * fw + fw / 2,
+          cy: pad + y * fh + fh / 2,
+          j1: r(), j2: r(), j3: r(),
+          ox: 0, oy: 0, rot: 0,
+          ax: 0, ay: 0, ar: 0, delay: 0
+        });
+      }
+    }
+    cnt.textContent = frags.length;
+    note.textContent = capf(label) + ' · ' + frags.length + ' fragments';
+    draw();
+    queueBlob(true);
+  }
+
+  // ---- burst --------------------------------------------------------------
+  function burst(px, py) {
+    // a shove away from the click plus a dilation that grows with distance.
+    // travel is budgeted against the frame padding, so at peak spread the
+    // fragments stay inside the canvas instead of clipping at the edge.
+    var i, f, dx, dy, d;
+    var far = 1;
+    for (i = 0; i < frags.length; i++) {
+      d = Math.hypot(frags[i].cx - px, frags[i].cy - py);
+      if (d > far) far = d;
+    }
+    var budget = pad * 0.68;          // jitter can add ~25% on top of this
+    for (i = 0; i < frags.length; i++) {
+      f = frags[i];
+      dx = f.cx - px; dy = f.cy - py;
+      d = Math.hypot(dx, dy);
+      if (d < 0.001) { dx = f.j1 - 0.5; dy = f.j2 - 0.5; d = Math.hypot(dx, dy) || 1; }
+      var amp = budget * (0.34 + 0.66 * (d / far)) * (0.8 + f.j1 * 0.45);
+      f.ax = (dx / d) * amp + (f.j2 - 0.5) * budget * 0.16;
+      f.ay = (dy / d) * amp + (f.j3 - 0.5) * budget * 0.16;
+      f.ar = (f.j3 - 0.5) * 2.2;
+      f.delay = Math.min(1, d / far) * WAVE;
+    }
+    t0 = performance.now();
+    if (!animating) { animating = true; raf = requestAnimationFrame(tick); }
+  }
+
+  function wave(t) {
+    if (t <= 0) return 0;
+    if (t < T_OUT) {
+      var p = t / T_OUT;
+      return 1 - Math.pow(1 - p, 3);
+    }
+    var u = (t - T_OUT) / T_BACK;
+    if (u >= 1) return 0;
+    return (1 - u) * Math.exp(-4 * u) * Math.cos(5.5 * u);
+  }
+
+  function tick(now) {
+    var t = now - t0;
+    var live = false;
+    for (var i = 0; i < frags.length; i++) {
+      var f = frags[i];
+      var lt = t - f.delay;
+      var v = wave(lt);
+      if (lt < T_OUT + T_BACK) live = true;
+      f.ox = f.ax * v; f.oy = f.ay * v; f.rot = f.ar * v;
+    }
+    draw();
+    if (live) {
+      raf = requestAnimationFrame(tick);
+      if (now - lastBlob > 500) { lastBlob = now; queueBlob(true); }
+    } else {
+      for (var k = 0; k < frags.length; k++) { frags[k].ox = 0; frags[k].oy = 0; frags[k].rot = 0; }
+      draw();
+      animating = false;
+      raf = 0;
+      queueBlob(true);
+    }
+  }
+
+  // ---- render -------------------------------------------------------------
+  function draw() {
+    // transparent outside the fragments: at rest the pad falls on the frame's own
+    // paper and the 1px ink border stays visible underneath the canvas
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (var i = 0; i < frags.length; i++) {
+      var f = frags[i];
+      var dw = f.sw + 0.8, dh = f.sh + 0.8;
+      if (f.rot === 0 && f.ox === 0 && f.oy === 0) {
+        ctx.drawImage(src, f.sx, f.sy, f.sw, f.sh, f.cx - dw / 2, f.cy - dh / 2, dw, dh);
+      } else {
+        ctx.save();
+        ctx.translate(f.cx + f.ox, f.cy + f.oy);
+        ctx.rotate(f.rot);
+        ctx.drawImage(src, f.sx, f.sy, f.sw, f.sh, -dw / 2, -dh / 2, dw, dh);
+        ctx.restore();
+      }
+    }
+  }
+
+  // ---- download -----------------------------------------------------------
+  // at rest the PNG is the picture at source resolution; mid-burst it keeps the
+  // pad, so the fragments that flew past the frame are still in the frame-grab
+  function shot() {
+    var out = document.createElement('canvas');
+    var g, w, h;
+    if (animating) {
+      out.width = cv.width; out.height = cv.height;
+      g = out.getContext('2d');
+      g.fillStyle = PAPER; g.fillRect(0, 0, out.width, out.height);
+      g.drawImage(cv, 0, 0);
+    } else {
+      w = src.width; h = src.height;
+      out.width = w; out.height = h;
+      g = out.getContext('2d');
+      g.fillStyle = PAPER; g.fillRect(0, 0, w, h);
+      g.drawImage(cv, pad, pad, w, h, 0, 0, w, h);
+    }
+    return out;
+  }
+
+  function queueBlob(now) {
+    clearTimeout(dlTimer);
+    dlTimer = setTimeout(function () {
+      var out = shot();
+      if (!out.toBlob) return;
+      out.toBlob(function (b) {
+        if (!b) return;
+        var u = URL.createObjectURL(b);
+        if (dlUrl) URL.revokeObjectURL(dlUrl);
+        dlUrl = u;
+        dl.href = u;
+      }, 'image/png');
+    }, now ? 0 : 120);
+  }
+
+  // ---- events -------------------------------------------------------------
+  box.addEventListener('pointerdown', function (e) {
+    var r = cv.getBoundingClientRect();
+    burst((e.clientX - r.left) * (cv.width / r.width), (e.clientY - r.top) * (cv.height / r.height));
+  });
+  document.getElementById('boom').addEventListener('click', function () {
+    burst(cv.width * 0.5, cv.height * 0.5);
+  });
+  slider.addEventListener('input', function () {
+    cnt.textContent = slider.value;
+    build();
+  });
+  document.getElementById('file').addEventListener('change', function (e) {
+    if (e.target.files && e.target.files[0]) fromFile(e.target.files[0]);
+  });
+  ['dragenter', 'dragover'].forEach(function (n) {
+    stage.addEventListener(n, function (e) { e.preventDefault(); stage.classList.add('is-drop'); });
+  });
+  ['dragleave', 'drop'].forEach(function (n) {
+    stage.addEventListener(n, function () { stage.classList.remove('is-drop'); });
+  });
+  stage.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) fromFile(e.dataTransfer.files[0]);
+  });
+  window.addEventListener('resize', fit);
+  window.addEventListener('paste', function (e) {
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf('image/') === 0) {
+        fromFile(items[i].getAsFile());
+        break;
+      }
+    }
+  });
+
+  // ---- boot ---------------------------------------------------------------
+  var s = sample();
+  setImage(s, s.width, s.height);
+
+  // test hooks (read-only, for the local probe)
+  window.__lab = {
+    count: function () { return frags.length; },
+    animating: function () { return animating; },
+    pos: function (n) {
+      var out = [];
+      var step = Math.max(1, Math.floor(frags.length / (n || 4)));
+      for (var i = 0; i < frags.length && out.length < (n || 4); i += step) {
+        out.push({
+          i: i,
+          x: +frags[i].ox.toFixed(2),
+          y: +frags[i].oy.toFixed(2),
+          r: +frags[i].rot.toFixed(3)
+        });
+      }
+      return out;
+    },
+    sum: function () {
+      var d = ctx.getImageData(0, 0, cv.width, cv.height).data, s = 0;
+      for (var i = 0; i < d.length; i += 401) s = (s + d[i] * (i % 7 + 1)) % 4294967291;
+      return s;
+    },
+    size: function () { return [cv.width, cv.height]; },
+    // fraction of fragments whose rotated box stays inside the canvas at peak spread
+    peakFit: function () {
+      var inside = 0;
+      for (var i = 0; i < frags.length; i++) {
+        var f = frags[i];
+        var dw = f.sw + 0.8, dh = f.sh + 0.8;
+        var ca = Math.abs(Math.cos(f.ar)), sa = Math.abs(Math.sin(f.ar));
+        var ex = (dw * ca + dh * sa) / 2, ey = (dw * sa + dh * ca) / 2;
+        var x = f.cx + f.ax, y = f.cy + f.ay;
+        if (x - ex >= 0 && x + ex <= cv.width && y - ey >= 0 && y + ey <= cv.height) inside++;
+      }
+      return frags.length ? inside / frags.length : 0;
+    }
+  };
+})();
+</script>
+</body>
+</html>
