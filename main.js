@@ -271,7 +271,7 @@
     var PETAL = [5, 6, 54, 50], PETAL_SCALE = 0.5;  /* a whole FRONT bloom, half the branch scale — blooms fall, not petals */
     var BUD = [137, 12, 9, 19];                      /* the tip bud and its pedicel   */
     var BUD_AX = 144, BUD_AY = 12;                   /* … where they leave the stem   */
-    var PETAL_EVERY = 2000, PETAL_JIT = 1500, PETAL_LIFE = 4500, PETAL_FADE = 3500;  /* 2–4 in the air, readable to the end */
+    var PETAL_EVERY = 2600, PETAL_JIT = 1800, PETAL_LIFE = 4500, PETAL_FADE = 3000;  /* 2–4 in the air, readable to the end */
     var FAR_HOLD = 12000, FAR_FADE = 2000;           /* the one far bloom, 12 s       */
     var FAR_FIRST = 12000, FAR_EVERY = 20000, FAR_JIT = 10000;
     var CLICK_HOLD = 1000, CLICK_FADE = 3000;        /* open, wait 1 s, fade over 3 s */
@@ -589,24 +589,42 @@
       for (var i = 0; i < stamps.length; i++) if (stamps[i].far && !stamps[i].dead) n++;
       return n;
     };
-    /* one petal lets go of one open bloom and falls down-left at 20 – 30 px/s */
+    /* loose blooms: they appear in the blank left of the branch, scattered, and drift down
+       slowly until they reach the plate, where they fade */
     var petal = function (still) {
       var s = theBranch();
       if (!s || petalsUp() >= (narrow() ? 2 : 4)) return;
-      var open = [], k;
-      for (k = 0; k < SP.sb.length; k++) if (s.frames[k] >= 5) open.push(k);
-      if (!open.length) return;
-      var b = SP.sb[open[(Math.random() * open.length) | 0]];
-      var p = cellAt(s, b.x + b.w * 0.28, b.y + b.h * 0.55, s.rot);
-      var sp = 20 + Math.random() * 10, th = (25 + Math.random() * 20) * RAD;
-      var pz = Math.max(1, Math.floor(s.z * PETAL_SCALE));   /* whole blocks, ≤ 0.6 × */
-      return push({ kind: "petal", x: p[0], y: p[1], z: s.z, pz: pz,
-                    w: PETAL[2] * pz, h: PETAL[3] * pz,
-                    vx: still ? 0 : -sp * Math.sin(th), vy: still ? 0 : sp * Math.cos(th),
-                    speed: still ? 0 : sp, px: p[0], py: p[1],
+      var q = branchBox(s, s.rot), ko = keepOut(), i;
+      var pz = Math.max(1, Math.floor(s.z * PETAL_SCALE));
+      if (!narrow() && Math.random() < 0.5) pz = Math.max(1, pz - 1);   /* two sizes on desktop */
+      var w = PETAL[2] * pz, h = PETAL[3] * pz;
+      var xMax = Math.min(q[0] - w / 2 - 16, FW * 0.5), xMin = 16 + w / 2;
+      if (xMax < xMin) xMax = Math.max(xMin, FW * 0.42);
+      var plateTop = FH, barBot = 0;
+      for (i = 0; i < ko.length; i++) { if (ko[i][1] > FH * 0.4) plateTop = Math.min(plateTop, ko[i][1]); else barBot = Math.max(barBot, ko[i][3]); }
+      var sp = 22 + Math.random() * 12;
+      /* scatter: spread across the blank band, start heights staggered, never on top of another loose bloom */
+      var x = xMin, y0 = barBot - h / 2 - 8, tries = 24, ok = false, j;
+      while (tries-- > 0 && !ok) {
+        x = xMin + Math.random() * (xMax - xMin);
+        y0 = still ? barBot + h / 2 + Math.random() * Math.max(40, plateTop - barBot - h)
+                   : (Math.random() < 0.5 ? barBot - h / 2 - 8 : barBot + h + Math.random() * Math.max(40, (plateTop - barBot) * 0.5 - h));
+        ok = true;
+        for (j = 0; j < stamps.length; j++) {
+          var o = stamps[j];
+          if (o.kind !== "petal" || o.dead) continue;
+          if (Math.abs(o.px - x) < (o.w + w) * 0.62 && Math.abs(o.py - y0) < (o.h + h) * 0.7) { ok = false; break; }
+        }
+      }
+      if (!ok) return;
+      var dist = Math.max(60, plateTop - 12 - h / 2 - y0);
+      var life = still ? 1e9 : Math.max(1500, (dist / sp) * 1000 - PETAL_FADE);
+      return push({ kind: "petal", x: x, y: y0, z: s.z, pz: pz, w: w, h: h,
+                    vx: still ? 0 : (Math.random() - 0.5) * 8, vy: still ? 0 : sp,
+                    speed: still ? 0 : sp, px: x, py: y0,
                     ph: Math.random() * 6.2832, step: STEP,
                     t0: performance.now(), click: false, dead: 0, alpha: 1, frame: 5,
-                    life: still ? 1e9 : PETAL_LIFE, fade: PETAL_FADE });
+                    life: life, fade: PETAL_FADE });
     };
 
     /* ---------- input: a click stamps, a drag does nothing ---------- */
