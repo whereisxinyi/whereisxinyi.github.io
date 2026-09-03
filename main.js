@@ -290,7 +290,7 @@
     };
     var BROT = function () { return narrow() ? 108 : 180; };
     var BRBASE = function () {
-      return narrow() ? [0.75 * FW, 0.16 * FH] : [0.88 * FW, 0.18 * FH];
+      return narrow() ? [0.75 * FW, 0.16 * FH] : [FW + 2, 0.18 * FH];   /* desktop: the root sits in the right wall */
     };
 
     /* six opening frames at 90 ms, then a two-frame breath every 1.6 s */
@@ -568,7 +568,7 @@
                 life: 1e9, fade: 1000 };
       var q = branchBox(s, rot);                     /* keep every petal on the sheet */
       if (q[0] < 4) s.x += 4 - q[0];
-      if (q[2] > FW - 4) s.x -= q[2] - (FW - 4);
+      if (narrow() && q[2] > FW - 4) s.x -= q[2] - (FW - 4);   /* desktop may run off the right edge: it grows out of the wall */
       if (q[1] < 4) s.y += 4 - q[1];
       if (q[3] > FH - 4) s.y -= q[3] - (FH - 4);
       branchAt = performance.now() - T0;
